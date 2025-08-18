@@ -7,20 +7,21 @@ It’s designed for couples and families who want a fun, low-friction way to pla
 
 ## 🚀 Tech Stack
 
-- **Frontend:** [Next.js 14](https://nextjs.org/) + React + TypeScript  
-- **State Management:** Apollo Client + React state  
-- **Backend / Auth / Database:** [Supabase](https://supabase.com/)  
-- **API Layer:** GraphQL (Supabase auto-generated)  
-- **Styling:** TailwindCSS  
-- **Deployment:** Vercel (default) / Render / AWS (TBD)  
-- **Linting & Formatting:** ESLint + Prettier  
-- **CI/CD:** GitHub Actions  
+- **Frontend:** [Next.js 14](https://nextjs.org/) + React + TypeScript
+- **State Management:** Apollo Client + React state
+- **Backend / Auth / Database:** [Supabase](https://supabase.com/)
+- **API Layer:** GraphQL (Supabase auto-generated)
+- **Styling:** TailwindCSS
+- **Deployment:** Vercel (default) / Render / AWS (TBD)
+- **Linting & Formatting:** ESLint + Prettier
+- **CI/CD:** GitHub Actions
 
 ---
 
 ## 🛠️ Development
 
 ### Prerequisites
+
 - Node.js (v18+)
 - npm (v9+) or yarn/pnpm
 
@@ -43,6 +44,7 @@ npm run typecheck
 The app will be available at http://localhost:3000.
 
 ```
+
 ---
 
 ## Testing

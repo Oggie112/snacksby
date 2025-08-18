@@ -1,11 +1,13 @@
 # Snacksby MVP Quick Reference
 
 ## **Core Goal**
+
 Collaborative meal planning & unified shopping list for households — simple, offline-capable, mobile-first.
 
 ---
 
 ## **Must-Have Features**
+
 1. **User Accounts**
    - Supabase auth (email/password)
    - Household creation & join via invite link/code
@@ -37,6 +39,7 @@ Collaborative meal planning & unified shopping list for households — simple, o
 ---
 
 ## **Technical Stack**
+
 - **Frontend**: TypeScript, React, TailwindCSS + DaisyUI
 - **Backend**: Supabase (Postgres)
 - **API**: GraphQL
@@ -46,6 +49,7 @@ Collaborative meal planning & unified shopping list for households — simple, o
 ---
 
 ## **Constraints**
+
 - Budget: £0/month, free tiers only
 - Platforms: Mobile PWA, desktop browser
 - No ratings, social feed, or AI for MVP
@@ -55,6 +59,7 @@ Collaborative meal planning & unified shopping list for households — simple, o
 ---
 
 ## **Flow Overview**
+
 1. **Login** → **Create/Join Household**
 2. **Add Recipes** (Leader/Contributor)
 3. **Generate Plan** (manual or suggestion)
@@ -65,6 +70,7 @@ Collaborative meal planning & unified shopping list for households — simple, o
 ---
 
 ## **Post-MVP Ideas**
+
 - AI recipe search (“spicy chicken” → results)
 - Voice assistant integration
 - Barcode scanning
