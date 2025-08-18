@@ -8,8 +8,8 @@ jobs:
   typescript-check:
     runs-on: ubuntu-latest
     env:
-      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
-      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+      PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
     steps:
       - uses: actions/checkout@v3
@@ -18,4 +18,4 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm run check
+      - run: npm run types
