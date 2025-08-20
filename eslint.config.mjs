@@ -25,6 +25,13 @@ const eslintConfig = [
       '@typescript-eslint': tseslint,
       'jsx-a11y': jsxA11y,
     },
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname,
+        sourceType: 'module',
+      },
+    },
     rules: {
       'prettier/prettier': 'error',
       'import/order': [

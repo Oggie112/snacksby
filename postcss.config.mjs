@@ -2,9 +2,9 @@
 const config = {
   plugins: [
     'postcss-import',
-    '@tailwindcss/postcss',               
-    'autoprefixer',               
-    ['cssnano', { preset: 'default' }], 
+    '@tailwindcss/postcss',
+    'autoprefixer',
+    ['cssnano', { preset: 'default' }],
   ],
 }
 

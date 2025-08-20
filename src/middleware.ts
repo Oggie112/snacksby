@@ -1,5 +1,5 @@
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr';
 
 /**
  * Next.js Middleware for authentication and routing.
@@ -10,7 +10,7 @@ import { createServerClient } from '@supabase/ssr';
  * @returns A NextResponse object, either redirecting or allowing the request to proceed.
  */
 export async function middleware(request: NextRequest) {
-    console.log('--- Middleware triggered ---')
+  console.log('--- Middleware triggered ---')
   console.log('Path:', request.nextUrl.pathname)
 
   const pathname = request.nextUrl.pathname
@@ -36,22 +36,21 @@ export async function middleware(request: NextRequest) {
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_ANON_KEY!,
     {
-      cookies: request.cookies, 
-    }
+      cookies: request.cookies,
+    },
   )
-    const { data: { session }} = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
 
-    if (!session) {
-        return NextResponse.redirect(new URL('/auth/login', request.url))
-    }
+  if (!session) {
+    return NextResponse.redirect(new URL('/auth/login', request.url))
+  }
 
-    return NextResponse.next()
-
+  return NextResponse.next()
 }
 
 export const config = {
   // Match all request paths except for _next/static, _next/image, favicon.ico, and assets.
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|assets).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets).*)'],
 }

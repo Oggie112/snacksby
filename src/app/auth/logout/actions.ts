@@ -1,10 +1,9 @@
 'use server'
 
-import { serverClient } from '@/lib/supabase/server'
-
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
-import { revalidatePath } from 'next/cache'
+import { serverClient } from '@/lib/supabase/server'
 
 /**
  * Handles user logout by signing out from Supabase.
@@ -12,14 +11,14 @@ import { revalidatePath } from 'next/cache'
  * @throws {Error} If the logout process fails.
  */
 export async function logout() {
-    const supabase = await serverClient()
-    
-    const { error } = await supabase.auth.signOut()
+  const supabase = await serverClient()
 
-    if (error) {
-        throw new Error('Logout failed: ' + error.message)
-    } else {
-        revalidatePath('/')
-        redirect('/')
-    }
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    throw new Error('Logout failed: ' + error.message)
+  } else {
+    revalidatePath('/')
+    redirect('/')
+  }
 }

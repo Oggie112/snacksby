@@ -1,16 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useActionState, useEffect } from 'react'
 
 import { signUpUser } from './actions'
-
-import { useActionState, useEffect } from 'react'
 
 export default function SignupPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState<string | null>(null)
-  const [actionState, action] = useActionState(signUpUser, { error: '', resetPasswords: false })
+  const [actionState, action] = useActionState(signUpUser, {
+    error: '',
+    resetPasswords: false,
+  })
 
   useEffect(() => {
     if (actionState.resetPasswords) {
@@ -44,7 +45,7 @@ export default function SignupPage() {
         <input
           id="email"
           type="email"
-          name='email'
+          name="email"
           placeholder="Email"
           required
         />
@@ -53,7 +54,7 @@ export default function SignupPage() {
           id="displayName"
           type="text"
           placeholder="Display Name"
-          name='displayName'
+          name="displayName"
           required
         />
         <label htmlFor="password">Password</label>
@@ -61,7 +62,7 @@ export default function SignupPage() {
           id="password"
           type="password"
           placeholder="Password"
-          name='password'
+          name="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onBlur={validatePassword}
@@ -72,13 +73,15 @@ export default function SignupPage() {
           id="confirmPassword"
           type="password"
           placeholder="Confirm Password"
-          name='confirmPassword'
+          name="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           onBlur={validatePassword}
           required
         />
-        <button type="submit" disabled={!validatePassword}>Sign Up</button>
+        <button type="submit" disabled={!validatePassword}>
+          Sign Up
+        </button>
       </form>
       {passwordError && <p className="error">{passwordError}</p>}
       {actionState.error && <p className="error">{actionState.error}</p>}
