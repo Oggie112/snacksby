@@ -1,16 +1,10 @@
-import tailwindcss from '@tailwindcss/postcss'
-import autoprefixer from 'autoprefixer'
-import cssnano from 'cssnano'
-import postcssImport from 'postcss-import'
-
+/** @type {import('postcss').Config} */
 const config = {
   plugins: [
-    postcssImport,
-    tailwindcss,
-    autoprefixer,
-    cssnano({
-      preset: 'default',
-    }),
+    'postcss-import',
+    '@tailwindcss/postcss',               
+    'autoprefixer',               
+    ['cssnano', { preset: 'default' }], 
   ],
 }
 
