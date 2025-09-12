@@ -31,23 +31,34 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  const response = NextResponse.next({ request })
+
   // cookies available in this request
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
     process.env.SUPABASE_ANON_KEY!,
     {
-      cookies: request.cookies,
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
     },
   )
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  if (!session) {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+  if (error || !user) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
