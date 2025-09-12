@@ -10,7 +10,10 @@ interface SessionContextType {
   isAuthenticated?: boolean
 }
 
-const SessionContext = createContext<SessionContextType>({ session: null, user: null })
+const SessionContext = createContext<SessionContextType>({
+  session: null,
+  user: null,
+})
 
 export const useUserAndSession = () => {
   const ctx = useContext(SessionContext)
@@ -22,7 +25,7 @@ export const useUserAndSession = () => {
 
 interface Props {
   children: ReactNode
-  session: Session | null,
+  session: Session | null
   user: User | null
 }
 

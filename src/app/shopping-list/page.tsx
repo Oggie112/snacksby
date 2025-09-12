@@ -3,14 +3,19 @@
 import { useState, useRef } from 'react'
 
 export default function ShoppingListPage() {
-  const [items, setItems] = useState<{ id: string, text: string, done: boolean }[]>([])
-  const [newItem, setNewItem] = useState("")
+  const [items, setItems] = useState<
+    { id: string; text: string; done: boolean }[]
+  >([])
+  const [newItem, setNewItem] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
   const addItem = () => {
     if (!newItem.trim()) return
-    setItems([...items, { id: crypto.randomUUID(), text: newItem.trim(), done: false }])
-    setNewItem("")
+    setItems([
+      ...items,
+      { id: crypto.randomUUID(), text: newItem.trim(), done: false },
+    ])
+    setNewItem('')
     inputRef.current?.focus()
   }
 
@@ -22,19 +27,24 @@ export default function ShoppingListPage() {
         <p className="text-info">Your shopping list is empty.</p>
       ) : (
         <ul className="list-disc list-inside">
-          {items.map(item => (
+          {items.map((item) => (
             <li key={item.id}>
               <input
                 type="checkbox"
                 id={item.id}
                 checked={item.done}
                 onChange={() =>
-                  setItems(items.map(i =>
-                    i.id === item.id ? { ...i, done: !i.done } : i
-                  ))
+                  setItems(
+                    items.map((i) =>
+                      i.id === item.id ? { ...i, done: !i.done } : i,
+                    ),
+                  )
                 }
               />
-              <label htmlFor={item.id} className={`ml-2 ${item.done ? 'line-through' : ''}`}>
+              <label
+                htmlFor={item.id}
+                className={`ml-2 ${item.done ? 'line-through' : ''}`}
+              >
                 {item.text}
               </label>
             </li>
@@ -57,7 +67,9 @@ export default function ShoppingListPage() {
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
         />
-        <button type="submit" className="btn btn-primary">Add</button>
+        <button type="submit" className="btn btn-primary">
+          Add
+        </button>
       </form>
     </div>
   )

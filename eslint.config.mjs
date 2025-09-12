@@ -1,12 +1,12 @@
 // Flat config for Next.js + TypeScript + React + Prettier
-import js from '@eslint/js';
-import tseslint from 'typescript-eslint';             // aggregator (parser + plugin + presets)
-import next from '@next/eslint-plugin-next';
-import react from 'eslint-plugin-react';
-import reactHooks from 'eslint-plugin-react-hooks';
-import importPlugin from 'eslint-plugin-import';
-import jsxA11y from 'eslint-plugin-jsx-a11y';
-import prettier from 'eslint-plugin-prettier';
+import js from '@eslint/js'
+import tseslint from 'typescript-eslint' // aggregator (parser + plugin + presets)
+import next from '@next/eslint-plugin-next'
+import react from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
+import importPlugin from 'eslint-plugin-import'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
+import prettier from 'eslint-plugin-prettier'
 
 export default tseslint.config(
   // Base JS
@@ -65,18 +65,23 @@ export default tseslint.config(
       // Hooks
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
-      'react/react-in-jsx-scope': 'off', 
+      'react/react-in-jsx-scope': 'off',
 
       // TS strictness
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        { argsIgnorePattern: '^_' },
+      ],
 
       // Imports
       'import/order': [
         'error',
         {
           groups: ['builtin', 'external', 'internal'],
-          pathGroups: [{ pattern: 'react', group: 'external', position: 'before' }],
+          pathGroups: [
+            { pattern: 'react', group: 'external', position: 'before' },
+          ],
           pathGroupsExcludedImportTypes: ['react'],
           'newlines-between': 'always',
           alphabetize: { order: 'asc', caseInsensitive: true },
@@ -86,8 +91,5 @@ export default tseslint.config(
       // Prettier as an ESLint rule
       'prettier/prettier': 'error',
     },
-  }
-);
-
-
-
+  },
+)

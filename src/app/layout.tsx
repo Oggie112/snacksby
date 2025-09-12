@@ -14,14 +14,14 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const {user, session} = await getUserAndSession() // fetch session server-side
+  const { user, session } = await getUserAndSession() // fetch session server-side
 
   return (
-    <html lang="en" data-theme='mytheme-light'>
-      <body className='bg-neutral text-neutral-content flex items-center justify-center min-h-screen'>
+    <html lang="en" data-theme="mytheme-light">
+      <body className="bg-neutral text-neutral-content flex items-center justify-center min-h-screen">
         <SessionProvider user={user} session={session}>
           {children}
-          </SessionProvider>
+        </SessionProvider>
       </body>
     </html>
   )

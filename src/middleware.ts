@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const response = NextResponse.next( { request } )
+  const response = NextResponse.next({ request })
 
   // cookies available in this request
   const supabase = createServerClient(
@@ -48,9 +48,12 @@ export async function middleware(request: NextRequest) {
           })
         },
       },
-    }
+    },
   )
-  const { data: { user }, error } = await supabase.auth.getUser()
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
   if (error || !user) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
