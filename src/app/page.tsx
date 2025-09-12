@@ -1,103 +1,99 @@
-import Image from 'next/image'
+"use client"
 
-export default function Home() {
+import { useState } from "react"
+
+export default function HomePage() {
+  const [search, setSearch] = useState("")
+  const [activeTag, setActiveTag] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'explore' | 'my-recipes'>("explore")
+
+  // mock seed recipes
+  const recipes = [
+    { id: 1, title: "Spaghetti Bolognese", tags: ["pasta", "beef"] },
+    { id: 2, title: "Avocado Toast", tags: ["vegan", "breakfast"] },
+    { id: 3, title: "Chicken Curry", tags: ["spicy", "chicken"] },
+  ]
+
+    const myRecipes = [
+    { id: 1, title: "Carbonara", tags: ["pasta", "beef"] },
+    ]
+  const tags = ["pasta", "beef", "vegan", "breakfast", "spicy", "chicken"]
+
+  // filtering logic
+  const filteredRecipes = recipes.filter((r) => {
+    const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
+    const matchesTag = activeTag ? r.tags.includes(activeTag) : true
+    return matchesSearch && matchesTag
+  })
+
+  const handleTabChange = (tab: 'explore' | 'my-recipes') => {
+    setActiveTab(tab)
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{' '}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="p-4 space-y-4 bg-neutral text-neutral-content">
+      <h1 className="text-2xl font-bold">Recipes</h1>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search recipes..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="input input-bordered w-full"
+      />
+
+      {/* Tag Filters */}
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <button
+            key={tag}
+            className={`badge cursor-pointer ${
+              activeTag === tag
+                ? "badge-primary"
+                : "badge-accent"
+            }`}
+            onClick={() => setActiveTag(activeTag === tag ? null : tag)}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            {tag}
+          </button>
+        ))}
+      </div>
+
+      {/* Tabs (daisyUI) */}
+      <div role="tablist" className="tabs tabs-bordered">
+        <button role="tab" className={`tab ${activeTab === 'explore' ? 'tab-active' : ''} `} onClick={() => handleTabChange('explore')}>
+          Explore
+        </button>
+        <button role="tab" className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''} `} onClick={() => handleTabChange('my-recipes')}>
+          My Recipes
+        </button>
+      </div>
+
+      {/* Recipe List */}
+      <div className='mt-4'>
+        {activeTab === 'explore' && (
+      <div className="grid gap-4">
+        {filteredRecipes.map((recipe) => (
+          <div key={recipe.id} className="card bg-base-100 shadow-md">
+            <div className="card-body">
+              <h2 className="card-title">{recipe.title}</h2>
+              <div className="flex gap-1">
+                {recipe.tags.map((t) => (
+                  <span key={t} className="badge badge-outline">{t}</span>
+                ))}
+              </div>
+              <button className="btn btn-sm btn-accent mt-2">View</button>
+            </div>
+          </div>
+        ))}
+
+        {filteredRecipes.length === 0 && (
+          <p className="text-info">No recipes found.</p>
+        )}
+      </div>
+              )}
+              </div>
+</div>
   )
 }

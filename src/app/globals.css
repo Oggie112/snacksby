@@ -1,26 +1,112 @@
 @import 'tailwindcss';
+@plugin 'daisyui';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@plugin "daisyui/theme" { 
+  name: "mytheme-light";
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Base background & neutrals */
+  --color-base-100: #FFF8F0; /* creamy white background */
+  --color-base-200: #F5EDE5; /* slightly darker cream for surfaces */
+  --color-base-300: #E9DFD6; /* subtle depth layering */
+  --color-base-content: #4A3F35; /* dark brown text */
+
+  /* Brand colors */
+  --color-primary: #F6A6A1; /* pastel coral */
+  --color-primary-content: #4A3F35;
+
+  --color-secondary: #D8BFA6; /* warm beige */
+  --color-secondary-content: #4A3F35;
+
+  --color-accent: #A3D2CA; /* soft mint */
+  --color-accent-content: #4A3F35;
+
+  /* Neutral text/areas */
+  --color-neutral: #FFF8F0;
+  --color-neutral-content: #4A3F35;
+
+  /* Semantic colors (slight brand-friendly variants) */
+  --color-info: #A3D2CA;   /* mint for info */
+  --color-info-content: #4A3F35;
+
+  --color-success: #88C9A1; /* sage green */
+  --color-success-content: #4A3F35;
+
+  --color-warning: #E8C58A; /* beige-gold */
+  --color-warning-content: #4A3F35;
+
+  --color-error: #E28B7B; /* coral-red */
+  --color-error-content: #4A3F35;
+
+  /* Border radius */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* Base sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* Border size */
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@plugin "daisyui/theme" {
+  name: "mytheme-dark";
+  prefersdark: true;
+  color-scheme: dark;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+  /* Base background & neutrals */
+  --color-base-100: #1E1A16; /* espresso brown background */
+  --color-base-200: #2A2420; /* deep mocha surfaces */
+  --color-base-300: #3A322C; /* cocoa brown depth */
+  --color-base-content: #FFF8F0; /* creamy white text */
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Brand colors */
+  --color-primary: #F6A6A1; /* pastel coral */
+  --color-primary-content: #1E1A16; /* dark brown for contrast */
+
+  --color-secondary: #D8BFA6; /* warm beige */
+  --color-secondary-content: #1E1A16;
+
+  --color-accent: #A3D2CA; /* soft mint */
+  --color-accent-content: #1E1A16;
+
+  /* Neutral text/areas */
+  --color-neutral: #1E1A16;
+  --color-neutral-content: #FFF8F0;
+
+  /* Semantic colors */
+  --color-info: #A3D2CA;    /* mint for info */
+  --color-info-content: #1E1A16;
+
+  --color-success: #88C9A1; /* sage green */
+  --color-success-content: #1E1A16;
+
+  --color-warning: #E8C58A; /* beige-gold */
+  --color-warning-content: #1E1A16;
+
+  --color-error: #E28B7B;   /* coral-red */
+  --color-error-content: #1E1A16;
+
+  /* Border radius */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* Base sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+
+  /* Border size */
+  --border: 1px;
+
+  /* Effects */
+  --depth: 1;
+  --noise: 0;
 }
