@@ -8,7 +8,7 @@ import { cookies } from 'next/headers'
  * which can be safely ignored if session refreshing middleware is in place.
  * @returns {SupabaseClient} A Supabase client instance configured for server-side operations.
  */
-export async function serverClient() {
+export const supabaseServer = async function serverClient() {
   const cookieStore = await cookies()
   return createServerClient(
     process.env.SUPABASE_URL!,

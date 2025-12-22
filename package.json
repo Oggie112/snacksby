@@ -12,6 +12,7 @@
     "types": "tsc --noEmit"
   },
   "dependencies": {
+    "@apollo/client": "^4.0.9",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.55.0",
     "autoprefixer": "^10.4.21",
@@ -19,10 +20,12 @@
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "next": "15.4.6",
+    "graphql": "^16.12.0",
+    "next": "^15.5.7",
     "postcss-import": "^16.1.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "rxjs": "^7.8.2",
     "typescript-eslint": "^8.40.0"
   },
   "devDependencies": {

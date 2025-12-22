@@ -1,7 +1,7 @@
-import { serverClient } from './server'
+import { supabaseServer } from './server'
 
 export async function getUserAndSession() {
-  const supabase = await serverClient()
+  const supabase = await supabaseServer()
 
   const {
     data: { user },
