@@ -11,14 +11,14 @@ import { serverClient } from '@/lib/supabase/server'
  * @throws {Error} If the logout process fails.
  */
 export async function logout() {
-  const supabase = await serverClient()
+	const supabase = await serverClient()
 
-  const { error } = await supabase.auth.signOut()
+	const { error } = await supabase.auth.signOut()
 
-  if (error) {
-    throw new Error('Logout failed: ' + error.message)
-  } else {
-    revalidatePath('/')
-    redirect('/')
-  }
+	if (error) {
+		throw new Error('Logout failed: ' + error.message)
+	} else {
+		revalidatePath('/')
+		redirect('/')
+	}
 }

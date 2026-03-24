@@ -2,12 +2,12 @@ import { createBrowserClient } from '@supabase/ssr'
 
 /**
  * Creates and returns a Supabase client for use in the browser.
- * It uses environment variables `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
- * @returns {SupabaseClient} A Supabase client instance.
+ * It uses environment variables `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+ * @returns A Supabase client instance configured for browser use.
  */
-export const supabaseClient = async function browserClient() {
-  return createBrowserClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-  )
+export const supabaseClient = function browserClient() {
+	return createBrowserClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+	)
 }
