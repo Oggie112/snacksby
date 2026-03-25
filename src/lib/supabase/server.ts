@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
@@ -6,30 +6,36 @@ import { cookies } from 'next/headers'
  * It handles cookie management for session authentication.
  * The `setAll` cookie handler includes a `try...catch` block to manage scenarios where it's called from a Server Component,
  * which can be safely ignored if session refreshing middleware is in place.
- * @returns {SupabaseClient} A Supabase client instance configured for server-side operations.
+ * @returns A Supabase client instance configured for server-side operations.
  */
-export async function serverClient() {
-  const cookieStore = await cookies()
-  return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options),
-            )
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
-      },
-    },
-  )
+export const serverClient = async function serverClient() {
+	const cookieStore = await cookies()
+	return createServerClient(
+		process.env.NEXT_PUBLIC_SUPABASE_URL!,
+		process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+		{
+			cookies: {
+				getAll() {
+					return cookieStore.getAll()
+				},
+				setAll(
+					cookiesToSet: {
+						name: string
+						value: string
+						options: CookieOptions
+					}[],
+				) {
+					try {
+						cookiesToSet.forEach(({ name, value, options }) =>
+							cookieStore.set(name, value, options),
+						)
+					} catch {
+						// The `setAll` method was called from a Server Component.
+						// This can be ignored if you have middleware refreshing
+						// user sessions.
+					}
+				},
+			},
+		},
+	)
 }

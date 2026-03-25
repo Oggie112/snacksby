@@ -1,40 +1,46 @@
 {
-  "name": "snacksby",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "lint-fix": "next lint --fix",
-    "prettier": "prettier --write .",
-    "types": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@supabase/ssr": "^0.6.1",
-    "@supabase/supabase-js": "^2.55.0",
-    "autoprefixer": "^10.4.21",
-    "cssnano": "^7.1.0",
-    "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-prettier": "^5.5.4",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "next": "15.4.6",
-    "postcss-import": "^16.1.1",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "typescript-eslint": "^8.40.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "daisyui": "^5.0.50",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+	"name": "snacksby",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint src",
+		"lint-fix": "eslint src --fix",
+		"prettier": "prettier --write .",
+		"types": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@apollo/client": "^4.0.9",
+		"@supabase/ssr": "^0.9.0",
+		"@supabase/supabase-js": "^2.100.0",
+		"graphql": "^16.12.0",
+		"next": "16.2.1",
+		"react": "19.2.4",
+		"react-dom": "19.2.4"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4",
+		"@types/node": "^20",
+		"@types/react": "19.2.14",
+		"@types/react-dom": "19.2.3",
+		"cssnano": "^7.1.0",
+		"daisyui": "^5.0.50",
+		"eslint": "^9",
+		"eslint-config-next": "16.2.1",
+		"eslint-plugin-import": "^2.32.0",
+		"eslint-plugin-jsx-a11y": "^6.10.2",
+		"eslint-plugin-prettier": "^5.5.4",
+		"eslint-plugin-react": "^7.37.5",
+		"eslint-plugin-react-hooks": "^5.2.0",
+		"postcss-import": "^16.1.1",
+		"tailwindcss": "^4",
+		"typescript": "^5",
+		"typescript-eslint": "^8.40.0"
+	},
+	"overrides": {
+		"@types/react": "19.2.14",
+		"@types/react-dom": "19.2.3"
+	}
 }
