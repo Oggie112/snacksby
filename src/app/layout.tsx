@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 
+import { ApolloClientProvider } from '@/components/apollo-provider'
 import { SessionProvider } from '@/components/session-provider'
 import { getUserAndSession } from '@/lib/supabase/session'
 
@@ -20,7 +21,7 @@ export default async function RootLayout({
 		<html lang="en" data-theme="mytheme-light">
 			<body className="bg-neutral text-neutral-content flex items-center justify-center min-h-screen">
 				<SessionProvider user={user} session={session}>
-					{children}
+					<ApolloClientProvider>{children}</ApolloClientProvider>
 				</SessionProvider>
 			</body>
 		</html>

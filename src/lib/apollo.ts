@@ -19,7 +19,6 @@ const authLink = new SetContextLink(async (prevContext) => {
 	return {
 		headers: {
 			...headers,
-			apikey: process.env.SUPABASE_ANON_KEY,
 			Authorization: session?.access_token
 				? `Bearer ${session.access_token}`
 				: '',
