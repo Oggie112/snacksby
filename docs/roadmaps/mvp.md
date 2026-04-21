@@ -4,16 +4,17 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 
 # Snacksby: MVP Roadmap
 
-|           | Status                       | Next Up                 | Blocked           |
-| --------- | ---------------------------- | ----------------------- | ----------------- |
-| **INF**   | Auth + Apollo client done    | Wire ApolloProvider     | —                 |
-| **NAV**   | Not started                  | Navigation component    | —                 |
-| **DB**    | Partial (needs review)       | Schema design + tables  | —                 |
-| **REC**   | Wireframe only (mock data)   | GraphQL queries         | `1INF.7`, `1DB.4` |
-| **HH/RL** | Not started                  | Household creation flow | `1DB.2`           |
-| **PL**    | Not started                  | Weekly calendar view    | `2REC.*`, `3HH.*` |
-| **SH**    | Wireframe only (local state) | DB persistence          | `4PL.2`           |
-| **PWA**   | Not started                  | PWA manifest            | `5SH.2`, `2REC.2` |
+|           | Status                                    | Next Up                        | Blocked           |
+| --------- | ----------------------------------------- | ------------------------------ | ----------------- |
+| **INF**   | Done — Apollo wired, Next.js 16           | App metadata                   | —                 |
+| **NAV**   | Done — mobile bottom bar + desktop top    | Settings page content          | —                 |
+| **SET**   | Stub only                                 | Account + household sections   | `3HH.1`, `3RL.1` |
+| **DB**    | Not started                               | Schema design + tables         | —                 |
+| **REC**   | Wireframe only (mock data, at `/recipes`) | GraphQL queries                | `1DB.4`           |
+| **HH/RL** | Not started                               | Household creation flow        | `1DB.2`           |
+| **PL**    | Stub only                                 | Weekly calendar view           | `2REC.*`, `3HH.*` |
+| **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
+| **PWA**   | Not started                               | PWA manifest                   | `5SH.2`, `2REC.2` |
 
 ---
 
@@ -39,13 +40,14 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 
 <a name="m1-doing"><h4>In Progress (Milestone 1)</h4></a>
 
-- [ ] 1INF.7. Wire `ApolloProvider` into root layout
+_(none)_
 
 <a name="m1-todo"><h4>To Do (Milestone 1)</h4></a>
 
 - [ ] 1INF.8. Update app metadata (title, description, favicon)
-- [ ] 1NAV.1. Build navigation component — bottom bar (mobile) / top bar (desktop)
-- [ ] 1NAV.2. Add nav routes: Home, Recipes, Plan, Shopping List — **depends on 1NAV.1**
+- [ ] 1NAV.3. Avatar/profile nav item — show initials, link to `/settings` — **depends on 1NAV.1**
+- [ ] 1SET.1. Settings page — account section (email, password) — **depends on 1NAV.3**
+- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 1NAV.3, 3HH.1, 3RL.1**
 - [ ] 1DB.1. Design DB schema (households, memberships, recipes, ingredients, meal_plans, shopping_list_items)
 - [ ] 1DB.2. Create Supabase tables and relationships — **depends on 1DB.1**
 - [ ] 1DB.3. Configure Row Level Security (RLS) policies — **depends on 1DB.2**
@@ -57,12 +59,15 @@ _(none)_
 
 <a name="m1-done"><h4>Completed (Milestone 1)</h4></a>
 
-- [x] 1INF.1. Scaffold Next.js 14 app router with TypeScript
+- [x] 1INF.1. Scaffold Next.js 14 app router with TypeScript (upgraded to Next.js 16 + React 19)
 - [x] 1INF.2. Configure TailwindCSS + DaisyUI with custom pastel theme
 - [x] 1INF.3. Supabase auth — login, signup, logout pages with server actions
 - [x] 1INF.4. Auth middleware — protect routes, redirect unauthenticated users
 - [x] 1INF.5. SessionProvider + server-side session fetch in root layout
 - [x] 1INF.6. Configure Apollo Client with Supabase GraphQL auth link
+- [x] 1INF.7. Wire `ApolloProvider` into root layout (fixed v4 import path; removed redundant `apikey` from authLink)
+- [x] 1NAV.1. Build navigation component — bottom bar (mobile) / top bar (desktop)
+- [x] 1NAV.2. Add nav routes: Home (dashboard), Recipes, Plan, Shopping List, Profile avatar
 
 ---
 
@@ -324,4 +329,4 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-03-24_
+_Last updated: 2026-04-21_
