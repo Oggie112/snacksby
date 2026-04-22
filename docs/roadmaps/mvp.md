@@ -8,7 +8,7 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | --------- | ----------------------------------------- | ------------------------------ | ----------------- |
 | **INF**   | Done                                      | —                              | —                 |
 | **NAV**   | Done                                      | —                              | —                 |
-| **SET**   | Stub only                                 | Account + household sections   | `3HH.1`           |
+| **SET**   | Stub only                                 | Account section (1SET.1)       | 1SET.2 → `3HH.4`  |
 | **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
 | **REC**   | Wireframe only (mock data, at `/recipes`) | GraphQL queries                | —                 |
 | **HH/RL** | Partial — role enum done                  | Household creation flow        | —                 |
@@ -45,7 +45,6 @@ _(none)_
 <a name="m1-todo"><h4>To Do (Milestone 1)</h4></a>
 
 - [ ] 1SET.1. Settings page — account section (email, password) — **depends on 1NAV.3**
-- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 3HH.1**
 
 <a name="m1-blocked"><h4>Blocked (Milestone 1)</h4></a>
 
@@ -116,6 +115,7 @@ _(none)_
 - [ ] 3HH.4. Household settings page (name, member list, leave/remove member) — **depends on 3HH.1**
 - [ ] 3RL.2. Role-based UI guards (hide edit/delete for Member role) — **depends on 3HH.1**
 - [ ] 3RL.3. Assign role when inviting or accepting a member — **depends on 3HH.3**
+- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 3HH.4, 3RL.2**
 
 <a name="m3-blocked"><h4>Blocked (Milestone 3)</h4></a>
 
