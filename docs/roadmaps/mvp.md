@@ -6,10 +6,10 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 
 |           | Status                                    | Next Up                        | Blocked           |
 | --------- | ----------------------------------------- | ------------------------------ | ----------------- |
-| **INF**   | Done — Apollo wired, Next.js 16           | App metadata                   | —                 |
+| **INF**   | Done                                      | —                              | —                 |
 | **NAV**   | Done — mobile bottom bar + desktop top    | Settings page content          | —                 |
 | **SET**   | Stub only                                 | Account + household sections   | `3HH.1`, `3RL.1` |
-| **DB**    | Not started                               | Schema design + tables         | —                 |
+| **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
 | **REC**   | Wireframe only (mock data, at `/recipes`) | GraphQL queries                | `1DB.4`           |
 | **HH/RL** | Not started                               | Household creation flow        | `1DB.2`           |
 | **PL**    | Stub only                                 | Weekly calendar view           | `2REC.*`, `3HH.*` |
@@ -44,14 +44,9 @@ _(none)_
 
 <a name="m1-todo"><h4>To Do (Milestone 1)</h4></a>
 
-- [ ] 1INF.8. Update app metadata (title, description, favicon)
 - [ ] 1NAV.3. Avatar/profile nav item — show initials, link to `/settings` — **depends on 1NAV.1**
 - [ ] 1SET.1. Settings page — account section (email, password) — **depends on 1NAV.3**
 - [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 1NAV.3, 3HH.1, 3RL.1**
-- [ ] 1DB.1. Design DB schema (households, memberships, recipes, ingredients, meal_plans, shopping_list_items)
-- [ ] 1DB.2. Create Supabase tables and relationships — **depends on 1DB.1**
-- [ ] 1DB.3. Configure Row Level Security (RLS) policies — **depends on 1DB.2**
-- [ ] 1DB.4. Verify GraphQL schema auto-generated correctly from tables — **depends on 1DB.2**
 
 <a name="m1-blocked"><h4>Blocked (Milestone 1)</h4></a>
 
@@ -68,6 +63,11 @@ _(none)_
 - [x] 1INF.7. Wire `ApolloProvider` into root layout (fixed v4 import path; removed redundant `apikey` from authLink)
 - [x] 1NAV.1. Build navigation component — bottom bar (mobile) / top bar (desktop)
 - [x] 1NAV.2. Add nav routes: Home (dashboard), Recipes, Plan, Shopping List, Profile avatar
+- [x] 1INF.8. Update app metadata — title template, description, emoji favicon placeholder
+- [x] 1DB.1. Design DB schema (households, memberships, recipes, meal_plan, shopping_list_items)
+- [x] 1DB.2. Create Supabase tables — role_type enum (Leader/Contributor/Member), all FK relationships
+- [x] 1DB.3. RLS policies — per-table read/write rules enforcing household membership and role; one household per user enforced at insert
+- [x] 1DB.4. GraphQL schema verified via introspection — all collections and relations confirmed
 
 ---
 
@@ -329,4 +329,4 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-04-21_
+_Last updated: 2026-04-22_
