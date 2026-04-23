@@ -2,6 +2,13 @@
 
 import { useState } from 'react'
 
+import { useQuery } from '@apollo/client/react'
+
+import {
+	GET_PUBLIC_RECIPES,
+	type RecipesCollectionData,
+} from '@/lib/graphql/recipes'
+
 export default function RecipesPage() {
 	const [search, setSearch] = useState('')
 	const [activeTag, setActiveTag] = useState<string | null>(null)
@@ -9,17 +16,17 @@ export default function RecipesPage() {
 		'explore',
 	)
 
-	const recipes = [
-		{ id: 1, title: 'Spaghetti Bolognese', tags: ['pasta', 'beef'] },
-		{ id: 2, title: 'Avocado Toast', tags: ['vegan', 'breakfast'] },
-		{ id: 3, title: 'Chicken Curry', tags: ['spicy', 'chicken'] },
-	]
+	const { data, loading, error } = useQuery<RecipesCollectionData>(
+		GET_PUBLIC_RECIPES,
+		{ skip: activeTab !== 'explore' },
+	)
 
-	const tags = ['pasta', 'beef', 'vegan', 'breakfast', 'spicy', 'chicken']
+	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
+	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
 
 	const filteredRecipes = recipes.filter((r) => {
 		const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
-		const matchesTag = activeTag ? r.tags.includes(activeTag) : true
+		const matchesTag = activeTag ? (r.tags ?? []).includes(activeTag) : true
 		return matchesSearch && matchesTag
 	})
 
@@ -35,19 +42,21 @@ export default function RecipesPage() {
 				className="input input-bordered w-full"
 			/>
 
-			<div className="flex flex-wrap gap-2">
-				{tags.map((tag) => (
-					<button
-						key={tag}
-						className={`badge cursor-pointer ${
-							activeTag === tag ? 'badge-primary' : 'badge-accent'
-						}`}
-						onClick={() => setActiveTag(activeTag === tag ? null : tag)}
-					>
-						{tag}
-					</button>
-				))}
-			</div>
+			{tags.length > 0 && (
+				<div className="flex flex-wrap gap-2">
+					{tags.map((tag) => (
+						<button
+							key={tag}
+							className={`badge cursor-pointer ${
+								activeTag === tag ? 'badge-primary' : 'badge-accent'
+							}`}
+							onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+						>
+							{tag}
+						</button>
+					))}
+				</div>
+			)}
 
 			<div role="tablist" className="tabs tabs-bordered">
 				<button
@@ -68,27 +77,44 @@ export default function RecipesPage() {
 
 			<div className="mt-4">
 				{activeTab === 'explore' && (
-					<div className="grid gap-4">
-						{filteredRecipes.map((recipe) => (
-							<div key={recipe.id} className="card bg-base-100 shadow-md">
-								<div className="card-body">
-									<h2 className="card-title">{recipe.title}</h2>
-									<div className="flex gap-1">
-										{recipe.tags.map((t) => (
-											<span key={t} className="badge badge-outline">
-												{t}
-											</span>
-										))}
-									</div>
-									<button className="btn btn-sm btn-accent mt-2">View</button>
-								</div>
-							</div>
-						))}
-
-						{filteredRecipes.length === 0 && (
-							<p className="text-info">No recipes found.</p>
+					<>
+						{loading && <span className="loading loading-spinner loading-md" />}
+						{error && (
+							<p className="text-error text-sm">Failed to load recipes.</p>
 						)}
-					</div>
+						{!loading && !error && (
+							<div className="grid gap-4">
+								{filteredRecipes.map((recipe) => (
+									<div key={recipe.id} className="card bg-base-100 shadow-md">
+										<div className="card-body">
+											<h2 className="card-title">{recipe.title}</h2>
+											{(recipe.tags ?? []).length > 0 && (
+												<div className="flex gap-1 flex-wrap">
+													{recipe.tags.map((t) => (
+														<span key={t} className="badge badge-outline">
+															{t}
+														</span>
+													))}
+												</div>
+											)}
+											<button className="btn btn-sm btn-accent mt-2">
+												View
+											</button>
+										</div>
+									</div>
+								))}
+								{filteredRecipes.length === 0 && (
+									<p className="text-base-content/60">No public recipes yet.</p>
+								)}
+							</div>
+						)}
+					</>
+				)}
+
+				{activeTab === 'my-recipes' && (
+					<p className="text-base-content/60">
+						Join or create a household to see your recipes.
+					</p>
 				)}
 			</div>
 		</div>

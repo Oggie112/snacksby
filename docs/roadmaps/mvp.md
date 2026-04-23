@@ -8,9 +8,9 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | --------- | ----------------------------------------- | ------------------------------ | ----------------- |
 | **INF**   | Done                                      | —                              | —                 |
 | **NAV**   | Done                                      | —                              | —                 |
-| **SET**   | Stub only                                 | Account section (1SET.1)       | 1SET.2 → `3HH.4`  |
+| **SET**   | Done                                      | —                              | 1SET.2 → `3HH.4`  |
 | **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
-| **REC**   | Wireframe only (mock data, at `/recipes`) | GraphQL queries                | —                 |
+| **REC**   | Explore tab live (public recipes)         | Detail page, add/edit/delete   | —                 |
 | **HH/RL** | Partial — role enum done                  | Household creation flow        | —                 |
 | **PL**    | Stub only                                 | Weekly calendar view           | `2REC.*`, `3HH.*` |
 | **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
@@ -44,7 +44,7 @@ _(none)_
 
 <a name="m1-todo"><h4>To Do (Milestone 1)</h4></a>
 
-- [ ] 1SET.1. Settings page — account section (email, password) — **depends on 1NAV.3**
+_(none)_
 
 <a name="m1-blocked"><h4>Blocked (Milestone 1)</h4></a>
 
@@ -67,6 +67,7 @@ _(none)_
 - [x] 1DB.2. Create Supabase tables — role_type enum (Leader/Contributor/Member), all FK relationships
 - [x] 1DB.3. RLS policies — per-table read/write rules enforcing household membership and role; one household per user enforced at insert
 - [x] 1DB.4. GraphQL schema verified via introspection — all collections and relations confirmed
+- [x] 1SET.1. Settings page — account section (email, password change); both actions require current password verification
 
 ---
 
@@ -81,20 +82,18 @@ _(none)_
 
 <a name="m2-todo"><h4>To Do (Milestone 2)</h4></a>
 
-- [ ] 2REC.1. Write GraphQL query — fetch recipes list
-- [ ] 2REC.2. Connect recipe browse page to live data (replace mock data) — **depends on 2REC.1**
-- [ ] 2REC.3. Recipe detail page (title, servings, structured ingredients, method) — **depends on 2REC.2**
-- [ ] 2REC.4. Add recipe form + GraphQL create mutation — **depends on 2REC.1**
-- [ ] 2REC.5. Edit recipe form + GraphQL update mutation — **depends on 2REC.4**
-- [ ] 2REC.6. Delete recipe with GraphQL mutation — **depends on 2REC.5**
+- [ ] 2REC.3. Recipe detail page (title, servings, structured ingredients, method)
+- [ ] 2REC.4. Add recipe form + GraphQL create mutation
 
 <a name="m2-blocked"><h4>Blocked (Milestone 2)</h4></a>
 
-_(none — fully unblocked)_
+- [ ] 2REC.5. Edit recipe form + GraphQL update mutation — **depends on 2REC.4**
+- [ ] 2REC.6. Delete recipe with GraphQL mutation — **depends on 2REC.5**
 
 <a name="m2-done"><h4>Completed (Milestone 2)</h4></a>
 
-_(none)_
+- [x] 2REC.1. GraphQL queries written — `GET_PUBLIC_RECIPES` and `GET_MY_RECIPES` (or-filter covering household + created-by)
+- [x] 2REC.2. Recipe browse page connected to live data — Explore tab queries public recipes; My Recipes stubbed pending M3 household context
 
 ---
 
@@ -223,16 +222,11 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 "1DB.4"["`*1DB.4*<br/>**DB**<br/>Verify GraphQL`"]:::done
 
 %% ─── Milestone 2: Recipes ────────────────────────────────────────────────────
-"2REC.1"["`*2REC.1*<br/>**REC**<br/>Query recipes`"]:::open
-"2REC.2"["`*2REC.2*<br/>**REC**<br/>Connect browse page`"]:::blocked
-"2REC.3"["`*2REC.3*<br/>**REC**<br/>Detail page`"]:::blocked
-"2REC.4"["`*2REC.4*<br/>**REC**<br/>Add recipe`"]:::blocked
+"2REC.3"["`*2REC.3*<br/>**REC**<br/>Detail page`"]:::open
+"2REC.4"["`*2REC.4*<br/>**REC**<br/>Add recipe`"]:::open
 "2REC.5"["`*2REC.5*<br/>**REC**<br/>Edit recipe`"]:::blocked
 "2REC.6"["`*2REC.6*<br/>**REC**<br/>Delete recipe`"]:::blocked
 
-"2REC.1" --> "2REC.2"
-"2REC.1" --> "2REC.4"
-"2REC.2" --> "2REC.3"
 "2REC.4" --> "2REC.5"
 "2REC.5" --> "2REC.6"
 
@@ -264,7 +258,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 "4PL.1" --> "4PL.5"
 "4PL.2" --> "4PL.3"
 "4PL.2" --> "4PL.6"
-"2REC.2" --> "4PL.3"
 "4PL.3" --> "4PL.4"
 "3HH.1" --> "4PL.6"
 
@@ -289,7 +282,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 "5SH.2" --> "5SH.6"
 "5SH.2" --> "5SH.7"
 "5SH.2" --> "5PWA.2"
-"2REC.2" --> "5PWA.2"
 "5PWA.2" --> "5PWA.3"
 "5PWA.2" --> "5PWA.4"
 
@@ -315,3 +307,5 @@ Features deliberately deferred from the MVP:
 ---
 
 _Last updated: 2026-04-22_
+
+
