@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 import { useQuery } from '@apollo/client/react'
+import Link from 'next/link'
 
 import {
 	GET_PUBLIC_RECIPES,
@@ -97,9 +98,12 @@ export default function RecipesPage() {
 													))}
 												</div>
 											)}
-											<button className="btn btn-sm btn-accent mt-2">
+											<Link
+												href={`/recipes/${recipe.id}`}
+												className="btn btn-sm btn-accent mt-2"
+											>
 												View
-											</button>
+											</Link>
 										</div>
 									</div>
 								))}

@@ -30,6 +30,54 @@ export const GET_PUBLIC_RECIPES = gql`
 	}
 `
 
+export interface Ingredient {
+	name: string
+	quantity: string
+}
+
+export interface MethodStep {
+	step: number
+	instruction: string
+}
+
+export interface RecipeDetail {
+	id: string
+	title: string
+	description: string | null
+	servings: number | null
+	prep_time: number | null
+	cook_time: number | null
+	ingredients: string
+	method: string
+	tags: string[]
+}
+
+export interface RecipeDetailData {
+	recipesCollection: {
+		edges: Array<{ node: RecipeDetail }>
+	}
+}
+
+export const GET_RECIPE = gql`
+	query GetRecipe($id: UUID!) {
+		recipesCollection(filter: { id: { eq: $id } }) {
+			edges {
+				node {
+					id
+					title
+					description
+					servings
+					prep_time
+					cook_time
+					ingredients
+					method
+					tags
+				}
+			}
+		}
+	}
+`
+
 export const GET_MY_RECIPES = gql`
 	query GetMyRecipes($householdId: UUID, $userId: UUID!) {
 		recipesCollection(

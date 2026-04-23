@@ -61,7 +61,7 @@ Junction table. Composite PK on `(household_id, user_id)` — enforces one membe
 | `prep_time` | `int` | Minutes, nullable |
 | `cook_time` | `int` | Minutes, nullable |
 | `ingredients` | `json` | Unstructured for MVP |
-| `procedure` | `json` | Unstructured for MVP |
+| `method` | `json` | Unstructured for MVP |
 | `tags` | `text[]` | |
 | `created_at` | `timestamptz` | |
 

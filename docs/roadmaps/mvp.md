@@ -293,6 +293,14 @@ classDef done fill:#bbf7d0,stroke:#16a34a,color:#14532d
 
 ---
 
+<a name="polish"><h2>Polish</h2></a>
+
+UI improvements to revisit once all milestones are complete:
+
+- **Tag filtering persistence** — move `activeTag` state on the browse page to a URL search param (`?tag=pasta`); link tag badges on the recipe detail page back to `/recipes?tag=...` so the filter survives navigation
+
+---
+
 <a name="post-mvp"><h2>Beyond MVP</h2></a>
 
 Features deliberately deferred from the MVP:
@@ -306,6 +314,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-04-22_
+_Last updated: 2026-04-23_
 
 
