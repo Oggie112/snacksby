@@ -78,6 +78,50 @@ export const GET_RECIPE = gql`
 	}
 `
 
+export interface CreateRecipeResult {
+	insertIntorecipesCollection: {
+		records: Array<{ id: string }>
+	}
+}
+
+export const CREATE_RECIPE = gql`
+	mutation CreateRecipe(
+		$created_by: UUID!
+		$household_id: UUID
+		$visibility: visibility_type!
+		$title: String!
+		$description: String
+		$servings: Int
+		$prep_time: Int
+		$cook_time: Int
+		$ingredients: JSON!
+		$method: JSON!
+		$tags: [String!]!
+	) {
+		insertIntorecipesCollection(
+			objects: [
+				{
+					created_by: $created_by
+					household_id: $household_id
+					visibility: $visibility
+					title: $title
+					description: $description
+					servings: $servings
+					prep_time: $prep_time
+					cook_time: $cook_time
+					ingredients: $ingredients
+					method: $method
+					tags: $tags
+				}
+			]
+		) {
+			records {
+				id
+			}
+		}
+	}
+`
+
 export const GET_MY_RECIPES = gql`
 	query GetMyRecipes($householdId: UUID, $userId: UUID!) {
 		recipesCollection(

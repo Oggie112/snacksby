@@ -59,21 +59,29 @@ export default function RecipesPage() {
 				</div>
 			)}
 
-			<div role="tablist" className="tabs tabs-bordered">
-				<button
-					role="tab"
-					className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}
-					onClick={() => setActiveTab('explore')}
+			<div className="flex items-center justify-between">
+				<div role="tablist" className="tabs tabs-bordered">
+					<button
+						role="tab"
+						className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}
+						onClick={() => setActiveTab('explore')}
+					>
+						Explore
+					</button>
+					<button
+						role="tab"
+						className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''}`}
+						onClick={() => setActiveTab('my-recipes')}
+					>
+						My Recipes
+					</button>
+				</div>
+				<Link
+					href="/recipes/new"
+					className="btn btn-sm btn-primary hidden md:inline-flex"
 				>
-					Explore
-				</button>
-				<button
-					role="tab"
-					className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''}`}
-					onClick={() => setActiveTab('my-recipes')}
-				>
-					My Recipes
-				</button>
+					New Recipe
+				</Link>
 			</div>
 
 			<div className="mt-4">
@@ -121,6 +129,26 @@ export default function RecipesPage() {
 					</p>
 				)}
 			</div>
+
+			<Link
+				href="/recipes/new"
+				className="btn btn-primary btn-circle fixed bottom-20 right-4 shadow-lg md:hidden"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					className="size-6"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					strokeWidth={2.5}
+				>
+					<path
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						d="M12 4v16m8-8H4"
+					/>
+				</svg>
+			</Link>
 		</div>
 	)
 }
