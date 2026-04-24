@@ -5,6 +5,7 @@ import { use } from 'react'
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 
+import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_RECIPE,
 	type Ingredient,
@@ -19,10 +20,14 @@ export default function RecipePage({
 }) {
 	const { id } = use(params)
 
+	const { user } = useUserAndSession()
+
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
+	const canEdit = !!user && recipe?.created_by === user.id
+	// 3RL.2 will also allow household leader/contributor
 
 	if (loading) {
 		return (
@@ -46,9 +51,16 @@ export default function RecipePage({
 
 	return (
 		<div className="p-4 space-y-6 max-w-2xl">
-			<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
-				← Back
-			</Link>
+			<div className="flex items-center justify-between">
+				<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
+					← Back
+				</Link>
+				{canEdit && (
+					<Link href={`/recipes/${id}/edit`} className="btn btn-outline btn-sm">
+						Edit
+					</Link>
+				)}
+			</div>
 
 			<div>
 				<h1 className="text-3xl font-bold">{recipe.title}</h1>

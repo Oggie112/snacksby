@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type SubmitEvent } from 'react'
+import { use, useEffect, useState, type SubmitEvent } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 import Link from 'next/link'
@@ -8,10 +8,13 @@ import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
 import {
-	GET_MY_HOUSEHOLD,
-	type MyHouseholdData,
-} from '@/lib/graphql/households'
-import { CREATE_RECIPE, type CreateRecipeResult } from '@/lib/graphql/recipes'
+	GET_RECIPE,
+	UPDATE_RECIPE,
+	type Ingredient,
+	type MethodStep,
+	type RecipeDetailData,
+	type UpdateRecipeResult,
+} from '@/lib/graphql/recipes'
 
 interface IngredientRow {
 	name: string
@@ -22,22 +25,26 @@ interface MethodRow {
 	instruction: string
 }
 
-export default function NewRecipePage() {
+export default function EditRecipePage({
+	params,
+}: {
+	params: Promise<{ id: string }>
+}) {
+	const { id } = use(params)
 	const router = useRouter()
 	const { user, isAuthenticated } = useUserAndSession()
 
-	const { data: householdData } = useQuery<MyHouseholdData>(GET_MY_HOUSEHOLD, {
-		variables: { userId: user?.id },
-		skip: !user?.id,
-	})
+	const {
+		data,
+		loading: queryLoading,
+		error: queryError,
+	} = useQuery<RecipeDetailData>(GET_RECIPE, { variables: { id } })
+	const recipe = data?.recipesCollection?.edges?.[0]?.node
 
-	const householdId =
-		householdData?.household_membersCollection?.edges?.[0]?.node
-			?.household_id ?? null
+	const [updateRecipe, { loading: mutationLoading, error }] =
+		useMutation<UpdateRecipeResult>(UPDATE_RECIPE)
 
-	const [createRecipe, { loading, error }] =
-		useMutation<CreateRecipeResult>(CREATE_RECIPE)
-
+	const [initialized, setInitialized] = useState(false)
 	const [title, setTitle] = useState('')
 	const [description, setDescription] = useState('')
 	const [servings, setServings] = useState('')
@@ -56,7 +63,56 @@ export default function NewRecipePage() {
 		}
 	}, [isAuthenticated, router])
 
+	useEffect(() => {
+		if (!recipe || initialized) return
+
+		if (user && recipe.created_by !== user.id) {
+			router.replace(`/recipes/${id}`)
+			return
+		}
+
+		setTitle(recipe.title)
+		setDescription(recipe.description ?? '')
+		setServings(recipe.servings ? String(recipe.servings) : '')
+		setPrepTime(recipe.prep_time ? String(recipe.prep_time) : '')
+		setCookTime(recipe.cook_time ? String(recipe.cook_time) : '')
+		setVisibility(recipe.visibility)
+		setTagsInput((recipe.tags ?? []).join(', '))
+
+		const parsedIngredients = JSON.parse(recipe.ingredients) as Ingredient[]
+		const parsedMethod = JSON.parse(recipe.method) as MethodStep[]
+
+		setIngredients(
+			parsedIngredients.length > 0
+				? parsedIngredients
+				: [{ name: '', quantity: '' }],
+		)
+		setMethod(
+			parsedMethod.length > 0
+				? parsedMethod.map((s) => ({ instruction: s.instruction }))
+				: [{ instruction: '' }],
+		)
+
+		setInitialized(true)
+	}, [recipe, initialized, user, id, router])
+
 	if (!isAuthenticated) return null
+
+	if (queryError) {
+		return (
+			<div className="p-4">
+				<p className="text-error">Recipe not found.</p>
+			</div>
+		)
+	}
+
+	if (queryLoading || !initialized) {
+		return (
+			<div className="p-4">
+				<span className="loading loading-spinner loading-md" />
+			</div>
+		)
+	}
 
 	const addIngredient = () =>
 		setIngredients((prev) => [...prev, { name: '', quantity: '' }])
@@ -92,10 +148,9 @@ export default function NewRecipePage() {
 			.filter((s) => s.instruction.trim())
 			.map((s, i) => ({ step: i + 1, instruction: s.instruction }))
 
-		const result = await createRecipe({
+		const result = await updateRecipe({
 			variables: {
-				created_by: user!.id,
-				household_id: householdId,
+				id,
 				visibility,
 				title,
 				description: description || null,
@@ -108,8 +163,8 @@ export default function NewRecipePage() {
 			},
 		})
 
-		const id = result.data?.insertIntorecipesCollection?.records?.[0]?.id
-		if (id) {
+		const updated = result.data?.updaterecipesCollection?.records?.[0]?.id
+		if (updated) {
 			router.push(`/recipes/${id}`)
 		} else {
 			router.push('/recipes')
@@ -118,11 +173,11 @@ export default function NewRecipePage() {
 
 	return (
 		<div className="p-4 space-y-6 max-w-2xl">
-			<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
+			<Link href={`/recipes/${id}`} className="btn btn-ghost btn-sm pl-0">
 				← Back
 			</Link>
 
-			<h1 className="text-2xl font-bold">New Recipe</h1>
+			<h1 className="text-2xl font-bold">Edit Recipe</h1>
 
 			<form onSubmit={(e) => void handleSubmit(e)} className="space-y-6">
 				<div className="form-control gap-1">
@@ -315,19 +370,19 @@ export default function NewRecipePage() {
 
 				{error && (
 					<p className="text-error text-sm">
-						Failed to save recipe. Please try again.
+						Failed to save changes. Please try again.
 					</p>
 				)}
 
 				<button
 					type="submit"
-					disabled={loading || !title.trim()}
+					disabled={mutationLoading || !title.trim()}
 					className="btn btn-primary w-full"
 				>
-					{loading ? (
+					{mutationLoading ? (
 						<span className="loading loading-spinner loading-sm" />
 					) : (
-						'Save Recipe'
+						'Save Changes'
 					)}
 				</button>
 			</form>

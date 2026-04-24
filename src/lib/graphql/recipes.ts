@@ -50,6 +50,8 @@ export interface RecipeDetail {
 	ingredients: string
 	method: string
 	tags: string[]
+	created_by: string
+	visibility: 'private' | 'public'
 }
 
 export interface RecipeDetailData {
@@ -72,6 +74,8 @@ export const GET_RECIPE = gql`
 					ingredients
 					method
 					tags
+					created_by
+					visibility
 				}
 			}
 		}
@@ -114,6 +118,46 @@ export const CREATE_RECIPE = gql`
 					tags: $tags
 				}
 			]
+		) {
+			records {
+				id
+			}
+		}
+	}
+`
+
+export interface UpdateRecipeResult {
+	updaterecipesCollection: {
+		records: Array<{ id: string }>
+	}
+}
+
+export const UPDATE_RECIPE = gql`
+	mutation UpdateRecipe(
+		$id: UUID!
+		$visibility: visibility_type!
+		$title: String!
+		$description: String
+		$servings: Int
+		$prep_time: Int
+		$cook_time: Int
+		$ingredients: JSON!
+		$method: JSON!
+		$tags: [String!]!
+	) {
+		updaterecipesCollection(
+			filter: { id: { eq: $id } }
+			set: {
+				visibility: $visibility
+				title: $title
+				description: $description
+				servings: $servings
+				prep_time: $prep_time
+				cook_time: $cook_time
+				ingredients: $ingredients
+				method: $method
+				tags: $tags
+			}
 		) {
 			records {
 				id

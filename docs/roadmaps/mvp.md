@@ -10,7 +10,7 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **NAV**   | Done                                      | —                              | —                 |
 | **SET**   | Done                                      | —                              | 1SET.2 → `3HH.4`  |
 | **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
-| **REC**   | Explore tab live (public recipes)         | Detail page, add/edit/delete   | —                 |
+| **REC**   | Browse, detail, create, edit live         | Delete                         | —                 |
 | **HH/RL** | Partial — role enum done                  | Household creation flow        | —                 |
 | **PL**    | Stub only                                 | Weekly calendar view           | `2REC.*`, `3HH.*` |
 | **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
@@ -82,18 +82,19 @@ _(none)_
 
 <a name="m2-todo"><h4>To Do (Milestone 2)</h4></a>
 
-- [ ] 2REC.3. Recipe detail page (title, servings, structured ingredients, method)
-- [ ] 2REC.4. Add recipe form + GraphQL create mutation
+- [x] 2REC.5. Edit recipe form + GraphQL update mutation
+- [ ] 2REC.6. Delete recipe with GraphQL mutation — **depends on 2REC.5**
 
 <a name="m2-blocked"><h4>Blocked (Milestone 2)</h4></a>
 
-- [ ] 2REC.5. Edit recipe form + GraphQL update mutation — **depends on 2REC.4**
-- [ ] 2REC.6. Delete recipe with GraphQL mutation — **depends on 2REC.5**
+_(none)_
 
 <a name="m2-done"><h4>Completed (Milestone 2)</h4></a>
 
 - [x] 2REC.1. GraphQL queries written — `GET_PUBLIC_RECIPES` and `GET_MY_RECIPES` (or-filter covering household + created-by)
 - [x] 2REC.2. Recipe browse page connected to live data — Explore tab queries public recipes; My Recipes stubbed pending M3 household context
+- [x] 2REC.3. Recipe detail page (title, servings, structured ingredients, method)
+- [x] 2REC.4. Add recipe form + GraphQL create mutation
 
 ---
 
@@ -222,12 +223,9 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 "1DB.4"["`*1DB.4*<br/>**DB**<br/>Verify GraphQL`"]:::done
 
 %% ─── Milestone 2: Recipes ────────────────────────────────────────────────────
-"2REC.3"["`*2REC.3*<br/>**REC**<br/>Detail page`"]:::open
-"2REC.4"["`*2REC.4*<br/>**REC**<br/>Add recipe`"]:::open
-"2REC.5"["`*2REC.5*<br/>**REC**<br/>Edit recipe`"]:::blocked
+"2REC.5"["`*2REC.5*<br/>**REC**<br/>Edit recipe`"]:::open
 "2REC.6"["`*2REC.6*<br/>**REC**<br/>Delete recipe`"]:::blocked
 
-"2REC.4" --> "2REC.5"
 "2REC.5" --> "2REC.6"
 
 %% ─── Milestone 3: Households & Roles ────────────────────────────────────────
@@ -298,6 +296,7 @@ classDef done fill:#bbf7d0,stroke:#16a34a,color:#14532d
 UI improvements to revisit once all milestones are complete:
 
 - **Tag filtering persistence** — move `activeTag` state on the browse page to a URL search param (`?tag=pasta`); link tag badges on the recipe detail page back to `/recipes?tag=...` so the filter survives navigation
+- **Recipe saved banner** — if create/edit mutation succeeds but returns no ID, the user is redirected to `/recipes` without confirmation; show a transient "Recipe saved" banner on the list page via a query param (`?saved=1`) so they know it worked
 
 ---
 
@@ -314,6 +313,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-04-23_
+_Last updated: 2026-04-24_
 
 
