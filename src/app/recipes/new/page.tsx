@@ -11,7 +11,11 @@ import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
 } from '@/lib/graphql/households'
-import { CREATE_RECIPE, type CreateRecipeResult } from '@/lib/graphql/recipes'
+import {
+	CREATE_RECIPE,
+	GET_PUBLIC_RECIPES,
+	type CreateRecipeResult,
+} from '@/lib/graphql/recipes'
 
 interface IngredientRow {
 	name: string
@@ -106,6 +110,7 @@ export default function NewRecipePage() {
 				method: JSON.stringify(filteredMethod),
 				tags,
 			},
+			refetchQueries: [{ query: GET_PUBLIC_RECIPES }],
 		})
 
 		const id = result.data?.insertIntorecipesCollection?.records?.[0]?.id

@@ -8,8 +8,11 @@ import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
 import {
+	DELETE_RECIPE,
+	GET_PUBLIC_RECIPES,
 	GET_RECIPE,
 	UPDATE_RECIPE,
+	type DeleteRecipeResult,
 	type Ingredient,
 	type MethodStep,
 	type RecipeDetailData,
@@ -43,6 +46,11 @@ export default function EditRecipePage({
 
 	const [updateRecipe, { loading: mutationLoading, error }] =
 		useMutation<UpdateRecipeResult>(UPDATE_RECIPE)
+
+	const [deleteRecipe, { loading: deleteLoading, error: deleteError }] =
+		useMutation<DeleteRecipeResult>(DELETE_RECIPE)
+
+	const [showDeleteModal, setShowDeleteModal] = useState(false)
 
 	const [initialized, setInitialized] = useState(false)
 	const [title, setTitle] = useState('')
@@ -135,6 +143,14 @@ export default function EditRecipePage({
 			prev.map((row, idx) => (idx === i ? { instruction: value } : row)),
 		)
 
+	const handleDelete = async () => {
+		await deleteRecipe({
+			variables: { id },
+			refetchQueries: [{ query: GET_PUBLIC_RECIPES }],
+		})
+		router.push('/recipes')
+	}
+
 	const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
@@ -161,6 +177,10 @@ export default function EditRecipePage({
 				method: JSON.stringify(filteredMethod),
 				tags,
 			},
+			refetchQueries: [
+				{ query: GET_RECIPE, variables: { id } },
+				{ query: GET_PUBLIC_RECIPES },
+			],
 		})
 
 		const updated = result.data?.updaterecipesCollection?.records?.[0]?.id
@@ -385,7 +405,53 @@ export default function EditRecipePage({
 						'Save Changes'
 					)}
 				</button>
+				<div className="divider" />
+
+				<button
+					type="button"
+					onClick={() => setShowDeleteModal(true)}
+					className="btn btn-error btn-outline w-full"
+				>
+					Delete Recipe
+				</button>
 			</form>
+
+			{showDeleteModal && (
+				<div className="modal modal-open">
+					<div className="modal-box">
+						<h3 className="font-bold text-lg">Delete Recipe?</h3>
+						<p className="py-4 text-base-content/70">This cannot be undone.</p>
+						{deleteError && (
+							<p className="text-error text-sm mb-2">
+								Failed to delete. Please try again.
+							</p>
+						)}
+						<div className="modal-action">
+							<button
+								onClick={() => setShowDeleteModal(false)}
+								className="btn btn-ghost"
+							>
+								Cancel
+							</button>
+							<button
+								onClick={() => void handleDelete()}
+								disabled={deleteLoading}
+								className="btn btn-error"
+							>
+								{deleteLoading ? (
+									<span className="loading loading-spinner loading-sm" />
+								) : (
+									'Delete'
+								)}
+							</button>
+						</div>
+					</div>
+					<div
+						className="modal-backdrop"
+						onClick={() => setShowDeleteModal(false)}
+					/>
+				</div>
+			)}
 		</div>
 	)
 }

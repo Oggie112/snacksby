@@ -24,6 +24,7 @@ export default function RecipePage({
 
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },
+		fetchPolicy: 'cache-and-network',
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
 	const canEdit = !!user && recipe?.created_by === user.id

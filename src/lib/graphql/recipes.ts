@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql, type DocumentNode } from '@apollo/client'
 
 export interface RecipeNode {
 	id: string
@@ -159,6 +159,22 @@ export const UPDATE_RECIPE = gql`
 				tags: $tags
 			}
 		) {
+			records {
+				id
+			}
+		}
+	}
+`
+
+export interface DeleteRecipeResult {
+	deleteFromrecipesCollection: {
+		records: Array<{ id: string }>
+	}
+}
+
+export const DELETE_RECIPE: DocumentNode = gql`
+	mutation DeleteRecipe($id: UUID!) {
+		deleteFromrecipesCollection(filter: { id: { eq: $id } }) {
 			records {
 				id
 			}

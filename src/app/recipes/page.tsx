@@ -19,9 +19,11 @@ export default function RecipesPage() {
 
 	const { data, loading, error } = useQuery<RecipesCollectionData>(
 		GET_PUBLIC_RECIPES,
-		{ skip: activeTab !== 'explore' },
+		{
+			skip: activeTab !== 'explore',
+			fetchPolicy: 'cache-and-network',
+		},
 	)
-
 	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
 	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
 
