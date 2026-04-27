@@ -48,21 +48,28 @@ Junction table. Composite PK on `(household_id, user_id)` — enforces one membe
 ---
 
 ### `recipes`
-Scoped to a household. `ingredients` and `procedure` stored as JSON for flexibility.
 
 | Column | Type | Notes |
 |---|---|---|
 | `id` | `uuid` | PK |
-| `household_id` | `uuid` | FK → `households.id` |
+| `created_by` | `uuid` | FK → `profiles.id` — tracks authorship; persists after leaving a household |
+| `household_id` | `uuid` | FK → `households.id`, nullable — null if creator has left their household |
+| `visibility` | `visibility_type` | Enum: `private`, `public`. Defaults to `private` |
 | `title` | `text` | |
 | `description` | `text` | Nullable |
 | `servings` | `int` | Nullable |
 | `prep_time` | `int` | Minutes, nullable |
 | `cook_time` | `int` | Minutes, nullable |
 | `ingredients` | `json` | Unstructured for MVP |
-| `procedure` | `json` | Unstructured for MVP |
+| `method` | `json` | Unstructured for MVP |
 | `tags` | `text[]` | |
 | `created_at` | `timestamptz` | |
+
+**Visibility rules:**
+- `private` — readable only by creator
+- `public` — readable by any authenticated user
+
+**Household scoping:** recipes with `household_id = mine` form the shared household collection ("My Recipes"). On leaving a household, `created_by = auth.uid()` ensures access to your own recipes is retained.
 
 ---
 
@@ -113,7 +120,7 @@ Most policies subquery `household_members` to verify the current user (`auth.uid
 | `household_members` | Select | Members of the same household |
 | `household_members` | Insert | Self-join (one household per user) or Leader adding another |
 | `household_members` | Delete | Leader (remove others) or self (leave) |
-| `recipes` | Select | Any household member |
+| `recipes` | Select | Household member, creator, or `visibility = public` |
 | `recipes` | Insert, Update, Delete | Leader or Contributor |
 | `meal_plan` | Select | Any household member |
 | `meal_plan` | Insert, Update, Delete | Leader or Contributor |
