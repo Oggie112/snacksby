@@ -11,12 +11,80 @@ export interface MyHouseholdData {
 }
 
 export const GET_MY_HOUSEHOLD = gql`
-	query GetMyHousehold($userId: UUID!) {
-		household_membersCollection(filter: { user_id: { eq: $userId } }) {
+	query GetMyHousehold($user_id: UUID!) {
+		household_membersCollection(filter: { user_id: { eq: $user_id } }) {
 			edges {
 				node {
 					household_id
 				}
+			}
+		}
+	}
+`
+
+export interface HouseholdNode {
+	id: string
+	name: string
+	invite_code: string
+}
+
+export interface HouseholdByCodeData {
+	householdsCollection: {
+		edges: Array<{ node: HouseholdNode }>
+	}
+}
+
+export const GET_HOUSEHOLD_BY_CODE = gql`
+	query GetHouseholdByCode($invite_code: String!) {
+		householdsCollection(filter: { invite_code: { eq: $invite_code } }) {
+			edges {
+				node {
+					id
+					name
+					invite_code
+				}
+			}
+		}
+	}
+`
+
+export interface CreateHouseholdResult {
+	insertIntohouseholdsCollection: {
+		records: Array<{ id: string }>
+		affectedCount: number
+	}
+}
+
+export const CREATE_HOUSEHOLD = gql`
+	mutation CreateHousehold($name: String!, $invite_code: String!) {
+		insertIntohouseholdsCollection(
+			objects: [{ name: $name, invite_code: $invite_code }]
+		) {
+			records {
+				id
+			}
+			affectedCount
+		}
+	}
+`
+
+export interface AddHouseholdMemberResult {
+	insertIntohousehold_membersCollection: {
+		records: Array<{ household_id: string }>
+	}
+}
+
+export const ADD_HOUSEHOLD_MEMBER = gql`
+	mutation AddHouseholdMember(
+		$household_id: UUID!
+		$user_id: UUID!
+		$role: role_type!
+	) {
+		insertIntohousehold_membersCollection(
+			objects: [{ household_id: $household_id, user_id: $user_id, role: $role }]
+		) {
+			records {
+				household_id
 			}
 		}
 	}

@@ -301,6 +301,7 @@ UI improvements to revisit once all milestones are complete:
 Features deliberately deferred from the MVP:
 
 - **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph (first post-MVP priority)
+- **Smart invite link** — time-limited, single-use invite URLs (`/join?code=abc123`) shareable via native share sheet; code persists through the auth/signup flow via a short-lived cookie so a new user auto-joins the correct household on first login. Requires a separate `household_invites` table (`code`, `household_id`, `expires_at`, `used_at`), a `/join` landing page that handles unauthenticated arrivals, and middleware that reads + clears the pending-invite cookie post-auth. Permanent codes (MVP) remain as a fallback for Leaders who want a stable link.
 - **Portion scaling** — adjust servings and auto-scale ingredient quantities
 - **Barcode scanning** — add items to shopping list via camera
 - **Voice assistant integration** — hands-free list management

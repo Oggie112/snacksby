@@ -22,15 +22,13 @@ const authLink = new SetContextLink(async (prevContext) => {
 			Authorization: session?.access_token
 				? `Bearer ${session.access_token}`
 				: '',
+			apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 		},
 	}
 })
 
 const httpLink = new HttpLink({
 	uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/graphql/v1`,
-	headers: {
-		apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-	},
 })
 
 const apolloClient = new ApolloClient({

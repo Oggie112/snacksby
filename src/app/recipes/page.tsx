@@ -26,7 +26,6 @@ export default function RecipesPage() {
 	)
 	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
 	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
-
 	const filteredRecipes = recipes.filter((r) => {
 		const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
 		const matchesTag = activeTag ? (r.tags ?? []).includes(activeTag) : true
