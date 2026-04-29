@@ -1,21 +1,31 @@
-import { AccountSection } from './account-section'
+import { AccountSection } from './account/account-section'
+import { HouseholdSection } from './household/household-section'
+import { logout } from '@/app/auth/logout/actions'
 import { getUserAndSession } from '@/lib/supabase/session'
 
 export default async function SettingsPage() {
 	const { user } = await getUserAndSession()
 
 	return (
-		<div className="p-4 space-y-6">
+		<div className="p-4 space-y-8">
 			<h1 className="text-2xl font-bold">Settings</h1>
-			<AccountSection email={user?.email ?? ''} />
-			<section className="card bg-base-100 shadow-md">
-				<div className="card-body">
-					<h2 className="card-title text-lg">Household</h2>
-					<p className="text-base-content/60">
-						Household management and invite code coming soon.
-					</p>
-				</div>
-			</section>
+			<div className="space-y-4">
+				<h2 className="text-xs font-semibold uppercase tracking-widest text-base-content/40">
+					Account
+				</h2>
+				<AccountSection email={user?.email ?? ''} />
+			</div>
+			<div className="space-y-4">
+				<h2 className="text-xs font-semibold uppercase tracking-widest text-base-content/40">
+					Household
+				</h2>
+				<HouseholdSection />
+			</div>
+			<form action={logout}>
+				<button type="submit" className="btn btn-error btn-outline w-full">
+					Sign out
+				</button>
+			</form>
 		</div>
 	)
 }

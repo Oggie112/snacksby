@@ -89,3 +89,57 @@ export const ADD_HOUSEHOLD_MEMBER = gql`
 		}
 	}
 `
+
+export interface HouseholdMemberNode {
+	user_id: string
+	role: string
+	profiles: { full_name: string } | null
+}
+
+export interface HouseholdSettingsNode {
+	id: string
+	name: string
+	invite_code: string
+	household_membersCollection: {
+		edges: Array<{ node: HouseholdMemberNode }>
+	}
+}
+
+export interface HouseholdSettingsData {
+	household_membersCollection: {
+		edges: Array<{
+			node: {
+				role: string
+				households: HouseholdSettingsNode
+			}
+		}>
+	}
+}
+
+export const GET_HOUSEHOLD_SETTINGS = gql`
+	query GetHouseholdSettings($user_id: UUID!) {
+		household_membersCollection(filter: { user_id: { eq: $user_id } }) {
+			edges {
+				node {
+					role
+					households {
+						id
+						name
+						invite_code
+						household_membersCollection {
+							edges {
+								node {
+									user_id
+									role
+									profiles {
+										full_name
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+`
