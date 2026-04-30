@@ -32,8 +32,7 @@ export default function RecipePage({
 	const canEdit =
 		!!user &&
 		!roleLoading &&
-		role !== 'Member' &&
-		(role === 'Leader' || role === 'Contributor' || recipe?.created_by === user.id)
+		(role === 'Leader' || role === 'Contributor')
 
 	if (loading) {
 		return (

@@ -78,9 +78,7 @@ export default function EditRecipePage({
 
 		if (roleLoading) return
 
-		const unauthorised =
-			role === 'Member' || (role === null && recipe.created_by !== user?.id)
-		if (user && unauthorised) {
+		if (user && role !== 'Leader' && role !== 'Contributor') {
 			router.replace(`/recipes/${id}`)
 			return
 		}

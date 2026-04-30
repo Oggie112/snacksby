@@ -25,6 +25,6 @@ export function useHouseholdRole(): {
 	return {
 		role,
 		loading,
-		canEditRecipes: role !== 'Member',
+		canEditRecipes: role === 'Leader' || role === 'Contributor',
 	}
 }
