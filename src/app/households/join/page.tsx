@@ -11,6 +11,7 @@ import {
 	ADD_HOUSEHOLD_MEMBER,
 	GET_HOUSEHOLD_BY_CODE,
 	GET_MY_HOUSEHOLD,
+	GET_MY_ROLE,
 	type AddHouseholdMemberResult,
 	type HouseholdByCodeData,
 } from '@/lib/graphql/households'
@@ -56,6 +57,7 @@ function JoinForm() {
 				},
 				refetchQueries: [
 					{ query: GET_MY_HOUSEHOLD, variables: { user_id: user.id } },
+					{ query: GET_MY_ROLE, variables: { user_id: user.id } },
 				],
 			})
 			router.push('/')

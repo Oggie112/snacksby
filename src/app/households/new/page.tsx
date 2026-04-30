@@ -10,6 +10,7 @@ import { useUserAndSession } from '@/components/session-provider'
 import {
 	CREATE_HOUSEHOLD,
 	GET_MY_HOUSEHOLD,
+	GET_MY_ROLE,
 	type CreateHouseholdResult,
 } from '@/lib/graphql/households'
 
@@ -33,6 +34,7 @@ export default function NewHouseholdPage() {
 			variables: { name: name.trim(), invite_code },
 			refetchQueries: [
 				{ query: GET_MY_HOUSEHOLD, variables: { user_id: user.id } },
+				{ query: GET_MY_ROLE, variables: { user_id: user.id } },
 			],
 		})
 

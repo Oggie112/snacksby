@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation'
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
+	GET_MY_HOUSEHOLD,
+	GET_MY_ROLE,
 	REMOVE_HOUSEHOLD_MEMBER,
 	type HouseholdSettingsData,
 	type RemoveHouseholdMemberResult,
@@ -76,6 +78,10 @@ export function HouseholdSection() {
 		if (!user?.id || !household?.id) return
 		await removeMember({
 			variables: { household_id: household.id, user_id: user.id },
+			refetchQueries: [
+				{ query: GET_MY_HOUSEHOLD, variables: { user_id: user.id } },
+				{ query: GET_MY_ROLE, variables: { user_id: user.id } },
+			],
 		})
 		router.push('/households/setup')
 	}
@@ -90,14 +96,31 @@ export function HouseholdSection() {
 		)
 	}
 
-	if (error || !household) {
+	if (error) {
 		return (
 			<section className="card bg-base-100 shadow-md">
 				<div className="card-body">
 					<h2 className="card-title text-lg">Household</h2>
-					<p className="text-error text-sm">
-						{error?.message ?? 'Could not load household data.'}
+					<p className="text-error text-sm">{error.message}</p>
+				</div>
+			</section>
+		)
+	}
+
+	if (!household) {
+		return (
+			<section className="card bg-base-100 shadow-md">
+				<div className="card-body gap-3">
+					<h2 className="card-title text-lg">Household</h2>
+					<p className="text-base-content/60 text-sm">
+						You need to create or join a household to see anything here.
 					</p>
+					<a
+						href="/households/setup"
+						className="btn btn-primary btn-sm self-start"
+					>
+						Create or join a household
+					</a>
 				</div>
 			</section>
 		)
@@ -108,20 +131,22 @@ export function HouseholdSection() {
 			<div className="card bg-base-100 shadow-md">
 				<div className="card-body gap-4">
 					<h2 className="card-title text-lg">{household.name}</h2>
-					<div>
-						<p className="label-text font-medium mb-2">Invite code</p>
-						<div className="flex items-center gap-3">
-							<span className="font-mono tracking-widest text-lg">
-								{household.invite_code}
-							</span>
-							<button
-								className="btn btn-sm btn-ghost"
-								onClick={() => void handleCopy()}
-							>
-								{copied ? 'Copied!' : 'Copy'}
-							</button>
+					{currentUserRole === 'Leader' && (
+						<div>
+							<p className="label-text font-medium mb-2">Invite code</p>
+							<div className="flex items-center gap-3">
+								<span className="font-mono tracking-widest text-lg">
+									{household.invite_code}
+								</span>
+								<button
+									className="btn btn-sm btn-ghost"
+									onClick={() => void handleCopy()}
+								>
+									{copied ? 'Copied!' : 'Copy'}
+								</button>
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			</div>
 
