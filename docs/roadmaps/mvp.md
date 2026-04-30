@@ -11,7 +11,7 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **SET**   | Done                                      | —                              | 1SET.2 → `3HH.4`  |
 | **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
 | **REC**   | Done — full CRUD live                     | —                              | —                 |
-| **HH/RL** | Partial — create & join flows done        | Household settings, role guards | 1SET.2 → 3HH.4, 3RL.2 |
+| **HH/RL** | Partial — household settings done         | Role guards                    | 1SET.2 → 3RL.2         |
 | **PL**    | Stub only                                 | Weekly calendar view, 4PL.2    | 4PL.1 → 4PL.3, 4PL.5  |
 | **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
 | **PWA**   | Not started                               | PWA manifest                   | `5SH.2`           |
@@ -106,17 +106,14 @@ _(none)_
 
 <a name="m3-doing"><h4>In Progress (Milestone 3)</h4></a>
 
-_(none)_
+- [ ] 3RL.2. Role-based UI guards (hide edit/delete for Member role)
 
 <a name="m3-todo"><h4>To Do (Milestone 3)</h4></a>
-
-- [ ] 3HH.4. Household settings page (name, member list, leave/remove member)
-- [ ] 3RL.2. Role-based UI guards (hide edit/delete for Member role)
 - [ ] 3RL.3. Assign role when inviting or accepting a member
 
 <a name="m3-blocked"><h4>Blocked (Milestone 3)</h4></a>
 
-- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 3HH.4, 3RL.2**
+- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 3RL.2**
 
 <a name="m3-done"><h4>Completed (Milestone 3)</h4></a>
 
@@ -124,6 +121,7 @@ _(none)_
 - [x] 3HH.1. Create household flow (name, generate invite code, redirect to home)
 - [x] 3HH.2. Generate and store unique invite code on household creation
 - [x] 3HH.3. Join household via invite code
+- [x] 3HH.4. Household settings page (name, invite code, member list with roles, leave/remove member)
 
 ---
 
@@ -225,7 +223,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 %% ─── Milestone 3: Households & Roles ────────────────────────────────────────
 "3RL.1"["`*3RL.1*<br/>**RL**<br/>Role enum in DB`"]:::done
-"3HH.4"["`*3HH.4*<br/>**HH**<br/>Household settings`"]:::open
 "3RL.2"["`*3RL.2*<br/>**RL**<br/>UI role guards`"]:::open
 "3RL.3"["`*3RL.3*<br/>**RL**<br/>Assign role on invite`"]:::open
 
@@ -298,6 +295,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-04-29_
+_Last updated: 2026-04-30_
 
 

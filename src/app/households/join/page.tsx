@@ -34,7 +34,6 @@ function JoinForm() {
 	const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault()
 		if (!user) return
-
 		setError(null)
 
 		const result = await findHousehold({

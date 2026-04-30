@@ -116,6 +116,22 @@ export interface HouseholdSettingsData {
 	}
 }
 
+export interface RemoveHouseholdMemberResult {
+	deleteFromhousehold_membersCollection: {
+		affectedCount: number
+	}
+}
+
+export const REMOVE_HOUSEHOLD_MEMBER = gql`
+	mutation RemoveHouseholdMember($household_id: UUID!, $user_id: UUID!) {
+		deleteFromhousehold_membersCollection(
+			filter: { household_id: { eq: $household_id }, user_id: { eq: $user_id } }
+		) {
+			affectedCount
+		}
+	}
+`
+
 export const GET_HOUSEHOLD_SETTINGS = gql`
 	query GetHouseholdSettings($user_id: UUID!) {
 		household_membersCollection(filter: { user_id: { eq: $user_id } }) {

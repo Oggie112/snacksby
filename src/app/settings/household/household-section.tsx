@@ -2,12 +2,15 @@
 
 import { useState } from 'react'
 
-import { useQuery } from '@apollo/client/react'
+import { useMutation, useQuery } from '@apollo/client/react'
+import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
+	REMOVE_HOUSEHOLD_MEMBER,
 	type HouseholdSettingsData,
+	type RemoveHouseholdMemberResult,
 } from '@/lib/graphql/households'
 
 const ROLE_BADGE: Record<string, string> = {
@@ -16,11 +19,16 @@ const ROLE_BADGE: Record<string, string> = {
 	Member: 'badge-ghost',
 }
 
+const LEAVE_KEY = '__leave__'
+
 export function HouseholdSection() {
 	const { user } = useUserAndSession()
+	const router = useRouter()
 	const [copied, setCopied] = useState(false)
+	const [confirmingId, setConfirmingId] = useState<string | null>(null)
+	const [leaveError, setLeaveError] = useState<string | null>(null)
 
-	const { data, loading, error } = useQuery<HouseholdSettingsData>(
+	const { data, loading, error, refetch } = useQuery<HouseholdSettingsData>(
 		GET_HOUSEHOLD_SETTINGS,
 		{
 			variables: { user_id: user?.id },
@@ -28,14 +36,48 @@ export function HouseholdSection() {
 		},
 	)
 
-	const household =
-		data?.household_membersCollection?.edges?.[0]?.node?.households
+	const [removeMember, { loading: removing }] =
+		useMutation<RemoveHouseholdMemberResult>(REMOVE_HOUSEHOLD_MEMBER)
+
+	const membership = data?.household_membersCollection?.edges?.[0]?.node
+	const household = membership?.households
 	const members = household?.household_membersCollection?.edges ?? []
+	const currentUserRole = membership?.role
+
 	const handleCopy = async () => {
 		if (!household?.invite_code) return
 		await navigator.clipboard.writeText(household.invite_code)
 		setCopied(true)
 		setTimeout(() => setCopied(false), 2000)
+	}
+
+	const handleRemove = async (targetUserId: string) => {
+		if (!household?.id) return
+		await removeMember({
+			variables: { household_id: household.id, user_id: targetUserId },
+		})
+		setConfirmingId(null)
+		await refetch()
+	}
+
+	const handleLeaveClick = () => {
+		setLeaveError(null)
+		const leaderCount = members.filter((m) => m.node.role === 'Leader').length
+		if (currentUserRole === 'Leader' && leaderCount === 1) {
+			setLeaveError(
+				"You're the only Leader — promote another member before leaving.",
+			)
+			return
+		}
+		setConfirmingId(LEAVE_KEY)
+	}
+
+	const handleLeaveConfirm = async () => {
+		if (!user?.id || !household?.id) return
+		await removeMember({
+			variables: { household_id: household.id, user_id: user.id },
+		})
+		router.push('/households/setup')
 	}
 
 	if (loading) {
@@ -86,11 +128,11 @@ export function HouseholdSection() {
 			<div className="card bg-base-100 shadow-md">
 				<div className="card-body gap-3">
 					<h2 className="card-title text-lg">Members</h2>
-					<ul className="space-y-2">
+					<ul className="space-y-3">
 						{members.map(({ node }) => (
 							<li
 								key={node.user_id}
-								className="flex items-center justify-between"
+								className="flex items-center justify-between gap-2"
 							>
 								<span className="text-sm">
 									{node.profiles?.full_name ?? 'Unknown'}
@@ -98,14 +140,74 @@ export function HouseholdSection() {
 										<span className="text-base-content/40 ml-1">(you)</span>
 									)}
 								</span>
-								<span
-									className={`badge ${ROLE_BADGE[node.role] ?? 'badge-ghost'} badge-sm`}
-								>
-									{node.role}
-								</span>
+								<div className="flex items-center gap-2">
+									<span
+										className={`badge ${ROLE_BADGE[node.role] ?? 'badge-ghost'} badge-sm`}
+									>
+										{node.role}
+									</span>
+									{currentUserRole === 'Leader' &&
+										node.user_id !== user?.id &&
+										(confirmingId === node.user_id ? (
+											<>
+												<button
+													className="btn btn-xs btn-error"
+													disabled={removing}
+													onClick={() => void handleRemove(node.user_id)}
+												>
+													Confirm
+												</button>
+												<button
+													className="btn btn-xs btn-ghost"
+													onClick={() => setConfirmingId(null)}
+												>
+													Cancel
+												</button>
+											</>
+										) : (
+											<button
+												className="btn btn-xs btn-ghost text-error"
+												onClick={() => setConfirmingId(node.user_id)}
+											>
+												Remove
+											</button>
+										))}
+								</div>
 							</li>
 						))}
 					</ul>
+
+					<div className="divider my-1" />
+
+					{leaveError && <p className="text-error text-sm">{leaveError}</p>}
+
+					{confirmingId === LEAVE_KEY ? (
+						<div className="flex items-center gap-2">
+							<span className="text-sm text-base-content/60 flex-1">
+								Leave this household?
+							</span>
+							<button
+								className="btn btn-sm btn-error"
+								disabled={removing}
+								onClick={() => void handleLeaveConfirm()}
+							>
+								Confirm
+							</button>
+							<button
+								className="btn btn-sm btn-ghost"
+								onClick={() => setConfirmingId(null)}
+							>
+								Cancel
+							</button>
+						</div>
+					) : (
+						<button
+							className="btn btn-sm btn-outline btn-error self-start"
+							onClick={handleLeaveClick}
+						>
+							Leave household
+						</button>
+					)}
 				</div>
 			</div>
 		</section>
