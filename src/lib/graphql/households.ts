@@ -22,6 +22,28 @@ export const GET_MY_HOUSEHOLD = gql`
 	}
 `
 
+export interface MyRoleNode {
+	role: string
+}
+
+export interface MyRoleData {
+	household_membersCollection: {
+		edges: Array<{ node: MyRoleNode }>
+	}
+}
+
+export const GET_MY_ROLE = gql`
+	query GetMyRole($user_id: UUID!) {
+		household_membersCollection(filter: { user_id: { eq: $user_id } }) {
+			edges {
+				node {
+					role
+				}
+			}
+		}
+	}
+`
+
 export interface HouseholdNode {
 	id: string
 	name: string
