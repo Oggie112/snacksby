@@ -30,9 +30,7 @@ export default function RecipePage({
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
 	const canEdit =
-		!!user &&
-		!roleLoading &&
-		(role === 'Leader' || role === 'Contributor')
+		!!user && !roleLoading && (role === 'Leader' || role === 'Contributor')
 
 	if (loading) {
 		return (
