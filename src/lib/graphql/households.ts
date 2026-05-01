@@ -144,6 +144,30 @@ export interface RemoveHouseholdMemberResult {
 	}
 }
 
+export interface UpdateHouseholdMemberRoleResult {
+	updatehousehold_membersCollection: {
+		records: Array<{ user_id: string; role: string }>
+	}
+}
+
+export const UPDATE_HOUSEHOLD_MEMBER_ROLE = gql`
+	mutation UpdateHouseholdMemberRole(
+		$household_id: UUID!
+		$user_id: UUID!
+		$role: role_type!
+	) {
+		updatehousehold_membersCollection(
+			filter: { household_id: { eq: $household_id }, user_id: { eq: $user_id } }
+			set: { role: $role }
+		) {
+			records {
+				user_id
+				role
+			}
+		}
+	}
+`
+
 export const REMOVE_HOUSEHOLD_MEMBER = gql`
 	mutation RemoveHouseholdMember($household_id: UUID!, $user_id: UUID!) {
 		deleteFromhousehold_membersCollection(
