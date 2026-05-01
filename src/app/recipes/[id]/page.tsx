@@ -6,6 +6,7 @@ import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 
 import { useUserAndSession } from '@/components/session-provider'
+import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	GET_RECIPE,
 	type Ingredient,
@@ -21,14 +22,15 @@ export default function RecipePage({
 	const { id } = use(params)
 
 	const { user } = useUserAndSession()
+	const { role, loading: roleLoading } = useHouseholdRole()
 
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },
 		fetchPolicy: 'cache-and-network',
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
-	const canEdit = !!user && recipe?.created_by === user.id
-	// 3RL.2 will also allow household leader/contributor
+	const canEdit =
+		!!user && !roleLoading && (role === 'Leader' || role === 'Contributor')
 
 	if (loading) {
 		return (

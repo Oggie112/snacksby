@@ -183,12 +183,12 @@ export const DELETE_RECIPE: DocumentNode = gql`
 `
 
 export const GET_MY_RECIPES = gql`
-	query GetMyRecipes($householdId: UUID, $userId: UUID!) {
+	query GetMyRecipes($household_id: UUID, $user_id: UUID!) {
 		recipesCollection(
 			filter: {
 				or: [
-					{ householdId: { eq: $householdId } }
-					{ createdBy: { eq: $userId } }
+					{ household_id: { eq: $household_id } }
+					{ created_by: { eq: $user_id } }
 				]
 			}
 		) {

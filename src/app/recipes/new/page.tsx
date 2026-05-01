@@ -31,7 +31,7 @@ export default function NewRecipePage() {
 	const { user, isAuthenticated } = useUserAndSession()
 
 	const { data: householdData } = useQuery<MyHouseholdData>(GET_MY_HOUSEHOLD, {
-		variables: { userId: user?.id },
+		variables: { user_id: user?.id },
 		skip: !user?.id,
 	})
 

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
+import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	DELETE_RECIPE,
 	GET_PUBLIC_RECIPES,
@@ -36,6 +37,7 @@ export default function EditRecipePage({
 	const { id } = use(params)
 	const router = useRouter()
 	const { user, isAuthenticated } = useUserAndSession()
+	const { role, loading: roleLoading } = useHouseholdRole()
 
 	const {
 		data,
@@ -74,7 +76,9 @@ export default function EditRecipePage({
 	useEffect(() => {
 		if (!recipe || initialized) return
 
-		if (user && recipe.created_by !== user.id) {
+		if (roleLoading) return
+
+		if (user && role !== 'Leader' && role !== 'Contributor') {
 			router.replace(`/recipes/${id}`)
 			return
 		}
@@ -102,7 +106,7 @@ export default function EditRecipePage({
 		)
 
 		setInitialized(true)
-	}, [recipe, initialized, user, id, router])
+	}, [recipe, initialized, user, id, router, role, roleLoading])
 
 	if (!isAuthenticated) return null
 
@@ -114,7 +118,7 @@ export default function EditRecipePage({
 		)
 	}
 
-	if (queryLoading || !initialized) {
+	if (queryLoading || roleLoading || !initialized) {
 		return (
 			<div className="p-4">
 				<span className="loading loading-spinner loading-md" />

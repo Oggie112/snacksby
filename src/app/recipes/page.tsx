@@ -5,12 +5,15 @@ import { useState } from 'react'
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 
+import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	GET_PUBLIC_RECIPES,
 	type RecipesCollectionData,
 } from '@/lib/graphql/recipes'
 
 export default function RecipesPage() {
+	const { canEditRecipes } = useHouseholdRole()
+
 	const [search, setSearch] = useState('')
 	const [activeTag, setActiveTag] = useState<string | null>(null)
 	const [activeTab, setActiveTab] = useState<'explore' | 'my-recipes'>(
@@ -26,7 +29,6 @@ export default function RecipesPage() {
 	)
 	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
 	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
-
 	const filteredRecipes = recipes.filter((r) => {
 		const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
 		const matchesTag = activeTag ? (r.tags ?? []).includes(activeTag) : true
@@ -78,12 +80,14 @@ export default function RecipesPage() {
 						My Recipes
 					</button>
 				</div>
-				<Link
-					href="/recipes/new"
-					className="btn btn-sm btn-primary hidden md:inline-flex"
-				>
-					New Recipe
-				</Link>
+				{canEditRecipes && (
+					<Link
+						href="/recipes/new"
+						className="btn btn-sm btn-primary hidden md:inline-flex"
+					>
+						New Recipe
+					</Link>
+				)}
 			</div>
 
 			<div className="mt-4">
@@ -132,25 +136,27 @@ export default function RecipesPage() {
 				)}
 			</div>
 
-			<Link
-				href="/recipes/new"
-				className="btn btn-primary btn-circle fixed bottom-20 right-4 shadow-lg md:hidden"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					className="size-6"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-					strokeWidth={2.5}
+			{canEditRecipes && (
+				<Link
+					href="/recipes/new"
+					className="btn btn-primary btn-circle fixed bottom-20 right-4 shadow-lg md:hidden"
 				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						d="M12 4v16m8-8H4"
-					/>
-				</svg>
-			</Link>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						className="size-6"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke="currentColor"
+						strokeWidth={2.5}
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							d="M12 4v16m8-8H4"
+						/>
+					</svg>
+				</Link>
+			)}
 		</div>
 	)
 }
