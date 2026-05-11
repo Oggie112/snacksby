@@ -20,7 +20,7 @@ export default function ShoppingListPage() {
 	}
 
 	return (
-		<div className="p-4 space-y-4 bg-neutral text-neutral-content">
+		<div className="p-4 space-y-4 max-w-2xl mx-auto bg-neutral text-neutral-content">
 			<h1 className="text-2xl font-bold">Shopping List</h1>
 
 			{items.length === 0 ? (

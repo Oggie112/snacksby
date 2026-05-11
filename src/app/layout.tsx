@@ -27,7 +27,7 @@ export default async function RootLayout({
 				<SessionProvider user={user} session={session}>
 					<ApolloClientProvider>
 						<Nav />
-						<main className="pb-16 md:pb-0 md:pt-0 max-w-2xl mx-auto">
+						<main className="pb-16 md:pb-0 md:pt-0 max-w-5xl mx-auto">
 							{children}
 						</main>
 					</ApolloClientProvider>

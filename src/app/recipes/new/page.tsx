@@ -122,7 +122,7 @@ export default function NewRecipePage() {
 	}
 
 	return (
-		<div className="p-4 space-y-6 max-w-2xl">
+		<div className="p-4 space-y-6 max-w-2xl mx-auto">
 			<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
 				← Back
 			</Link>

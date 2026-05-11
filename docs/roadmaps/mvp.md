@@ -8,11 +8,11 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | --------- | ----------------------------------------- | ------------------------------ | ----------------- |
 | **INF**   | Done                                      | —                              | —                 |
 | **NAV**   | Done                                      | —                              | —                 |
-| **SET**   | Done                                      | —                              | 1SET.2 → `3HH.4`  |
+| **SET**   | Done                                      | —                              | —                 |
 | **DB**    | Done — tables, RLS, GraphQL verified      | —                              | —                 |
 | **REC**   | Done — full CRUD live                     | —                              | —                 |
-| **HH/RL** | Partial — household settings done         | Role guards                    | 1SET.2 → 3RL.2         |
-| **PL**    | Stub only                                 | Weekly calendar view, 4PL.2    | 4PL.1 → 4PL.3, 4PL.5  |
+| **HH/RL** | Done                                      | —                              | —                 |
+| **PL**    | Done                                      | —                              | —                      |
 | **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
 | **PWA**   | Not started                               | PWA manifest                   | `5SH.2`           |
 
@@ -106,14 +106,15 @@ _(none)_
 
 <a name="m3-doing"><h4>In Progress (Milestone 3)</h4></a>
 
-- [ ] 3RL.2. Role-based UI guards (hide edit/delete for Member role)
+_(none)_
 
 <a name="m3-todo"><h4>To Do (Milestone 3)</h4></a>
-- [ ] 3RL.3. Assign role when inviting or accepting a member
+
+_(none)_
 
 <a name="m3-blocked"><h4>Blocked (Milestone 3)</h4></a>
 
-- [ ] 1SET.2. Settings page — household section (members, invite code, role-gated) — **depends on 3RL.2**
+_(none)_
 
 <a name="m3-done"><h4>Completed (Milestone 3)</h4></a>
 
@@ -122,6 +123,9 @@ _(none)_
 - [x] 3HH.2. Generate and store unique invite code on household creation
 - [x] 3HH.3. Join household via invite code
 - [x] 3HH.4. Household settings page (name, invite code, member list with roles, leave/remove member)
+- [x] 3RL.2. Role-based UI guards (hide edit/delete for Member role)
+- [x] 3RL.3. Assign role when inviting or accepting a member
+- [x] 1SET.2. Settings page — household section (members, invite code, role-gated)
 
 ---
 
@@ -136,21 +140,20 @@ _(none)_
 
 <a name="m4-todo"><h4>To Do (Milestone 4)</h4></a>
 
-- [ ] 4PL.1. Weekly calendar component (7-day grid, current week default)
-- [ ] 4PL.2. GraphQL query — fetch meal plan for a given week
-- [ ] 4PL.3. Assign recipe to a day slot (mutation + UI) — **depends on 4PL.1, 4PL.2, 2REC.2**
-- [ ] 4PL.4. Remove meal from a day slot — **depends on 4PL.3**
-- [ ] 4PL.5. Navigate between weeks (previous / next) — **depends on 4PL.1**
-- [ ] 4PL.6. Scope plan to household (shared view for all members) — **depends on 3HH.1, 4PL.2**
+_(none)_
 
 <a name="m4-blocked"><h4>Blocked (Milestone 4)</h4></a>
 
-- `4PL.3`, `4PL.4`, `4PL.5` blocked on `4PL.1`
-- `4PL.6` blocked on `4PL.2`
+_(none)_
 
 <a name="m4-done"><h4>Completed (Milestone 4)</h4></a>
 
-_(none)_
+- [x] 4PL.1. Weekly calendar component (7-day grid, current week default)
+- [x] 4PL.2. GraphQL query — fetch meal plan for a given week
+- [x] 4PL.3. Assign recipe to a day slot (mutation + UI)
+- [x] 4PL.4. Remove meal from a day slot
+- [x] 4PL.5. Navigate between weeks (previous / next)
+- [x] 4PL.6. Scope plan to household (shared view for all members)
 
 ---
 
@@ -180,7 +183,7 @@ _(none)_
 <a name="m5-blocked"><h4>Blocked (Milestone 5)</h4></a>
 
 - `5SH.1` is unblocked (DB is ready)
-- `5SH.3` blocked on `4PL.2` (meal plan query)
+- `5SH.3` blocked on `5SH.1`
 - `5PWA.2` blocked on `5SH.2`
 
 <a name="m5-done"><h4>Completed (Milestone 5)</h4></a>
@@ -223,22 +226,7 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 %% ─── Milestone 3: Households & Roles ────────────────────────────────────────
 "3RL.1"["`*3RL.1*<br/>**RL**<br/>Role enum in DB`"]:::done
-"3RL.2"["`*3RL.2*<br/>**RL**<br/>UI role guards`"]:::open
-"3RL.3"["`*3RL.3*<br/>**RL**<br/>Assign role on invite`"]:::open
 
-%% ─── Milestone 4: Meal Planning ─────────────────────────────────────────────
-"4PL.1"["`*4PL.1*<br/>**PL**<br/>Week calendar UI`"]:::open
-"4PL.2"["`*4PL.2*<br/>**PL**<br/>Query week plan`"]:::open
-"4PL.3"["`*4PL.3*<br/>**PL**<br/>Assign recipe to day`"]:::blocked
-"4PL.4"["`*4PL.4*<br/>**PL**<br/>Remove meal`"]:::blocked
-"4PL.5"["`*4PL.5*<br/>**PL**<br/>Week navigation`"]:::blocked
-"4PL.6"["`*4PL.6*<br/>**PL**<br/>Household plan scope`"]:::blocked
-
-"4PL.1" --> "4PL.3"
-"4PL.1" --> "4PL.5"
-"4PL.2" --> "4PL.3"
-"4PL.2" --> "4PL.6"
-"4PL.3" --> "4PL.4"
 
 %% ─── Milestone 5: Shopping List & PWA ───────────────────────────────────────
 "5SH.1"["`*5SH.1*<br/>**SH**<br/>List queries & mutations`"]:::open
@@ -255,7 +243,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 "5SH.1" --> "5SH.2"
 "5SH.1" --> "5SH.3"
-"4PL.2" --> "5SH.3"
 "5SH.2" --> "5SH.4"
 "5SH.2" --> "5SH.5"
 "5SH.2" --> "5SH.6"
@@ -295,6 +282,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-04-30_
+_Last updated: 2026-05-11_
 
 
