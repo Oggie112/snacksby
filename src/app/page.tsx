@@ -21,7 +21,7 @@ export default function HomePage() {
 		(householdData?.household_membersCollection?.edges?.length ?? 0) > 0
 
 	return (
-		<div className="p-4 space-y-6">
+		<div className="p-4 space-y-6 max-w-2xl mx-auto">
 			<h1 className="text-2xl font-bold">Good morning</h1>
 
 			{user && householdData && !hasHousehold && (

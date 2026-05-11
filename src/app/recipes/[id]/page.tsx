@@ -53,7 +53,7 @@ export default function RecipePage({
 	const totalTime = (recipe.prep_time ?? 0) + (recipe.cook_time ?? 0)
 
 	return (
-		<div className="p-4 space-y-6 max-w-2xl">
+		<div className="p-4 space-y-6 max-w-2xl mx-auto">
 			<div className="flex items-center justify-between">
 				<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
 					← Back
