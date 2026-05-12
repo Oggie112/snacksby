@@ -13,8 +13,8 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **REC**   | Done — full CRUD live                     | —                              | —                 |
 | **HH/RL** | Done                                      | —                              | —                 |
 | **PL**    | Done                                      | —                              | —                      |
-| **SH**    | Wireframe only (local state)              | DB persistence                 | `4PL.2`           |
-| **PWA**   | Not started                               | PWA manifest                   | `5SH.2`           |
+| **SH**    | 5SH.1–2, 5SH.5–7 done — list live        | Merge from plan (5SH.3), categorise (5SH.4) | —            |
+| **PWA**   | Not started                               | PWA manifest (5PWA.1)          | —                 |
 
 ---
 
@@ -168,27 +168,25 @@ _(none)_
 
 <a name="m5-todo"><h4>To Do (Milestone 5)</h4></a>
 
-- [ ] 5SH.1. GraphQL queries + mutations for shopping list items
-- [ ] 5SH.2. Connect shopping list page to DB (replace local state) — **depends on 5SH.1**
-- [ ] 5SH.3. Merge ingredients from current week's meal plan into list — **depends on 5SH.1, 4PL.2**
-- [ ] 5SH.4. Categorise items (produce, dairy, meat, etc.) — **depends on 5SH.2**
-- [ ] 5SH.5. Tick/untick items (done state persisted) — **depends on 5SH.2**
-- [ ] 5SH.6. Add custom items to list — **depends on 5SH.2**
-- [ ] 5SH.7. Remove items from list — **depends on 5SH.2**
+- [ ] 5SH.3. Merge ingredients from current week's meal plan into list
+- [ ] 5SH.4. Categorise items (produce, dairy, meat, etc.)
 - [ ] 5PWA.1. Add PWA manifest (name, icons, theme colour, display mode)
-- [ ] 5PWA.2. Service worker — cache recipes and shopping list for offline use — **depends on 5SH.2, 2REC.2**
+- [ ] 5PWA.2. Service worker — cache recipes and shopping list for offline use
 - [ ] 5PWA.3. Offline state indicator in UI — **depends on 5PWA.2**
 - [ ] 5PWA.4. Auto-sync queued changes on reconnect — **depends on 5PWA.2**
 
 <a name="m5-blocked"><h4>Blocked (Milestone 5)</h4></a>
 
-- `5SH.1` is unblocked (DB is ready)
-- `5SH.3` blocked on `5SH.1`
-- `5PWA.2` blocked on `5SH.2`
+- `5PWA.3` blocked on `5PWA.2`
+- `5PWA.4` blocked on `5PWA.2`
 
 <a name="m5-done"><h4>Completed (Milestone 5)</h4></a>
 
-_(none)_
+- [x] 5SH.1. GraphQL queries + mutations for shopping list items
+- [x] 5SH.2. Connect shopping list page to DB (replace local state)
+- [x] 5SH.5. Tick/untick items (done state persisted)
+- [x] 5SH.6. Add custom items to list
+- [x] 5SH.7. Remove items from list
 
 ---
 
@@ -229,25 +227,13 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 
 %% ─── Milestone 5: Shopping List & PWA ───────────────────────────────────────
-"5SH.1"["`*5SH.1*<br/>**SH**<br/>List queries & mutations`"]:::open
-"5SH.2"["`*5SH.2*<br/>**SH**<br/>Connect list to DB`"]:::blocked
-"5SH.3"["`*5SH.3*<br/>**SH**<br/>Merge from meal plan`"]:::blocked
-"5SH.4"["`*5SH.4*<br/>**SH**<br/>Categorise items`"]:::blocked
-"5SH.5"["`*5SH.5*<br/>**SH**<br/>Tick/untick items`"]:::blocked
-"5SH.6"["`*5SH.6*<br/>**SH**<br/>Add custom items`"]:::blocked
-"5SH.7"["`*5SH.7*<br/>**SH**<br/>Remove items`"]:::blocked
+"5SH.3"["`*5SH.3*<br/>**SH**<br/>Merge from meal plan`"]:::open
+"5SH.4"["`*5SH.4*<br/>**SH**<br/>Categorise items`"]:::open
 "5PWA.1"["`*5PWA.1*<br/>**PWA**<br/>PWA manifest`"]:::open
-"5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::blocked
+"5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::open
 "5PWA.3"["`*5PWA.3*<br/>**PWA**<br/>Offline indicator`"]:::blocked
 "5PWA.4"["`*5PWA.4*<br/>**PWA**<br/>Auto-sync`"]:::blocked
 
-"5SH.1" --> "5SH.2"
-"5SH.1" --> "5SH.3"
-"5SH.2" --> "5SH.4"
-"5SH.2" --> "5SH.5"
-"5SH.2" --> "5SH.6"
-"5SH.2" --> "5SH.7"
-"5SH.2" --> "5PWA.2"
 "5PWA.2" --> "5PWA.3"
 "5PWA.2" --> "5PWA.4"
 
@@ -274,7 +260,9 @@ Features deliberately deferred from the MVP:
 
 - **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph (first post-MVP priority)
 - **Smart invite link** — time-limited, single-use invite URLs (`/join?code=abc123`) shareable via native share sheet; code persists through the auth/signup flow via a short-lived cookie so a new user auto-joins the correct household on first login. Requires a separate `household_invites` table (`code`, `household_id`, `expires_at`, `used_at`), a `/join` landing page that handles unauthenticated arrivals, and middleware that reads + clears the pending-invite cookie post-auth. Permanent codes (MVP) remain as a fallback for Leaders who want a stable link.
-- **Portion scaling** — adjust servings and auto-scale ingredient quantities
+- **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. This is a prerequisite for both of the following two items:
+  - **Portion scaling** — adjust servings and auto-scale ingredient quantities
+  - **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
 - **Barcode scanning** — add items to shopping list via camera
 - **Voice assistant integration** — hands-free list management
 - **External calendar sync** — push meal plan to Google Calendar / iCal
@@ -282,6 +270,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-05-11_
+_Last updated: 2026-05-12_
 
 
