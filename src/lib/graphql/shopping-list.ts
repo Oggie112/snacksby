@@ -1,5 +1,169 @@
 import { gql } from '@apollo/client'
 
+export const CATEGORIES = [
+	'Produce',
+	'Meat & Fish',
+	'Dairy',
+	'Bakery',
+	'Pantry',
+	'Frozen',
+	'Drinks',
+	'Misc',
+] as const
+
+export type Category = (typeof CATEGORIES)[number]
+
+const CATEGORY_KEYWORDS: Record<Category, string[]> = {
+	Produce: [
+		'onion',
+		'garlic',
+		'tomato',
+		'potato',
+		'carrot',
+		'lettuce',
+		'spinach',
+		'pepper',
+		'courgette',
+		'lemon',
+		'lime',
+		'apple',
+		'banana',
+		'mushroom',
+		'broccoli',
+		'celery',
+		'leek',
+		'ginger',
+		'chilli',
+		'coriander',
+		'parsley',
+		'basil',
+		'thyme',
+		'rosemary',
+		'herb',
+		'salad',
+		'cucumber',
+		'avocado',
+	],
+	'Meat & Fish': [
+		'chicken',
+		'beef',
+		'mince',
+		'pork',
+		'lamb',
+		'bacon',
+		'sausage',
+		'turkey',
+		'salmon',
+		'tuna',
+		'fish',
+		'prawn',
+		'cod',
+		'haddock',
+		'steak',
+		'breast',
+		'thigh',
+		'fillet',
+		'chorizo',
+		'ham',
+		'meatball',
+	],
+	Dairy: [
+		'milk',
+		'cream',
+		'cheese',
+		'butter',
+		'yoghurt',
+		'yogurt',
+		'egg',
+		'eggs',
+		'cheddar',
+		'mozzarella',
+		'parmesan',
+		'feta',
+		'crème',
+		'creme',
+		'mascarpone',
+	],
+	Bakery: [
+		'bread',
+		'roll',
+		'baguette',
+		'flour',
+		'sourdough',
+		'loaf',
+		'pitta',
+		'tortilla',
+		'wrap',
+		'croissant',
+		'bagel',
+	],
+	Pantry: [
+		'pasta',
+		'rice',
+		'oil',
+		'stock',
+		'tin',
+		'sauce',
+		'vinegar',
+		'salt',
+		'sugar',
+		'honey',
+		'soy',
+		'purée',
+		'puree',
+		'canned',
+		'beans',
+		'lentils',
+		'spaghetti',
+		'noodles',
+		'spice',
+		'cumin',
+		'paprika',
+		'oregano',
+		'bay',
+		'mustard',
+		'ketchup',
+		'mayo',
+		'mayonnaise',
+		'lentil',
+		'chickpea',
+		'coconut',
+		'curry',
+		'cornflour',
+		'breadcrumb',
+		'yeast',
+		'baking',
+	],
+	Frozen: ['frozen', 'ice cream', 'peas'],
+	Drinks: [
+		'wine',
+		'beer',
+		'juice',
+		'water',
+		'coffee',
+		'tea',
+		'fizzy',
+		'squash',
+		'smoothie',
+		'cider',
+		'spirit',
+		'vodka',
+		'gin',
+	],
+	Misc: [],
+}
+
+export function guessCategory(name: string): Category {
+	const lower = name.toLowerCase()
+	for (const category of CATEGORIES) {
+		if (category === 'Misc') continue
+		if (CATEGORY_KEYWORDS[category].some((kw) => lower.includes(kw))) {
+			return category
+		}
+	}
+	return 'Misc'
+}
+
 export interface ShoppingListItem {
 	id: string
 	name: string
@@ -149,9 +313,30 @@ export const CLEAR_CHECKED = gql`
 	mutation ClearCheckedItems($householdId: UUID!) {
 		deleteFromshopping_list_itemsCollection(
 			filter: { household_id: { eq: $householdId }, checked: { eq: true } }
+			atMost: 1000
 		) {
 			records {
 				id
+			}
+		}
+	}
+`
+
+export interface UpdateItemCategoryResult {
+	updateshopping_list_itemsCollection: {
+		records: Array<{ id: string; category: string | null }>
+	}
+}
+
+export const UPDATE_ITEM_CATEGORY = gql`
+	mutation UpdateItemCategory($id: UUID!, $category: String!) {
+		updateshopping_list_itemsCollection(
+			filter: { id: { eq: $id } }
+			set: { category: $category }
+		) {
+			records {
+				id
+				category
 			}
 		}
 	}

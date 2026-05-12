@@ -11,16 +11,21 @@ import {
 } from '@/lib/graphql/households'
 import {
 	ADD_ITEM,
+	CATEGORIES,
 	CLEAR_CHECKED,
 	GET_SHOPPING_LIST,
 	GET_WEEK_INGREDIENTS,
 	REMOVE_ITEM,
 	TOGGLE_ITEM,
+	UPDATE_ITEM_CATEGORY,
+	guessCategory,
 	type AddItemResult,
+	type Category,
 	type ClearCheckedResult,
 	type RemoveItemResult,
 	type ShoppingListData,
 	type ToggleItemResult,
+	type UpdateItemCategoryResult,
 	type WeekIngredientsData,
 } from '@/lib/graphql/shopping-list'
 
@@ -54,6 +59,7 @@ function addDays(date: Date, n: number): Date {
 function ShoppingListContent() {
 	const { user } = useUserAndSession()
 	const [newItem, setNewItem] = useState('')
+	const [newCategory, setNewCategory] = useState<Category>('Misc')
 	const [importMessage, setImportMessage] = useState<string | null>(null)
 	const [importing, setImporting] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
@@ -96,6 +102,9 @@ function ShoppingListContent() {
 	const [clearChecked] = useMutation<ClearCheckedResult>(CLEAR_CHECKED, {
 		onCompleted: () => void refetch(),
 	})
+
+	const [updateItemCategory] =
+		useMutation<UpdateItemCategoryResult>(UPDATE_ITEM_CATEGORY)
 
 	const { refetch: fetchWeekIngredients } = useQuery<WeekIngredientsData>(
 		GET_WEEK_INGREDIENTS,
@@ -154,6 +163,7 @@ function ShoppingListContent() {
 					householdId,
 					name,
 					quantity: quantities.join(' + ') || null,
+					category: guessCategory(name),
 				},
 			})
 			added++
@@ -190,12 +200,19 @@ function ShoppingListContent() {
 		listData?.shopping_list_itemsCollection?.edges?.map((e) => e.node) ?? []
 	const hasChecked = items.some((i) => i.checked)
 
+	const grouped = CATEGORIES.map((cat) => ({
+		category: cat,
+		items: items.filter((i) => (i.category ?? 'Misc') === cat),
+	})).filter((g) => g.items.length > 0)
+
 	async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault()
 		const name = newItem.trim()
 		if (!name) return
+		const category = newCategory === 'Misc' ? guessCategory(name) : newCategory
 		setNewItem('')
-		await addItem({ variables: { householdId, name } })
+		setNewCategory('Misc')
+		await addItem({ variables: { householdId, name, category } })
 		inputRef.current?.focus()
 	}
 
@@ -237,41 +254,67 @@ function ShoppingListContent() {
 			{items.length === 0 && !listLoading ? (
 				<p className="text-base-content/60">Your shopping list is empty.</p>
 			) : (
-				<ul className="space-y-2">
-					{items.map((item) => (
-						<li key={item.id} className="flex items-center gap-3">
-							<input
-								type="checkbox"
-								id={item.id}
-								checked={item.checked}
-								className="checkbox"
-								onChange={() =>
-									void toggleItem({
-										variables: { id: item.id, checked: !item.checked },
-									})
-								}
-							/>
-							<label
-								htmlFor={item.id}
-								className={`flex-1 ${item.checked ? 'line-through text-base-content/40' : ''}`}
-							>
-								{item.name}
-								{item.quantity && (
-									<span className="ml-2 text-sm text-base-content/50">
-										{item.quantity}
-									</span>
-								)}
-							</label>
-							<button
-								className="btn btn-ghost btn-xs text-error"
-								aria-label="Remove item"
-								onClick={() => void removeItem({ variables: { id: item.id } })}
-							>
-								×
-							</button>
-						</li>
+				<div className="space-y-4">
+					{grouped.map(({ category, items: groupItems }) => (
+						<div key={category}>
+							<p className="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-1">
+								{category}
+							</p>
+							<ul className="space-y-2">
+								{groupItems.map((item) => (
+									<li key={item.id} className="flex items-center gap-3">
+										<input
+											type="checkbox"
+											id={item.id}
+											checked={item.checked}
+											className="checkbox"
+											onChange={() =>
+												void toggleItem({
+													variables: { id: item.id, checked: !item.checked },
+												})
+											}
+										/>
+										<label
+											htmlFor={item.id}
+											className={`flex-1 ${item.checked ? 'line-through text-base-content/40' : ''}`}
+										>
+											{item.name}
+											{item.quantity && (
+												<span className="ml-2 text-sm text-base-content/50">
+													{item.quantity}
+												</span>
+											)}
+										</label>
+										<select
+											className="select select-ghost select-xs text-base-content/50"
+											value={item.category ?? 'Misc'}
+											onChange={(e) =>
+												void updateItemCategory({
+													variables: { id: item.id, category: e.target.value },
+												}).then(() => void refetch())
+											}
+										>
+											{CATEGORIES.map((cat) => (
+												<option key={cat} value={cat}>
+													{cat}
+												</option>
+											))}
+										</select>
+										<button
+											className="btn btn-ghost btn-xs text-error"
+											aria-label="Remove item"
+											onClick={() =>
+												void removeItem({ variables: { id: item.id } })
+											}
+										>
+											×
+										</button>
+									</li>
+								))}
+							</ul>
+						</div>
 					))}
-				</ul>
+				</div>
 			)}
 
 			{hasChecked && (
@@ -283,7 +326,10 @@ function ShoppingListContent() {
 				</button>
 			)}
 
-			<form onSubmit={(e) => void handleAdd(e)} className="flex gap-2">
+			<form
+				onSubmit={(e) => void handleAdd(e)}
+				className="flex gap-2 flex-wrap"
+			>
 				<input
 					ref={inputRef}
 					type="text"
@@ -291,7 +337,23 @@ function ShoppingListContent() {
 					className="input input-bordered flex-1"
 					value={newItem}
 					onChange={(e) => setNewItem(e.target.value)}
+					onBlur={() => {
+						if (newCategory === 'Misc') {
+							setNewCategory(guessCategory(newItem.trim()))
+						}
+					}}
 				/>
+				<select
+					className="select select-bordered"
+					value={newCategory}
+					onChange={(e) => setNewCategory(e.target.value as Category)}
+				>
+					{CATEGORIES.map((cat) => (
+						<option key={cat} value={cat}>
+							{cat}
+						</option>
+					))}
+				</select>
 				<button type="submit" className="btn btn-primary" disabled={adding}>
 					{adding ? (
 						<span className="loading loading-spinner loading-xs" />

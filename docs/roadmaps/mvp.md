@@ -13,7 +13,7 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **REC**   | Done — full CRUD live                     | —                              | —                 |
 | **HH/RL** | Done                                      | —                              | —                 |
 | **PL**    | Done                                      | —                              | —                      |
-| **SH**    | 5SH.1–2, 5SH.5–7 done — list live        | Merge from plan (5SH.3), categorise (5SH.4) | —            |
+| **SH**    | 5SH.1–3, 5SH.5–7 done — list live        | Categorise (5SH.4)            | —                 |
 | **PWA**   | Not started                               | PWA manifest (5PWA.1)          | —                 |
 
 ---
@@ -168,7 +168,6 @@ _(none)_
 
 <a name="m5-todo"><h4>To Do (Milestone 5)</h4></a>
 
-- [ ] 5SH.3. Merge ingredients from current week's meal plan into list
 - [ ] 5SH.4. Categorise items (produce, dairy, meat, etc.)
 - [ ] 5PWA.1. Add PWA manifest (name, icons, theme colour, display mode)
 - [ ] 5PWA.2. Service worker — cache recipes and shopping list for offline use
@@ -187,6 +186,7 @@ _(none)_
 - [x] 5SH.5. Tick/untick items (done state persisted)
 - [x] 5SH.6. Add custom items to list
 - [x] 5SH.7. Remove items from list
+- [x] 5SH.3. Merge ingredients from current week's meal plan into list
 
 ---
 
@@ -227,7 +227,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 
 %% ─── Milestone 5: Shopping List & PWA ───────────────────────────────────────
-"5SH.3"["`*5SH.3*<br/>**SH**<br/>Merge from meal plan`"]:::open
 "5SH.4"["`*5SH.4*<br/>**SH**<br/>Categorise items`"]:::open
 "5PWA.1"["`*5PWA.1*<br/>**PWA**<br/>PWA manifest`"]:::open
 "5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::open
