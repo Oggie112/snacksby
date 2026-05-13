@@ -13,8 +13,8 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **REC**   | Done — full CRUD live                     | —                              | —                 |
 | **HH/RL** | Done                                      | —                              | —                 |
 | **PL**    | Done                                      | —                              | —                      |
-| **SH**    | 5SH.1–3, 5SH.5–7 done — list live        | Categorise (5SH.4)            | —                 |
-| **PWA**   | Not started                               | PWA manifest (5PWA.1)          | —                 |
+| **SH**    | Done — all tasks complete                 | —                              | —                 |
+| **PWA**   | In progress — manifest, SW, offline UI done | Auto-sync (5PWA.4)           | —                 |
 
 ---
 
@@ -168,16 +168,12 @@ _(none)_
 
 <a name="m5-todo"><h4>To Do (Milestone 5)</h4></a>
 
-- [ ] 5SH.4. Categorise items (produce, dairy, meat, etc.)
-- [ ] 5PWA.1. Add PWA manifest (name, icons, theme colour, display mode)
-- [ ] 5PWA.2. Service worker — cache recipes and shopping list for offline use
-- [ ] 5PWA.3. Offline state indicator in UI — **depends on 5PWA.2**
-- [ ] 5PWA.4. Auto-sync queued changes on reconnect — **depends on 5PWA.2**
+- [ ] 5PWA.4. Auto-sync queued changes on reconnect
+- [ ] 5PWA.5. Apollo cache persistence (`apollo3-cache-persist`) — persist GraphQL data to IndexedDB so recipes and shopping list are available offline and survive hard close
 
 <a name="m5-blocked"><h4>Blocked (Milestone 5)</h4></a>
 
-- `5PWA.3` blocked on `5PWA.2`
-- `5PWA.4` blocked on `5PWA.2`
+_(none)_
 
 <a name="m5-done"><h4>Completed (Milestone 5)</h4></a>
 
@@ -187,6 +183,10 @@ _(none)_
 - [x] 5SH.6. Add custom items to list
 - [x] 5SH.7. Remove items from list
 - [x] 5SH.3. Merge ingredients from current week's meal plan into list
+- [x] 5SH.4. Categorise items (produce, dairy, meat, etc.)
+- [x] 5PWA.1. Add PWA manifest (name, icons, theme colour, display mode)
+- [x] 5PWA.2. Service worker — Serwist precache + runtime caching
+- [x] 5PWA.3. Offline state indicator — banner with offline warning and "Back online" confirmation
 
 ---
 
@@ -227,14 +227,11 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 
 
 %% ─── Milestone 5: Shopping List & PWA ───────────────────────────────────────
-"5SH.4"["`*5SH.4*<br/>**SH**<br/>Categorise items`"]:::open
-"5PWA.1"["`*5PWA.1*<br/>**PWA**<br/>PWA manifest`"]:::open
-"5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::open
-"5PWA.3"["`*5PWA.3*<br/>**PWA**<br/>Offline indicator`"]:::blocked
-"5PWA.4"["`*5PWA.4*<br/>**PWA**<br/>Auto-sync`"]:::blocked
-
-"5PWA.2" --> "5PWA.3"
-"5PWA.2" --> "5PWA.4"
+"5PWA.1"["`*5PWA.1*<br/>**PWA**<br/>PWA manifest`"]:::done
+"5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::done
+"5PWA.3"["`*5PWA.3*<br/>**PWA**<br/>Offline indicator`"]:::done
+"5PWA.4"["`*5PWA.4*<br/>**PWA**<br/>Auto-sync`"]:::open
+"5PWA.5"["`*5PWA.5*<br/>**PWA**<br/>Apollo cache persist`"]:::open
 
 classDef default,blocked fill:#f9c6e0,stroke:#c084a0,color:#3b1f2b
 classDef open fill:#fef08a,stroke:#ca8a04,color:#3b2400
@@ -269,6 +266,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-05-12_
+_Last updated: 2026-05-13_
 
 
