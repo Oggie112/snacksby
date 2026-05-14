@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -102,7 +103,16 @@ export function Nav() {
 			{/* Desktop: top navbar */}
 			<nav className="hidden md:flex navbar bg-base-200 border-b border-base-300 px-4 sticky top-0 z-50">
 				<div className="navbar-start">
-					<span className="text-lg font-bold text-primary">Snacksby</span>
+					<div className="avatar relative w-20 h-20 rounded-full overflow-hidden">
+						<Image
+							src="/images/snacksby-logo.png"
+							alt="Snacksby Logo"
+							fill
+							unoptimized
+							loading="eager"
+							className="object-cover object-center scale-[1.12]"
+						/>
+					</div>
 				</div>
 				<div className="navbar-center gap-1">
 					{links.map(({ href, label }) => (

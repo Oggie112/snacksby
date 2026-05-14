@@ -3,6 +3,7 @@ import './globals.css'
 
 import { ApolloClientProvider } from '@/components/apollo-provider'
 import { Nav } from '@/components/nav'
+import { OfflineBanner } from '@/components/offline-banner'
 import { SessionProvider } from '@/components/session-provider'
 import { getUserAndSession } from '@/lib/supabase/session'
 
@@ -27,6 +28,7 @@ export default async function RootLayout({
 				<SessionProvider user={user} session={session}>
 					<ApolloClientProvider>
 						<Nav />
+						<OfflineBanner />
 						<main className="pb-16 md:pb-0 md:pt-0 max-w-5xl mx-auto">
 							{children}
 						</main>

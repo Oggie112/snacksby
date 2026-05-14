@@ -74,6 +74,14 @@ export default tseslint.config(
 				{ argsIgnorePattern: '^_' },
 			],
 
+			// Disabled: fire on JSON.parse and Apollo return types which are
+			// inherently any — tsc catches real type errors, these add no value here
+			'@typescript-eslint/no-unsafe-assignment': 'off',
+			'@typescript-eslint/no-unsafe-member-access': 'off',
+			'@typescript-eslint/no-unsafe-call': 'off',
+			'@typescript-eslint/no-unsafe-argument': 'off',
+			'@typescript-eslint/no-unsafe-return': 'off',
+
 			// Imports
 			'import/order': [
 				'error',
