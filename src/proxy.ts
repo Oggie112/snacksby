@@ -31,6 +31,10 @@ export async function proxy(request: NextRequest) {
 		pathname.startsWith('/favicon') ||
 		pathname.startsWith('/_next') ||
 		pathname.startsWith('/assets') ||
+		pathname.startsWith('/images/') ||
+		pathname === '/manifest.webmanifest' ||
+		pathname === '/sw.js' ||
+		pathname.startsWith('/workbox-') ||
 		pathname.startsWith('/api/public') // if you have any public APIs
 
 	if (isPublic) {
@@ -75,5 +79,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
 	// Match all request paths except for _next/static, _next/image, favicon.ico, and assets.
-	matcher: ['/((?!_next/static|_next/image|favicon.ico|assets).*)'],
+	matcher: [
+		'/((?!_next/static|_next/image|favicon.ico|assets|images|manifest.webmanifest|sw.js|workbox-).*)'
+	],
 }
