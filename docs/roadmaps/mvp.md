@@ -245,8 +245,12 @@ classDef done fill:#bbf7d0,stroke:#16a34a,color:#14532d
 
 UI improvements to revisit once all milestones are complete:
 
-- **Tag filtering persistence** — move `activeTag` state on the browse page to a URL search param (`?tag=pasta`); link tag badges on the recipe detail page back to `/recipes?tag=...` so the filter survives navigation
-- **Recipe saved banner** — if create/edit mutation succeeds but returns no ID, the user is redirected to `/recipes` without confirmation; show a transient "Recipe saved" banner on the list page via a query param (`?saved=1`) so they know it worked
+- **Home page dashboard** — link the home page to the current week's meal plan, shopping list, and quick-add recipe shortcuts so it serves as a useful landing screen rather than a placeholder
+
+### Completed Polish
+
+- [x] **Tag filtering persistence** — `activeTag` moved to URL search params (`?tag=pasta&tag=beef`); multi-tag AND filtering; tag badges on recipe detail link back to `/recipes?tag=...`; back button on detail page uses `router.back()` to preserve filter
+- [x] **Recipe saved banner** — transient "Recipe saved" alert shown on the recipes list page via `?saved=1` query param when create/edit mutation returns no ID
 
 ---
 
@@ -267,6 +271,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-05-14_
+_Last updated: 2026-05-14_ <!-- tag persistence, recipe saved banner completed; home page dashboard added to polish -->
 
 

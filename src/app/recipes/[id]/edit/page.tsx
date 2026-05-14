@@ -194,7 +194,7 @@ export default function EditRecipePage({
 		if (updated) {
 			router.push(`/recipes/${id}`)
 		} else {
-			router.push('/recipes')
+			router.push('/recipes?saved=1')
 		}
 	}
 

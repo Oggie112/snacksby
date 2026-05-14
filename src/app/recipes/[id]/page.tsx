@@ -4,6 +4,7 @@ import { use } from 'react'
 
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
@@ -20,6 +21,7 @@ export default function RecipePage({
 	params: Promise<{ id: string }>
 }) {
 	const { id } = use(params)
+	const router = useRouter()
 
 	const { user } = useUserAndSession()
 	const { role, loading: roleLoading } = useHouseholdRole()
@@ -55,9 +57,12 @@ export default function RecipePage({
 	return (
 		<div className="p-4 space-y-6 max-w-2xl mx-auto">
 			<div className="flex items-center justify-between">
-				<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
+				<button
+					onClick={() => router.back()}
+					className="btn btn-ghost btn-sm pl-0"
+				>
 					← Back
-				</Link>
+				</button>
 				{canEdit && (
 					<Link href={`/recipes/${id}/edit`} className="btn btn-outline btn-sm">
 						Edit
@@ -82,9 +87,13 @@ export default function RecipePage({
 			{(recipe.tags ?? []).length > 0 && (
 				<div className="flex gap-1 flex-wrap">
 					{recipe.tags.map((t) => (
-						<span key={t} className="badge badge-outline">
+						<Link
+							key={t}
+							href={`/recipes?tag=${t}`}
+							className="badge badge-outline"
+						>
 							{t}
-						</span>
+						</Link>
 					))}
 				</div>
 			)}

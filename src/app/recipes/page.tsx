@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
@@ -11,14 +12,27 @@ import {
 	type RecipesCollectionData,
 } from '@/lib/graphql/recipes'
 
-export default function RecipesPage() {
+function RecipesContent() {
 	const { canEditRecipes } = useHouseholdRole()
+	const router = useRouter()
+	const searchParams = useSearchParams()
+
+	const activeTags = searchParams.getAll('tag')
 
 	const [search, setSearch] = useState('')
-	const [activeTag, setActiveTag] = useState<string | null>(null)
 	const [activeTab, setActiveTab] = useState<'explore' | 'my-recipes'>(
 		'explore',
 	)
+	const [savedBanner, setSavedBanner] = useState(false)
+
+	useEffect(() => {
+		if (searchParams.get('saved') === '1') {
+			setSavedBanner(true)
+			router.replace('/recipes')
+			const timer = setTimeout(() => setSavedBanner(false), 3000)
+			return () => clearTimeout(timer)
+		}
+	}, [searchParams, router])
 
 	const { data, loading, error } = useQuery<RecipesCollectionData>(
 		GET_PUBLIC_RECIPES,
@@ -31,13 +45,22 @@ export default function RecipesPage() {
 	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
 	const filteredRecipes = recipes.filter((r) => {
 		const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
-		const matchesTag = activeTag ? (r.tags ?? []).includes(activeTag) : true
+		const matchesTag =
+			activeTags.length > 0
+				? activeTags.every((t) => (r.tags ?? []).includes(t))
+				: true
 		return matchesSearch && matchesTag
 	})
 
 	return (
 		<div className="p-4 space-y-4 max-w-2xl mx-auto">
 			<h1 className="text-2xl font-bold">Recipes</h1>
+
+			{savedBanner && (
+				<div role="alert" className="alert alert-success">
+					<span>Recipe saved.</span>
+				</div>
+			)}
 
 			<input
 				type="text"
@@ -53,9 +76,20 @@ export default function RecipesPage() {
 						<button
 							key={tag}
 							className={`badge cursor-pointer ${
-								activeTag === tag ? 'badge-primary' : 'badge-accent'
+								activeTags.includes(tag) ? 'badge-primary' : 'badge-accent'
 							}`}
-							onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+							onClick={() => {
+								const next = activeTags.includes(tag)
+									? activeTags.filter((t) => t !== tag)
+									: [...activeTags, tag]
+								const params = new URLSearchParams()
+								next.forEach((t) => params.append('tag', t))
+								router.replace(
+									next.length > 0
+										? `/recipes?${params.toString()}`
+										: '/recipes',
+								)
+							}}
 						>
 							{tag}
 						</button>
@@ -158,5 +192,19 @@ export default function RecipesPage() {
 				</Link>
 			)}
 		</div>
+	)
+}
+
+export default function RecipesPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="p-4">
+					<span className="loading loading-spinner loading-md" />
+				</div>
+			}
+		>
+			<RecipesContent />
+		</Suspense>
 	)
 }
