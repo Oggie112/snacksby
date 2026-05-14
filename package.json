@@ -44,6 +44,9 @@
 	},
 	"overrides": {
 		"@types/react": "19.2.14",
-		"@types/react-dom": "19.2.3"
+		"@types/react-dom": "19.2.3",
+		"apollo3-cache-persist": {
+    		"@apollo/client": "^4.0.0"
+  		}
 	}
 }
