@@ -34,7 +34,10 @@ export function OfflineBanner() {
 				role="alert"
 				className="alert alert-warning rounded-none py-2 text-sm justify-center"
 			>
-				<span>You&apos;re offline — some features may be unavailable</span>
+				<div className="flex flex-col items-center gap-0.5">
+					<span>You&apos;re offline — some features may be unavailable.</span>
+					<span className="opacity-75 text-xs">Changes made now may not be saved if you close the app before reconnecting.</span>
+				</div>
 			</div>
 		)
 	}

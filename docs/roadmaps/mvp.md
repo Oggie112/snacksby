@@ -14,7 +14,7 @@ description: MVP roadmap for Snacksby — collaborative meal planning PWA
 | **HH/RL** | Done                                      | —                              | —                 |
 | **PL**    | Done                                      | —                              | —                      |
 | **SH**    | Done — all tasks complete                 | —                              | —                 |
-| **PWA**   | In progress — manifest, SW, offline UI done | Auto-sync (5PWA.4)           | —                 |
+| **PWA**   | Done — all tasks complete                 | —                              | —                 |
 
 ---
 
@@ -168,8 +168,7 @@ _(none)_
 
 <a name="m5-todo"><h4>To Do (Milestone 5)</h4></a>
 
-- [ ] 5PWA.4. Auto-sync queued changes on reconnect
-- [ ] 5PWA.5. Apollo cache persistence (`apollo3-cache-persist`) — persist GraphQL data to IndexedDB so recipes and shopping list are available offline and survive hard close
+_(none)_
 
 <a name="m5-blocked"><h4>Blocked (Milestone 5)</h4></a>
 
@@ -187,6 +186,9 @@ _(none)_
 - [x] 5PWA.1. Add PWA manifest (name, icons, theme colour, display mode)
 - [x] 5PWA.2. Service worker — Serwist precache + runtime caching
 - [x] 5PWA.3. Offline state indicator — banner with offline warning and "Back online" confirmation
+- [x] 5PWA.4. Auto-sync on reconnect — refetch shopping list, meal plan, and week ingredients when browser comes back online
+- [x] 5PWA.5. Apollo cache persistence (`apollo3-cache-persist`) — persist GraphQL data to IndexedDB (10MB cap); clear on logout; `cache-and-network` fetch policy for recipes
+- [x] 5PWA.6. Offline fallback page (`/~offline`) — precached static page served by SW when navigation fails with no cached shell; includes retry and go-home actions
 
 ---
 
@@ -230,8 +232,6 @@ M5["`**Milestone 5**<br/>Shopping List & PWA`"]:::mile
 "5PWA.1"["`*5PWA.1*<br/>**PWA**<br/>PWA manifest`"]:::done
 "5PWA.2"["`*5PWA.2*<br/>**PWA**<br/>Service worker`"]:::done
 "5PWA.3"["`*5PWA.3*<br/>**PWA**<br/>Offline indicator`"]:::done
-"5PWA.4"["`*5PWA.4*<br/>**PWA**<br/>Auto-sync`"]:::open
-"5PWA.5"["`*5PWA.5*<br/>**PWA**<br/>Apollo cache persist`"]:::open
 
 classDef default,blocked fill:#f9c6e0,stroke:#c084a0,color:#3b1f2b
 classDef open fill:#fef08a,stroke:#ca8a04,color:#3b2400
@@ -255,6 +255,7 @@ UI improvements to revisit once all milestones are complete:
 Features deliberately deferred from the MVP:
 
 - **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph (first post-MVP priority)
+- **Offline mutation queue** — Apollo Link that intercepts mutations when offline, serialises them to IndexedDB, and replays them through the Apollo client on reconnect. Cache updates and optimistic responses work normally; supports a "pending sync" indicator on queued items. Covers the primary use case of ticking/adding/removing shopping list items in the supermarket with patchy signal. Background Sync API (SW-level) is the alternative but operates below Apollo — cache stays stale after replay and ordering is not guaranteed. **Alternative approach:** disable writes while offline instead (grey out tick/add/remove with an "unavailable offline" tooltip) — simpler, no sync complexity, and appropriate for a collaborative data model where last-write-wins conflicts are a real risk (e.g. two household members editing the list independently while offline). Cache persistence already covers the primary offline use case (reading the list in the supermarket).
 - **Smart invite link** — time-limited, single-use invite URLs (`/join?code=abc123`) shareable via native share sheet; code persists through the auth/signup flow via a short-lived cookie so a new user auto-joins the correct household on first login. Requires a separate `household_invites` table (`code`, `household_id`, `expires_at`, `used_at`), a `/join` landing page that handles unauthenticated arrivals, and middleware that reads + clears the pending-invite cookie post-auth. Permanent codes (MVP) remain as a fallback for Leaders who want a stable link.
 - **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. This is a prerequisite for both of the following two items:
   - **Portion scaling** — adjust servings and auto-scale ingredient quantities
@@ -266,6 +267,6 @@ Features deliberately deferred from the MVP:
 
 ---
 
-_Last updated: 2026-05-13_
+_Last updated: 2026-05-14_
 
 

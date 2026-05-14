@@ -43,7 +43,10 @@ export default function EditRecipePage({
 		data,
 		loading: queryLoading,
 		error: queryError,
-	} = useQuery<RecipeDetailData>(GET_RECIPE, { variables: { id } })
+	} = useQuery<RecipeDetailData>(GET_RECIPE, {
+		variables: { id },
+		fetchPolicy: 'cache-and-network',
+	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
 
 	const [updateRecipe, { loading: mutationLoading, error }] =

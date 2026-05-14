@@ -31,9 +31,11 @@ const httpLink = new HttpLink({
 	uri: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/graphql/v1`,
 })
 
+export const cache = new InMemoryCache()
+
 const apolloClient = new ApolloClient({
 	link: ApolloLink.from([authLink, httpLink]),
-	cache: new InMemoryCache(),
+	cache,
 })
 
 export default apolloClient
