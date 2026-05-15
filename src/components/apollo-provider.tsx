@@ -23,14 +23,14 @@ const persistor = new CachePersistor({
 	debug: false,
 })
 
-void persistor.restore()
-
 export function ApolloClientProvider({
 	children,
 }: {
 	children: React.ReactNode
 }) {
 	useEffect(() => {
+		void persistor.restore()
+
 		function handleReconnect() {
 			void apolloClient.refetchQueries({
 				include: ['GetShoppingList', 'GetWeekPlan', 'GetWeekIngredients'],
