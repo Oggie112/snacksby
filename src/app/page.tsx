@@ -35,6 +35,7 @@ export default function HomePage() {
 
 	const [todayISO, setTodayISO] = useState('')
 	const [tomorrowISO, setTomorrowISO] = useState('')
+	const [greeting, setGreeting] = useState('Good morning')
 
 	useEffect(() => {
 		const d = new Date()
@@ -42,6 +43,14 @@ export default function HomePage() {
 		t.setDate(d.getDate() + 1)
 		setTodayISO(toISO(d))
 		setTomorrowISO(toISO(t))
+		const hour = d.getHours()
+		setGreeting(
+			hour < 12
+				? 'Good morning'
+				: hour < 18
+					? 'Good afternoon'
+					: 'Good evening',
+		)
 	}, [])
 
 	const { data: householdData } = useQuery<MyHouseholdData>(GET_MY_HOUSEHOLD, {
@@ -81,7 +90,7 @@ export default function HomePage() {
 
 	return (
 		<div className="p-4 space-y-6 max-w-2xl mx-auto">
-			<h1 className="text-2xl font-bold">Good morning</h1>
+			<h1 className="text-2xl font-bold">{greeting}</h1>
 
 			{user && householdData && !hasHousehold && (
 				<section className="card bg-primary/10 border border-primary/20 shadow-sm">
