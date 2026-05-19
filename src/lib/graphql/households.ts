@@ -178,6 +178,26 @@ export const REMOVE_HOUSEHOLD_MEMBER = gql`
 	}
 `
 
+export interface UpdateHouseholdNameResult {
+	updatehouseholdsCollection: {
+		records: Array<{ id: string; name: string }>
+	}
+}
+
+export const UPDATE_HOUSEHOLD_NAME = gql`
+	mutation UpdateHouseholdName($id: UUID!, $name: String!) {
+		updatehouseholdsCollection(
+			filter: { id: { eq: $id } }
+			set: { name: $name }
+		) {
+			records {
+				id
+				name
+			}
+		}
+	}
+`
+
 export const GET_HOUSEHOLD_SETTINGS = gql`
 	query GetHouseholdSettings($user_id: UUID!) {
 		household_membersCollection(filter: { user_id: { eq: $user_id } }) {

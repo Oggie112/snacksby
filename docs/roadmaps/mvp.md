@@ -268,6 +268,15 @@ Features deliberately deferred from the MVP, in priority order:
 - **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph; useful but nice-to-have
 - **Barcode scanning** — add items to shopping list via camera; lower priority
 - **Voice assistant integration** — hands-free list management; lower priority
+- **Meal plan: all meal types** — planning currently only supports Dinner; extend the weekly grid to support Breakfast, Lunch, and Snack slots
+- **Colour theme update** — revisit the current pastel palette; consider user-selectable themes or a more refined default
+- **Recipe tag management** — tags are currently free-text strings entered manually on each recipe; consider a curated/autocomplete tag list or a dedicated tag management UI
+- **Auto-delete stale meal plans** — Supabase DB trigger (or scheduled function) to delete meal plan entries older than ~1 month; prevents unbounded table growth
+- **Accessibility audit & Lighthouse check** — systematic a11y pass (ARIA labels, keyboard nav, colour contrast, focus management) + Lighthouse CI score targets
+- **Settings review** — audit settings page for missing or outdated options; adjust as needed (e.g. notification preferences, theme)
+- **Household name change** — allow the household Leader to rename the household from the settings page
+- **Style health check** — audit the UI for visual inconsistencies; check spacing, typography, and component alignment across all pages
+- **Build, deployment & testing pipeline** — CI/CD setup (e.g. GitHub Actions); automated build validation; consider adding Jest/Vitest unit tests and Cypress E2E for critical paths
 
 ### Completed Post-MVP
 
@@ -275,6 +284,6 @@ Features deliberately deferred from the MVP, in priority order:
 
 ---
 
-_Last updated: 2026-05-19_ <!-- smart invite link shipped -->
+_Last updated: 2026-05-19_ <!-- post-mvp items added -->
 
 

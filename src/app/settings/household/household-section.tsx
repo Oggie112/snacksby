@@ -13,9 +13,11 @@ import {
 	GET_MY_ROLE,
 	REMOVE_HOUSEHOLD_MEMBER,
 	UPDATE_HOUSEHOLD_MEMBER_ROLE,
+	UPDATE_HOUSEHOLD_NAME,
 	type HouseholdSettingsData,
 	type RemoveHouseholdMemberResult,
 	type UpdateHouseholdMemberRoleResult,
+	type UpdateHouseholdNameResult,
 } from '@/lib/graphql/households'
 
 const ROLE_BADGE: Record<string, string> = {
@@ -37,6 +39,9 @@ export function HouseholdSection() {
 	const [leaveError, setLeaveError] = useState<string | null>(null)
 	const [changingRoleId, setChangingRoleId] = useState<string | null>(null)
 	const [removingMemberId, setRemovingMemberId] = useState<string | null>(null)
+	const [editingName, setEditingName] = useState(false)
+	const [nameInput, setNameInput] = useState('')
+	const [nameError, setNameError] = useState<string | null>(null)
 
 	const { data, loading, error, refetch } = useQuery<HouseholdSettingsData>(
 		GET_HOUSEHOLD_SETTINGS,
@@ -52,6 +57,9 @@ export function HouseholdSection() {
 	const [updateMemberRole] = useMutation<UpdateHouseholdMemberRoleResult>(
 		UPDATE_HOUSEHOLD_MEMBER_ROLE,
 	)
+
+	const [updateHouseholdName, { loading: savingName }] =
+		useMutation<UpdateHouseholdNameResult>(UPDATE_HOUSEHOLD_NAME)
 
 	const membership = data?.household_membersCollection?.edges?.[0]?.node
 	const household = membership?.households
@@ -112,6 +120,31 @@ export function HouseholdSection() {
 		})
 		setRemovingMemberId(null)
 		await refetch()
+	}
+
+	const handleEditNameOpen = () => {
+		setNameInput(household?.name ?? '')
+		setNameError(null)
+		setEditingName(true)
+	}
+
+	const handleSaveName = async () => {
+		const trimmed = nameInput.trim()
+		if (!trimmed) {
+			setNameError('Name cannot be empty.')
+			return
+		}
+		if (!household?.id) return
+		setNameError(null)
+		try {
+			await updateHouseholdName({
+				variables: { id: household.id, name: trimmed },
+			})
+			setEditingName(false)
+			await refetch()
+		} catch {
+			setNameError('Failed to save. Please try again.')
+		}
 	}
 
 	const handleLeaveClick = () => {
@@ -183,7 +216,68 @@ export function HouseholdSection() {
 			<section className="space-y-4">
 				<div className="card bg-base-100 shadow-md">
 					<div className="card-body gap-4">
-						<h2 className="card-title text-lg">{household.name}</h2>
+						{editingName ? (
+							<div className="flex flex-col gap-2">
+								<input
+									className="input input-bordered input-sm w-full max-w-xs text-base font-semibold"
+									value={nameInput}
+									onChange={(e) => setNameInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') void handleSaveName()
+										if (e.key === 'Escape') setEditingName(false)
+									}}
+									autoFocus
+									maxLength={80}
+								/>
+								{nameError && <p className="text-error text-xs">{nameError}</p>}
+								<div className="flex gap-2">
+									<button
+										className="btn btn-sm btn-primary"
+										disabled={savingName}
+										onClick={() => void handleSaveName()}
+									>
+										{savingName ? (
+											<span className="loading loading-spinner loading-xs" />
+										) : (
+											'Save'
+										)}
+									</button>
+									<button
+										className="btn btn-sm btn-ghost"
+										disabled={savingName}
+										onClick={() => setEditingName(false)}
+									>
+										Cancel
+									</button>
+								</div>
+							</div>
+						) : (
+							<div className="flex items-center gap-2">
+								<h2 className="card-title text-lg">{household.name}</h2>
+								{currentUserRole === 'Leader' && (
+									<button
+										className="btn btn-xs btn-ghost btn-circle"
+										onClick={handleEditNameOpen}
+										title="Rename household"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											className="size-3.5"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth={2}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+											/>
+										</svg>
+									</button>
+								)}
+							</div>
+						)}
 						{(currentUserRole === 'Leader' ||
 							currentUserRole === 'Contributor') && (
 							<div className="flex flex-col gap-3">

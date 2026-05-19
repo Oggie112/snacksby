@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 
+import RecipeCard from '@/components/recipe-card'
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_MY_HOUSEHOLD,
@@ -128,12 +129,12 @@ export default function HomePage() {
 											<div key={type} className="text-xs">
 												<span className="text-base-content/50">{type}</span>
 												{meal ? (
-													<Link
-														href={`/recipes/${meal.recipes.id}`}
-														className="block font-medium text-primary leading-tight mt-0.5 hover:underline"
-													>
-														{meal.recipes.title}
-													</Link>
+													<div className="mt-0.5">
+														<RecipeCard
+															id={meal.recipes.id}
+															title={meal.recipes.title}
+														/>
+													</div>
 												) : (
 													<p className="text-base-content/30 mt-0.5">—</p>
 												)}
