@@ -75,9 +75,7 @@ function RecipesContent() {
 
 	const filterRecipes = (list: typeof recipes) =>
 		list.filter((r) => {
-			const matchesSearch = r.title
-				.toLowerCase()
-				.includes(search.toLowerCase())
+			const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
 			const matchesTag =
 				activeTags.length > 0
 					? activeTags.every((t) => (r.tags ?? []).includes(t))

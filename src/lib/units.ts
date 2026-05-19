@@ -29,9 +29,13 @@ const PROMOTE = new Map<Unit, { unit: Unit; factor: number }>([
 	['ml', { unit: 'L', factor: 1000 }],
 ])
 
-function normalise(amount: number, unit: Unit | null): { amount: number; unit: Unit | null } {
+function normalise(
+	amount: number,
+	unit: Unit | null,
+): { amount: number; unit: Unit | null } {
 	const conversion = unit ? TO_BASE.get(unit) : undefined
-	if (conversion) return { amount: amount * conversion.factor, unit: conversion.unit }
+	if (conversion)
+		return { amount: amount * conversion.factor, unit: conversion.unit }
 	return { amount, unit }
 }
 

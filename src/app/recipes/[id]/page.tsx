@@ -24,7 +24,11 @@ export default function RecipePage({
 	const router = useRouter()
 
 	const { user } = useUserAndSession()
-	const { householdId, loading: roleLoading, canEditRecipes } = useHouseholdRole()
+	const {
+		householdId,
+		loading: roleLoading,
+		canEditRecipes,
+	} = useHouseholdRole()
 
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },

@@ -258,7 +258,9 @@ export default function NewRecipePage() {
 								step="any"
 								placeholder="Qty"
 								value={ing.amount}
-								onChange={(e) => updateIngredient(i, { amount: e.target.value })}
+								onChange={(e) =>
+									updateIngredient(i, { amount: e.target.value })
+								}
 								className="input input-bordered input-sm w-20 shrink-0"
 							/>
 							<select

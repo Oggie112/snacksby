@@ -9,6 +9,7 @@ import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
 } from '@/lib/graphql/households'
+import { type Ingredient } from '@/lib/graphql/recipes'
 import {
 	ADD_ITEM,
 	CATEGORIES,
@@ -30,8 +31,12 @@ import {
 	type UpdateItemQuantityResult,
 	type WeekIngredientsData,
 } from '@/lib/graphql/shopping-list'
-import { type Ingredient } from '@/lib/graphql/recipes'
-import { UNITS, parseQuantityString, sumIngredients, type Unit } from '@/lib/units'
+import {
+	UNITS,
+	parseQuantityString,
+	sumIngredients,
+	type Unit,
+} from '@/lib/units'
 
 function toISO(date: Date): string {
 	return [
@@ -107,10 +112,12 @@ function ShoppingListContent() {
 	const [updateItemCategory] =
 		useMutation<UpdateItemCategoryResult>(UPDATE_ITEM_CATEGORY)
 
-	const [updateItemQuantity] =
-		useMutation<UpdateItemQuantityResult>(UPDATE_ITEM_QUANTITY, {
+	const [updateItemQuantity] = useMutation<UpdateItemQuantityResult>(
+		UPDATE_ITEM_QUANTITY,
+		{
 			onCompleted: () => void refetch(),
-		})
+		},
+	)
 
 	const { refetch: fetchWeekIngredients } = useQuery<WeekIngredientsData>(
 		GET_WEEK_INGREDIENTS,
@@ -195,7 +202,9 @@ function ShoppingListContent() {
 		if (added > 0) parts.push(`Added ${added} item${added === 1 ? '' : 's'}`)
 		if (updated > 0)
 			parts.push(`updated ${updated} item${updated === 1 ? '' : 's'}`)
-		setImportMessage(parts.length > 0 ? `${parts.join(', ')}.` : 'Nothing new to add.')
+		setImportMessage(
+			parts.length > 0 ? `${parts.join(', ')}.` : 'Nothing new to add.',
+		)
 		setImporting(false)
 	}
 
@@ -245,7 +254,9 @@ function ShoppingListContent() {
 				...parseQuantityString(existing.quantity),
 				{ amount: parseFloat(newAmount), unit: newUnit },
 			])
-			await updateItemQuantity({ variables: { id: existing.id, quantity: merged } })
+			await updateItemQuantity({
+				variables: { id: existing.id, quantity: merged },
+			})
 		} else {
 			const category =
 				newCategory === 'Misc' ? guessCategory(name) : newCategory
