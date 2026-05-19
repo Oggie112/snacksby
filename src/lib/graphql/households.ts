@@ -78,10 +78,8 @@ export interface CreateHouseholdResult {
 }
 
 export const CREATE_HOUSEHOLD = gql`
-	mutation CreateHousehold($name: String!, $invite_code: String!) {
-		insertIntohouseholdsCollection(
-			objects: [{ name: $name, invite_code: $invite_code }]
-		) {
+	mutation CreateHousehold($name: String!) {
+		insertIntohouseholdsCollection(objects: [{ name: $name }]) {
 			records {
 				id
 			}

@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useRouter } from 'next/navigation'
 
+import { resetInviteCode } from './actions'
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
@@ -29,6 +30,9 @@ export function HouseholdSection() {
 	const { user } = useUserAndSession()
 	const router = useRouter()
 	const [copied, setCopied] = useState(false)
+	const [shared, setShared] = useState(false)
+	const [regenerating, setRegenerating] = useState(false)
+	const [confirmRegenerate, setConfirmRegenerate] = useState(false)
 	const [confirmingId, setConfirmingId] = useState<string | null>(null)
 	const [leaveError, setLeaveError] = useState<string | null>(null)
 	const [changingRoleId, setChangingRoleId] = useState<string | null>(null)
@@ -59,6 +63,31 @@ export function HouseholdSection() {
 		await navigator.clipboard.writeText(household.invite_code)
 		setCopied(true)
 		setTimeout(() => setCopied(false), 2000)
+	}
+
+	const handleShare = async () => {
+		if (!household?.invite_code) return
+		const url = `${window.location.origin}/join?code=${household.invite_code}`
+		const shareData = { title: 'Join my household on Snacksby', url }
+		if (navigator.canShare?.(shareData)) {
+			await navigator.share(shareData)
+		} else {
+			await navigator.clipboard.writeText(url)
+			setShared(true)
+			setTimeout(() => setShared(false), 2000)
+		}
+	}
+
+	const handleRegenerate = async () => {
+		if (!household?.id) return
+		setRegenerating(true)
+		setConfirmRegenerate(false)
+		try {
+			await resetInviteCode(household.id)
+			await refetch()
+		} finally {
+			setRegenerating(false)
+		}
 	}
 
 	const handleRoleChange = async (targetUserId: string, newRole: string) => {
@@ -155,20 +184,63 @@ export function HouseholdSection() {
 				<div className="card bg-base-100 shadow-md">
 					<div className="card-body gap-4">
 						<h2 className="card-title text-lg">{household.name}</h2>
-						{currentUserRole === 'Leader' && (
-							<div>
-								<p className="label-text font-medium mb-2">Invite code</p>
-								<div className="flex items-center gap-3">
-									<span className="font-mono tracking-widest text-lg">
-										{household.invite_code}
-									</span>
-									<button
-										className="btn btn-sm btn-ghost"
-										onClick={() => void handleCopy()}
-									>
-										{copied ? 'Copied!' : 'Copy'}
-									</button>
-								</div>
+						{(currentUserRole === 'Leader' ||
+							currentUserRole === 'Contributor') && (
+							<div className="flex flex-col gap-3">
+								<p className="label-text font-medium">Invite</p>
+								<button
+									className="btn btn-sm btn-primary self-start"
+									onClick={() => void handleShare()}
+								>
+									{shared ? 'Link copied!' : 'Share invite link'}
+								</button>
+								{currentUserRole === 'Leader' && (
+									<div>
+										<p className="label-text mb-2">Invite code</p>
+										<div className="flex items-center gap-3">
+											<span className="font-mono tracking-widest text-lg">
+												{household.invite_code}
+											</span>
+											<button
+												className="btn btn-sm btn-ghost"
+												onClick={() => void handleCopy()}
+											>
+												{copied ? 'Copied!' : 'Copy'}
+											</button>
+										</div>
+										{confirmRegenerate ? (
+											<div className="flex items-center gap-2 mt-3">
+												<span className="text-sm text-base-content/60 flex-1">
+													This invalidates all existing invite links.
+												</span>
+												<button
+													className="btn btn-sm btn-error"
+													disabled={regenerating}
+													onClick={() => void handleRegenerate()}
+												>
+													{regenerating ? (
+														<span className="loading loading-spinner loading-xs" />
+													) : (
+														'Confirm'
+													)}
+												</button>
+												<button
+													className="btn btn-sm btn-ghost"
+													onClick={() => setConfirmRegenerate(false)}
+												>
+													Cancel
+												</button>
+											</div>
+										) : (
+											<button
+												className="btn btn-sm btn-ghost btn-error mt-3"
+												onClick={() => setConfirmRegenerate(true)}
+											>
+												Regenerate code
+											</button>
+										)}
+									</div>
+								)}
 							</div>
 						)}
 					</div>

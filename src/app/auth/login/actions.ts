@@ -1,5 +1,6 @@
 'use server'
 
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 import { serverClient } from '@/lib/supabase/server'
@@ -25,7 +26,15 @@ export async function login(
 
 	if (error) {
 		return { error: error.message, resetFields: true }
-	} else {
-		redirect('/')
 	}
+
+	const cookieStore = await cookies()
+	const pendingInvite = cookieStore.get('pending_invite')?.value
+
+	if (pendingInvite) {
+		cookieStore.delete('pending_invite')
+		redirect(`/join?code=${encodeURIComponent(pendingInvite)}`)
+	}
+
+	redirect('/')
 }

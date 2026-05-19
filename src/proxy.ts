@@ -28,6 +28,7 @@ export async function proxy(request: NextRequest) {
 		pathname.startsWith('/auth/login') ||
 		pathname.startsWith('/auth/signup') ||
 		pathname.startsWith('/auth/logout') ||
+		pathname.startsWith('/join') ||
 		pathname.startsWith('/favicon') ||
 		pathname.startsWith('/_next') ||
 		pathname.startsWith('/assets') ||

@@ -245,32 +245,55 @@ classDef done fill:#bbf7d0,stroke:#16a34a,color:#14532d
 
 UI improvements to revisit once all milestones are complete:
 
-- **Home page dashboard** — link the home page to the current week's meal plan, shopping list, and quick-add recipe shortcuts so it serves as a useful landing screen rather than a placeholder
+_(none — all polish items complete)_
 
 ### Completed Polish
 
 - [x] **Tag filtering persistence** — `activeTag` moved to URL search params (`?tag=pasta&tag=beef`); multi-tag AND filtering; tag badges on recipe detail link back to `/recipes?tag=...`; back button on detail page uses `router.back()` to preserve filter
 - [x] **Recipe saved banner** — transient "Recipe saved" alert shown on the recipes list page via `?saved=1` query param when create/edit mutation returns no ID
+- [x] **Home page dashboard** — today/tomorrow meal slots (Breakfast/Lunch/Dinner/Snack) with recipe links; unchecked shopping list item count; time-based greeting; fixed `persistor.restore()` SSR crash and hydration mismatch by moving it into `useEffect`
 
 ---
 
 <a name="post-mvp"><h2>Beyond MVP</h2></a>
 
-Features deliberately deferred from the MVP:
+Features deliberately deferred from the MVP, in priority order:
 
-- **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph (first post-MVP priority)
-- **Offline mutation queue** — Apollo Link that intercepts mutations when offline, serialises them to IndexedDB, and replays them through the Apollo client on reconnect. Cache updates and optimistic responses work normally; supports a "pending sync" indicator on queued items. Covers the primary use case of ticking/adding/removing shopping list items in the supermarket with patchy signal. Background Sync API (SW-level) is the alternative but operates below Apollo — cache stays stale after replay and ordering is not guaranteed. **Alternative approach:** disable writes while offline instead (grey out tick/add/remove with an "unavailable offline" tooltip) — simpler, no sync complexity, and appropriate for a collaborative data model where last-write-wins conflicts are a real risk (e.g. two household members editing the list independently while offline). Cache persistence already covers the primary offline use case (reading the list in the supermarket).
-- **Smart invite link** — time-limited, single-use invite URLs (`/join?code=abc123`) shareable via native share sheet; code persists through the auth/signup flow via a short-lived cookie so a new user auto-joins the correct household on first login. Requires a separate `household_invites` table (`code`, `household_id`, `expires_at`, `used_at`), a `/join` landing page that handles unauthenticated arrivals, and middleware that reads + clears the pending-invite cookie post-auth. Permanent codes (MVP) remain as a fallback for Leaders who want a stable link.
-- **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. This is a prerequisite for both of the following two items:
+- **Smart invite link** — shareable `/join?code=abc123` URLs using the existing permanent household invite code. No separate invites table or expiry logic needed.
+
+  **Sender (household settings)**
+  - "Share invite" button (Leader/Contributor only) — calls Web Share API with pre-built message + `/join?code=xxx` URL
+  - Copy-to-clipboard fallback for desktop or unsupported browsers
+  - "Regenerate code" button (Leader only) — single mutation updates `invite_code` on the household, invalidating all existing links immediately
+
+  **Receiver — `/join` page**
+  - Public route (no auth required); on load, look up household by code — show error and stop if invalid/not found
+  - If valid: store code in a short-lived cookie (`pending_invite=xxx`), then branch:
+    - Not logged in → redirect to `/auth/signup` (or `/auth/login` with toggle)
+    - Already logged in → show household name + one-tap "Join" confirmation → fire join mutation → redirect home
+
+  **Getting the code through the auth flow**
+  - After successful signup/login, check for `pending_invite` cookie
+  - If present: fire join mutation with stored code, clear the cookie
+  - Edge cases: user already in a household; code no longer valid by the time they finish signup
+
+  **Middleware**
+  - Add `/join` to public routes so unauthenticated users aren't redirected before the page can read the code
+
+  **Polish (low priority)**
+  - On `/join` on mobile, show a soft "Install Snacksby for the best experience" nudge
+- **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. Prioritised early while DB data is minimal. This is a prerequisite for both of the following two items:
   - **Portion scaling** — adjust servings and auto-scale ingredient quantities
   - **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
-- **Barcode scanning** — add items to shopping list via camera
-- **Voice assistant integration** — hands-free list management
+- **Offline mutation queue** — Apollo Link that intercepts mutations when offline, serialises them to IndexedDB, and replays them through the Apollo client on reconnect. Cache updates and optimistic responses work normally; supports a "pending sync" indicator on queued items. Covers the primary use case of ticking/adding/removing shopping list items in the supermarket with patchy signal. Background Sync API (SW-level) is the alternative but operates below Apollo — cache stays stale after replay and ordering is not guaranteed. **Alternative approach:** disable writes while offline instead (grey out tick/add/remove with an "unavailable offline" tooltip) — simpler, no sync complexity, and appropriate for a collaborative data model where last-write-wins conflicts are a real risk (e.g. two household members editing the list independently while offline). Cache persistence already covers the primary offline use case (reading the list in the supermarket).
 - **External calendar sync** — push meal plan to Google Calendar / iCal
 - **Recipe discovery** — browse or import public recipes
+- **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph; useful but nice-to-have
+- **Barcode scanning** — add items to shopping list via camera; lower priority
+- **Voice assistant integration** — hands-free list management; lower priority
 
 ---
 
-_Last updated: 2026-05-14_ <!-- tag persistence, recipe saved banner completed; home page dashboard added to polish -->
+_Last updated: 2026-05-15_ <!-- all polish items complete: tag persistence, recipe saved banner, home page dashboard; smart invite link spec expanded -->
 
 
