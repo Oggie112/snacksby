@@ -24,6 +24,7 @@ export const GET_MY_HOUSEHOLD = gql`
 
 export interface MyRoleNode {
 	role: string
+	household_id: string
 }
 
 export interface MyRoleData {
@@ -38,6 +39,7 @@ export const GET_MY_ROLE = gql`
 			edges {
 				node {
 					role
+					household_id
 				}
 			}
 		}

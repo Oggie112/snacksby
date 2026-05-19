@@ -259,29 +259,6 @@ _(none — all polish items complete)_
 
 Features deliberately deferred from the MVP, in priority order:
 
-- **Smart invite link** — shareable `/join?code=abc123` URLs using the existing permanent household invite code. No separate invites table or expiry logic needed.
-
-  **Sender (household settings)**
-  - "Share invite" button (Leader/Contributor only) — calls Web Share API with pre-built message + `/join?code=xxx` URL
-  - Copy-to-clipboard fallback for desktop or unsupported browsers
-  - "Regenerate code" button (Leader only) — single mutation updates `invite_code` on the household, invalidating all existing links immediately
-
-  **Receiver — `/join` page**
-  - Public route (no auth required); on load, look up household by code — show error and stop if invalid/not found
-  - If valid: store code in a short-lived cookie (`pending_invite=xxx`), then branch:
-    - Not logged in → redirect to `/auth/signup` (or `/auth/login` with toggle)
-    - Already logged in → show household name + one-tap "Join" confirmation → fire join mutation → redirect home
-
-  **Getting the code through the auth flow**
-  - After successful signup/login, check for `pending_invite` cookie
-  - If present: fire join mutation with stored code, clear the cookie
-  - Edge cases: user already in a household; code no longer valid by the time they finish signup
-
-  **Middleware**
-  - Add `/join` to public routes so unauthenticated users aren't redirected before the page can read the code
-
-  **Polish (low priority)**
-  - On `/join` on mobile, show a soft "Install Snacksby for the best experience" nudge
 - **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. Prioritised early while DB data is minimal. This is a prerequisite for both of the following two items:
   - **Portion scaling** — adjust servings and auto-scale ingredient quantities
   - **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
@@ -292,8 +269,12 @@ Features deliberately deferred from the MVP, in priority order:
 - **Barcode scanning** — add items to shopping list via camera; lower priority
 - **Voice assistant integration** — hands-free list management; lower priority
 
+### Completed Post-MVP
+
+- [x] **Smart invite link** — shareable `/join?code=xxx` URLs via the permanent household invite code. Web Share API on sender (clipboard fallback for desktop). Unauthenticated receivers: code stored in `pending_invite` cookie (httpOnly, 15 min), redirected through signup/login, then back to `/join` to confirm. Authenticated receivers: one-tap confirmation. Invite code generation moved to a DB `BEFORE INSERT` trigger with unique constraint; regeneration via `reset_invite_code` Supabase RPC (Leader only, confirm step in UI).
+
 ---
 
-_Last updated: 2026-05-15_ <!-- all polish items complete: tag persistence, recipe saved banner, home page dashboard; smart invite link spec expanded -->
+_Last updated: 2026-05-19_ <!-- smart invite link shipped -->
 
 

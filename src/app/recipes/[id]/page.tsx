@@ -24,7 +24,7 @@ export default function RecipePage({
 	const router = useRouter()
 
 	const { user } = useUserAndSession()
-	const { role, loading: roleLoading } = useHouseholdRole()
+	const { householdId, loading: roleLoading, canEditRecipes } = useHouseholdRole()
 
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },
@@ -32,7 +32,11 @@ export default function RecipePage({
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
 	const canEdit =
-		!!user && !roleLoading && (role === 'Leader' || role === 'Contributor')
+		!!user &&
+		!roleLoading &&
+		!!recipe &&
+		(recipe.created_by === user.id ||
+			(canEditRecipes && recipe.household_id === householdId))
 
 	if (loading) {
 		return (
@@ -104,7 +108,7 @@ export default function RecipePage({
 					{ingredients.map((ing, i) => (
 						<li key={i} className="flex gap-3">
 							<span className="text-base-content/60 min-w-24 shrink-0">
-								{ing.quantity}
+								{ing.unit ? `${ing.amount} ${ing.unit}` : ing.amount}
 							</span>
 							<span>{ing.name}</span>
 						</li>

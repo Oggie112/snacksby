@@ -6,13 +6,20 @@ import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+import { useUserAndSession } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
+	GET_MY_HOUSEHOLD,
+	type MyHouseholdData,
+} from '@/lib/graphql/households'
+import {
+	GET_MY_RECIPES,
 	GET_PUBLIC_RECIPES,
 	type RecipesCollectionData,
 } from '@/lib/graphql/recipes'
 
 function RecipesContent() {
+	const { user } = useUserAndSession()
 	const { canEditRecipes } = useHouseholdRole()
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -34,6 +41,14 @@ function RecipesContent() {
 		}
 	}, [searchParams, router])
 
+	const { data: householdData } = useQuery<MyHouseholdData>(GET_MY_HOUSEHOLD, {
+		variables: { user_id: user?.id },
+		skip: !user?.id,
+	})
+	const householdId =
+		householdData?.household_membersCollection?.edges?.[0]?.node
+			?.household_id ?? null
+
 	const { data, loading, error } = useQuery<RecipesCollectionData>(
 		GET_PUBLIC_RECIPES,
 		{
@@ -41,16 +56,37 @@ function RecipesContent() {
 			fetchPolicy: 'cache-and-network',
 		},
 	)
-	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
-	const tags = Array.from(new Set(recipes.flatMap((r) => r.tags ?? [])))
-	const filteredRecipes = recipes.filter((r) => {
-		const matchesSearch = r.title.toLowerCase().includes(search.toLowerCase())
-		const matchesTag =
-			activeTags.length > 0
-				? activeTags.every((t) => (r.tags ?? []).includes(t))
-				: true
-		return matchesSearch && matchesTag
+
+	const {
+		data: myData,
+		loading: myLoading,
+		error: myError,
+	} = useQuery<RecipesCollectionData>(GET_MY_RECIPES, {
+		variables: { household_id: householdId, user_id: user?.id },
+		skip: activeTab !== 'my-recipes' || !user?.id,
+		fetchPolicy: 'cache-and-network',
 	})
+
+	const recipes = data?.recipesCollection?.edges?.map((e) => e.node) ?? []
+	const myRecipes = myData?.recipesCollection?.edges?.map((e) => e.node) ?? []
+
+	const activeRecipes = activeTab === 'explore' ? recipes : myRecipes
+	const tags = Array.from(new Set(activeRecipes.flatMap((r) => r.tags ?? [])))
+
+	const filterRecipes = (list: typeof recipes) =>
+		list.filter((r) => {
+			const matchesSearch = r.title
+				.toLowerCase()
+				.includes(search.toLowerCase())
+			const matchesTag =
+				activeTags.length > 0
+					? activeTags.every((t) => (r.tags ?? []).includes(t))
+					: true
+			return matchesSearch && matchesTag
+		})
+
+	const filteredRecipes = filterRecipes(recipes)
+	const filteredMyRecipes = filterRecipes(myRecipes)
 
 	return (
 		<div className="p-4 space-y-4 max-w-2xl mx-auto">
@@ -164,9 +200,43 @@ function RecipesContent() {
 				)}
 
 				{activeTab === 'my-recipes' && (
-					<p className="text-base-content/60">
-						Join or create a household to see your recipes.
-					</p>
+					<>
+						{myLoading && (
+							<span className="loading loading-spinner loading-md" />
+						)}
+						{myError && (
+							<p className="text-error text-sm">Failed to load recipes.</p>
+						)}
+						{!myLoading && !myError && (
+							<div className="grid gap-4">
+								{filteredMyRecipes.map((recipe) => (
+									<div key={recipe.id} className="card bg-base-100 shadow-md">
+										<div className="card-body">
+											<h2 className="card-title">{recipe.title}</h2>
+											{(recipe.tags ?? []).length > 0 && (
+												<div className="flex gap-1 flex-wrap">
+													{recipe.tags.map((t) => (
+														<span key={t} className="badge badge-outline">
+															{t}
+														</span>
+													))}
+												</div>
+											)}
+											<Link
+												href={`/recipes/${recipe.id}`}
+												className="btn btn-sm btn-accent mt-2"
+											>
+												View
+											</Link>
+										</div>
+									</div>
+								))}
+								{filteredMyRecipes.length === 0 && (
+									<p className="text-base-content/60">No recipes yet.</p>
+								)}
+							</div>
+						)}
+					</>
 				)}
 			</div>
 

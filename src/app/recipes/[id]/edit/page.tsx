@@ -19,10 +19,12 @@ import {
 	type RecipeDetailData,
 	type UpdateRecipeResult,
 } from '@/lib/graphql/recipes'
+import { UNITS, type Unit } from '@/lib/units'
 
 interface IngredientRow {
 	name: string
-	quantity: string
+	amount: string
+	unit: Unit | null
 }
 
 interface MethodRow {
@@ -66,7 +68,7 @@ export default function EditRecipePage({
 	const [visibility, setVisibility] = useState<'private' | 'public'>('private')
 	const [tagsInput, setTagsInput] = useState('')
 	const [ingredients, setIngredients] = useState<IngredientRow[]>([
-		{ name: '', quantity: '' },
+		{ name: '', amount: '', unit: null },
 	])
 	const [method, setMethod] = useState<MethodRow[]>([{ instruction: '' }])
 
@@ -99,8 +101,12 @@ export default function EditRecipePage({
 
 		setIngredients(
 			parsedIngredients.length > 0
-				? parsedIngredients
-				: [{ name: '', quantity: '' }],
+				? parsedIngredients.map((ing) => ({
+						name: ing.name,
+						amount: String(ing.amount),
+						unit: ing.unit,
+					}))
+				: [{ name: '', amount: '', unit: null }],
 		)
 		setMethod(
 			parsedMethod.length > 0
@@ -130,16 +136,12 @@ export default function EditRecipePage({
 	}
 
 	const addIngredient = () =>
-		setIngredients((prev) => [...prev, { name: '', quantity: '' }])
+		setIngredients((prev) => [...prev, { name: '', amount: '', unit: null }])
 	const removeIngredient = (i: number) =>
 		setIngredients((prev) => prev.filter((_, idx) => idx !== i))
-	const updateIngredient = (
-		i: number,
-		field: keyof IngredientRow,
-		value: string,
-	) =>
+	const updateIngredient = (i: number, updates: Partial<IngredientRow>) =>
 		setIngredients((prev) =>
-			prev.map((row, idx) => (idx === i ? { ...row, [field]: value } : row)),
+			prev.map((row, idx) => (idx === i ? { ...row, ...updates } : row)),
 		)
 
 	const addStep = () => setMethod((prev) => [...prev, { instruction: '' }])
@@ -166,7 +168,13 @@ export default function EditRecipePage({
 			.map((t) => t.trim())
 			.filter(Boolean)
 
-		const filteredIngredients = ingredients.filter((i) => i.name.trim())
+		const filteredIngredients = ingredients
+			.filter((i) => i.name.trim() && i.amount)
+			.map((i) => ({
+				name: i.name.trim(),
+				amount: parseFloat(i.amount),
+				unit: i.unit,
+			}))
 		const filteredMethod = method
 			.filter((s) => s.instruction.trim())
 			.map((s, i) => ({ step: i + 1, instruction: s.instruction }))
@@ -326,19 +334,35 @@ export default function EditRecipePage({
 					{ingredients.map((ing, i) => (
 						<div key={i} className="flex gap-2 items-center">
 							<input
-								type="text"
-								placeholder="Quantity"
-								value={ing.quantity}
-								onChange={(e) =>
-									updateIngredient(i, 'quantity', e.target.value)
-								}
-								className="input input-bordered input-sm w-28 shrink-0"
+								type="number"
+								min="0"
+								step="any"
+								placeholder="Qty"
+								value={ing.amount}
+								onChange={(e) => updateIngredient(i, { amount: e.target.value })}
+								className="input input-bordered input-sm w-20 shrink-0"
 							/>
+							<select
+								value={ing.unit ?? ''}
+								onChange={(e) =>
+									updateIngredient(i, {
+										unit: (e.target.value as Unit) || null,
+									})
+								}
+								className="select select-bordered select-sm w-24 shrink-0"
+							>
+								<option value="">—</option>
+								{UNITS.map((u) => (
+									<option key={u} value={u}>
+										{u}
+									</option>
+								))}
+							</select>
 							<input
 								type="text"
 								placeholder="Ingredient"
 								value={ing.name}
-								onChange={(e) => updateIngredient(i, 'name', e.target.value)}
+								onChange={(e) => updateIngredient(i, { name: e.target.value })}
 								className="input input-bordered input-sm flex-1"
 							/>
 							{ingredients.length > 1 && (
