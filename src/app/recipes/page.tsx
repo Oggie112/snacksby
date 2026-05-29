@@ -135,16 +135,20 @@ function RecipesContent() {
 			<div className="flex items-center justify-between">
 				<div role="tablist" className="tabs tabs-bordered">
 					<button
+						id="tab-explore"
 						role="tab"
 						aria-selected={activeTab === 'explore'}
+						aria-controls="panel-explore"
 						className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}
 						onClick={() => setActiveTab('explore')}
 					>
 						Explore
 					</button>
 					<button
+						id="tab-my-recipes"
 						role="tab"
 						aria-selected={activeTab === 'my-recipes'}
+						aria-controls="panel-my-recipes"
 						className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''}`}
 						onClick={() => setActiveTab('my-recipes')}
 					>
@@ -162,83 +166,97 @@ function RecipesContent() {
 			</div>
 
 			<div className="mt-4">
-				{activeTab === 'explore' && (
-					<>
-						{loading && <span className="loading loading-spinner loading-md" />}
-						{error && (
-							<p className="text-error text-sm">Failed to load recipes.</p>
-						)}
-						{!loading && !error && (
-							<div className="grid gap-4">
-								{filteredRecipes.map((recipe) => (
-									<div key={recipe.id} className="card bg-base-100 shadow-md">
-										<div className="card-body">
-											<h2 className="card-title">{recipe.title}</h2>
-											{(recipe.tags ?? []).length > 0 && (
-												<div className="flex gap-1 flex-wrap">
-													{recipe.tags.map((t) => (
-														<span key={t} className="badge badge-outline">
-															{t}
-														</span>
-													))}
-												</div>
-											)}
-											<Link
-												href={`/recipes/${recipe.id}`}
-												className="btn btn-sm btn-accent mt-2"
-											>
-												View
-											</Link>
-										</div>
+				<div
+					id="panel-explore"
+					role="tabpanel"
+					aria-labelledby="tab-explore"
+					hidden={activeTab !== 'explore'}
+				>
+					{loading && (
+						<span
+							className="loading loading-spinner loading-md"
+							aria-label="Loading recipes"
+						/>
+					)}
+					{error && (
+						<p className="text-error text-sm">Failed to load recipes.</p>
+					)}
+					{!loading && !error && (
+						<div className="grid gap-4">
+							{filteredRecipes.map((recipe) => (
+								<div key={recipe.id} className="card bg-base-100 shadow-md">
+									<div className="card-body">
+										<h2 className="card-title">{recipe.title}</h2>
+										{(recipe.tags ?? []).length > 0 && (
+											<div className="flex gap-1 flex-wrap">
+												{recipe.tags.map((t) => (
+													<span key={t} className="badge badge-outline">
+														{t}
+													</span>
+												))}
+											</div>
+										)}
+										<Link
+											href={`/recipes/${recipe.id}`}
+											className="btn btn-sm btn-accent mt-2"
+										>
+											View
+										</Link>
 									</div>
-								))}
-								{filteredRecipes.length === 0 && (
-									<p className="text-base-content/60">No public recipes yet.</p>
-								)}
-							</div>
-						)}
-					</>
-				)}
+								</div>
+							))}
+							{filteredRecipes.length === 0 && (
+								<p className="text-base-content/60">No public recipes yet.</p>
+							)}
+						</div>
+					)}
+				</div>
 
-				{activeTab === 'my-recipes' && (
-					<>
-						{myLoading && (
-							<span className="loading loading-spinner loading-md" />
-						)}
-						{myError && (
-							<p className="text-error text-sm">Failed to load recipes.</p>
-						)}
-						{!myLoading && !myError && (
-							<div className="grid gap-4">
-								{filteredMyRecipes.map((recipe) => (
-									<div key={recipe.id} className="card bg-base-100 shadow-md">
-										<div className="card-body">
-											<h2 className="card-title">{recipe.title}</h2>
-											{(recipe.tags ?? []).length > 0 && (
-												<div className="flex gap-1 flex-wrap">
-													{recipe.tags.map((t) => (
-														<span key={t} className="badge badge-outline">
-															{t}
-														</span>
-													))}
-												</div>
-											)}
-											<Link
-												href={`/recipes/${recipe.id}`}
-												className="btn btn-sm btn-accent mt-2"
-											>
-												View
-											</Link>
-										</div>
+				<div
+					id="panel-my-recipes"
+					role="tabpanel"
+					aria-labelledby="tab-my-recipes"
+					hidden={activeTab !== 'my-recipes'}
+				>
+					{myLoading && (
+						<span
+							className="loading loading-spinner loading-md"
+							aria-label="Loading recipes"
+						/>
+					)}
+					{myError && (
+						<p className="text-error text-sm">Failed to load recipes.</p>
+					)}
+					{!myLoading && !myError && (
+						<div className="grid gap-4">
+							{filteredMyRecipes.map((recipe) => (
+								<div key={recipe.id} className="card bg-base-100 shadow-md">
+									<div className="card-body">
+										<h2 className="card-title">{recipe.title}</h2>
+										{(recipe.tags ?? []).length > 0 && (
+											<div className="flex gap-1 flex-wrap">
+												{recipe.tags.map((t) => (
+													<span key={t} className="badge badge-outline">
+														{t}
+													</span>
+												))}
+											</div>
+										)}
+										<Link
+											href={`/recipes/${recipe.id}`}
+											className="btn btn-sm btn-accent mt-2"
+										>
+											View
+										</Link>
 									</div>
-								))}
-								{filteredMyRecipes.length === 0 && (
-									<p className="text-base-content/60">No recipes yet.</p>
-								)}
-							</div>
-						)}
-					</>
-				)}
+								</div>
+							))}
+							{filteredMyRecipes.length === 0 && (
+								<p className="text-base-content/60">No recipes yet.</p>
+							)}
+						</div>
+					)}
+				</div>
 			</div>
 
 			{canEditRecipes && (
@@ -273,7 +291,10 @@ export default function RecipesPage() {
 		<Suspense
 			fallback={
 				<div className="p-4">
-					<span className="loading loading-spinner loading-md" />
+					<span
+						className="loading loading-spinner loading-md"
+						aria-label="Loading"
+					/>
 				</div>
 			}
 		>

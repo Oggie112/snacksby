@@ -264,7 +264,7 @@ export function HouseholdSection() {
 									<button
 										className="btn btn-xs btn-ghost btn-circle"
 										onClick={handleEditNameOpen}
-										title="Rename household"
+										aria-label="Rename household"
 									>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"

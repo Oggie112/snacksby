@@ -85,16 +85,20 @@ export default function RecipePickerModal({
 
 			<div role="tablist" className="tabs tabs-bordered mb-3">
 				<button
+					id="picker-tab-my-recipes"
 					role="tab"
 					aria-selected={activeTab === 'my-recipes'}
+					aria-controls="picker-panel"
 					className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''}`}
 					onClick={() => setActiveTab('my-recipes')}
 				>
 					My Recipes
 				</button>
 				<button
+					id="picker-tab-explore"
 					role="tab"
 					aria-selected={activeTab === 'explore'}
+					aria-controls="picker-panel"
 					className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}
 					onClick={() => setActiveTab('explore')}
 				>
@@ -102,7 +106,16 @@ export default function RecipePickerModal({
 				</button>
 			</div>
 
-			<div className="overflow-y-auto flex-1 space-y-2">
+			<div
+				id="picker-panel"
+				role="tabpanel"
+				aria-labelledby={
+					activeTab === 'my-recipes'
+						? 'picker-tab-my-recipes'
+						: 'picker-tab-explore'
+				}
+				className="overflow-y-auto flex-1 space-y-2"
+			>
 				{loading && (
 					<span
 						className="loading loading-spinner loading-sm"
