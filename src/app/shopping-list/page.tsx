@@ -211,7 +211,10 @@ function ShoppingListContent() {
 	if (!user || householdLoading) {
 		return (
 			<div className="p-4">
-				<span className="loading loading-spinner loading-md" />
+				<span
+					className="loading loading-spinner loading-md"
+					aria-label="Loading"
+				/>
 			</div>
 		)
 	}
@@ -273,7 +276,12 @@ function ShoppingListContent() {
 		<div className="p-4 space-y-4 max-w-2xl mx-auto">
 			<div className="flex items-center justify-between">
 				<h1 className="text-2xl font-bold">Shopping List</h1>
-				{listLoading && <span className="loading loading-spinner loading-sm" />}
+				{listLoading && (
+					<span
+						className="loading loading-spinner loading-sm"
+						aria-label="Loading shopping list"
+					/>
+				)}
 			</div>
 
 			<div className="flex flex-wrap items-center gap-2">
@@ -283,7 +291,10 @@ function ShoppingListContent() {
 					onClick={() => void handleImport(thisWeekStart)}
 				>
 					{importing ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Import this week'
 					)}
@@ -294,7 +305,10 @@ function ShoppingListContent() {
 					onClick={() => void handleImport(nextWeekStart)}
 				>
 					{importing ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Import next week'
 					)}
@@ -310,9 +324,9 @@ function ShoppingListContent() {
 				<div className="space-y-4">
 					{grouped.map(({ category, items: groupItems }) => (
 						<div key={category}>
-							<p className="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-1">
+							<h2 className="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-1">
 								{category}
-							</p>
+							</h2>
 							<ul className="space-y-2">
 								{groupItems.map((item) => (
 									<li key={item.id} className="flex items-center gap-3">
@@ -340,6 +354,7 @@ function ShoppingListContent() {
 										</label>
 										<select
 											className="select select-ghost select-xs text-base-content/50"
+											aria-label={`Category for ${item.name}`}
 											value={item.category ?? 'Misc'}
 											onChange={(e) =>
 												void updateItemCategory({
@@ -355,7 +370,7 @@ function ShoppingListContent() {
 										</select>
 										<button
 											className="btn btn-ghost btn-xs text-error"
-											aria-label="Remove item"
+											aria-label={`Remove ${item.name}`}
 											onClick={() =>
 												void removeItem({ variables: { id: item.id } })
 											}
@@ -388,12 +403,14 @@ function ShoppingListContent() {
 					min="0"
 					step="any"
 					placeholder="Qty"
+					aria-label="Quantity"
 					value={newAmount}
 					onChange={(e) => setNewAmount(e.target.value)}
 					className="input input-bordered w-20 shrink-0"
 				/>
 				<select
 					value={newUnit ?? ''}
+					aria-label="Unit"
 					onChange={(e) => setNewUnit((e.target.value as Unit) || null)}
 					className="select select-bordered w-24 shrink-0"
 				>
@@ -408,6 +425,7 @@ function ShoppingListContent() {
 					ref={inputRef}
 					type="text"
 					placeholder="Add item..."
+					aria-label="Item name"
 					className="input input-bordered flex-1"
 					value={newItem}
 					onChange={(e) => setNewItem(e.target.value)}
@@ -419,6 +437,7 @@ function ShoppingListContent() {
 				/>
 				<select
 					className="select select-bordered w-24 shrink-0"
+					aria-label="Category"
 					value={newCategory}
 					onChange={(e) => setNewCategory(e.target.value as Category)}
 				>
@@ -430,7 +449,10 @@ function ShoppingListContent() {
 				</select>
 				<button type="submit" className="btn btn-primary" disabled={adding}>
 					{adding ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Add'
 					)}

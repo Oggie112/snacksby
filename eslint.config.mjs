@@ -96,6 +96,9 @@ export default tseslint.config(
 				},
 			],
 
+			// Accessibility
+			...jsxA11y.configs.recommended.rules,
+
 			// Prettier as an ESLint rule
 			'prettier/prettier': 'error',
 		},

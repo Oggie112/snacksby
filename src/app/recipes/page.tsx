@@ -99,6 +99,7 @@ function RecipesContent() {
 			<input
 				type="text"
 				placeholder="Search recipes..."
+				aria-label="Search recipes"
 				value={search}
 				onChange={(e) => setSearch(e.target.value)}
 				className="input input-bordered w-full"
@@ -135,6 +136,7 @@ function RecipesContent() {
 				<div role="tablist" className="tabs tabs-bordered">
 					<button
 						role="tab"
+						aria-selected={activeTab === 'explore'}
 						className={`tab ${activeTab === 'explore' ? 'tab-active' : ''}`}
 						onClick={() => setActiveTab('explore')}
 					>
@@ -142,6 +144,7 @@ function RecipesContent() {
 					</button>
 					<button
 						role="tab"
+						aria-selected={activeTab === 'my-recipes'}
 						className={`tab ${activeTab === 'my-recipes' ? 'tab-active' : ''}`}
 						onClick={() => setActiveTab('my-recipes')}
 					>
@@ -241,9 +244,11 @@ function RecipesContent() {
 			{canEditRecipes && (
 				<Link
 					href="/recipes/new"
+					aria-label="New recipe"
 					className="btn btn-primary btn-circle fixed bottom-20 right-4 shadow-lg md:hidden"
 				>
 					<svg
+						aria-hidden="true"
 						xmlns="http://www.w3.org/2000/svg"
 						className="size-6"
 						fill="none"

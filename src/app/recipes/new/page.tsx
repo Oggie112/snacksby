@@ -257,6 +257,7 @@ export default function NewRecipePage() {
 								min="0"
 								step="any"
 								placeholder="Qty"
+								aria-label={`Ingredient ${i + 1} quantity`}
 								value={ing.amount}
 								onChange={(e) =>
 									updateIngredient(i, { amount: e.target.value })
@@ -264,6 +265,7 @@ export default function NewRecipePage() {
 								className="input input-bordered input-sm w-20 shrink-0"
 							/>
 							<select
+								aria-label={`Ingredient ${i + 1} unit`}
 								value={ing.unit ?? ''}
 								onChange={(e) =>
 									updateIngredient(i, {
@@ -282,6 +284,7 @@ export default function NewRecipePage() {
 							<input
 								type="text"
 								placeholder="Ingredient"
+								aria-label={`Ingredient ${i + 1} name`}
 								value={ing.name}
 								onChange={(e) => updateIngredient(i, { name: e.target.value })}
 								className="input input-bordered input-sm flex-1"
@@ -289,6 +292,7 @@ export default function NewRecipePage() {
 							{ingredients.length > 1 && (
 								<button
 									type="button"
+									aria-label={`Remove ingredient ${i + 1}`}
 									onClick={() => removeIngredient(i)}
 									className="btn btn-ghost btn-sm btn-square text-error"
 								>
@@ -310,10 +314,14 @@ export default function NewRecipePage() {
 					<h2 className="text-lg font-semibold">Method</h2>
 					{method.map((step, i) => (
 						<div key={i} className="flex gap-2 items-start">
-							<span className="font-bold text-primary pt-2 shrink-0 w-5">
+							<span
+								className="font-bold text-primary pt-2 shrink-0 w-5"
+								aria-hidden="true"
+							>
 								{i + 1}.
 							</span>
 							<textarea
+								aria-label={`Step ${i + 1}`}
 								placeholder="Step instruction..."
 								value={step.instruction}
 								onChange={(e) => updateStep(i, e.target.value)}
@@ -323,6 +331,7 @@ export default function NewRecipePage() {
 							{method.length > 1 && (
 								<button
 									type="button"
+									aria-label={`Remove step ${i + 1}`}
 									onClick={() => removeStep(i)}
 									className="btn btn-ghost btn-sm btn-square text-error mt-1"
 								>
@@ -341,7 +350,7 @@ export default function NewRecipePage() {
 				</div>
 
 				{error && (
-					<p className="text-error text-sm">
+					<p role="alert" className="text-error text-sm">
 						Failed to save recipe. Please try again.
 					</p>
 				)}

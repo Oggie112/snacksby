@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+import Modal from '@/components/modal'
 import { useUserAndSession } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
@@ -338,6 +339,7 @@ export default function EditRecipePage({
 								min="0"
 								step="any"
 								placeholder="Qty"
+								aria-label={`Ingredient ${i + 1} quantity`}
 								value={ing.amount}
 								onChange={(e) =>
 									updateIngredient(i, { amount: e.target.value })
@@ -345,6 +347,7 @@ export default function EditRecipePage({
 								className="input input-bordered input-sm w-20 shrink-0"
 							/>
 							<select
+								aria-label={`Ingredient ${i + 1} unit`}
 								value={ing.unit ?? ''}
 								onChange={(e) =>
 									updateIngredient(i, {
@@ -363,6 +366,7 @@ export default function EditRecipePage({
 							<input
 								type="text"
 								placeholder="Ingredient"
+								aria-label={`Ingredient ${i + 1} name`}
 								value={ing.name}
 								onChange={(e) => updateIngredient(i, { name: e.target.value })}
 								className="input input-bordered input-sm flex-1"
@@ -370,6 +374,7 @@ export default function EditRecipePage({
 							{ingredients.length > 1 && (
 								<button
 									type="button"
+									aria-label={`Remove ingredient ${i + 1}`}
 									onClick={() => removeIngredient(i)}
 									className="btn btn-ghost btn-sm btn-square text-error"
 								>
@@ -391,10 +396,14 @@ export default function EditRecipePage({
 					<h2 className="text-lg font-semibold">Method</h2>
 					{method.map((step, i) => (
 						<div key={i} className="flex gap-2 items-start">
-							<span className="font-bold text-primary pt-2 shrink-0 w-5">
+							<span
+								className="font-bold text-primary pt-2 shrink-0 w-5"
+								aria-hidden="true"
+							>
 								{i + 1}.
 							</span>
 							<textarea
+								aria-label={`Step ${i + 1}`}
 								placeholder="Step instruction..."
 								value={step.instruction}
 								onChange={(e) => updateStep(i, e.target.value)}
@@ -404,6 +413,7 @@ export default function EditRecipePage({
 							{method.length > 1 && (
 								<button
 									type="button"
+									aria-label={`Remove step ${i + 1}`}
 									onClick={() => removeStep(i)}
 									className="btn btn-ghost btn-sm btn-square text-error mt-1"
 								>
@@ -422,7 +432,7 @@ export default function EditRecipePage({
 				</div>
 
 				{error && (
-					<p className="text-error text-sm">
+					<p role="alert" className="text-error text-sm">
 						Failed to save changes. Please try again.
 					</p>
 				)}
@@ -450,40 +460,42 @@ export default function EditRecipePage({
 			</form>
 
 			{showDeleteModal && (
-				<div className="modal modal-open">
-					<div className="modal-box">
-						<h3 className="font-bold text-lg">Delete Recipe?</h3>
-						<p className="py-4 text-base-content/70">This cannot be undone.</p>
-						{deleteError && (
-							<p className="text-error text-sm mb-2">
-								Failed to delete. Please try again.
-							</p>
-						)}
-						<div className="modal-action">
-							<button
-								onClick={() => setShowDeleteModal(false)}
-								className="btn btn-ghost"
-							>
-								Cancel
-							</button>
-							<button
-								onClick={() => void handleDelete()}
-								disabled={deleteLoading}
-								className="btn btn-error"
-							>
-								{deleteLoading ? (
-									<span className="loading loading-spinner loading-sm" />
-								) : (
-									'Delete'
-								)}
-							</button>
-						</div>
+				<Modal
+					onClose={() => setShowDeleteModal(false)}
+					labelledBy="delete-recipe-title"
+				>
+					<h3 id="delete-recipe-title" className="font-bold text-lg">
+						Delete Recipe?
+					</h3>
+					<p className="py-4 text-base-content/70">This cannot be undone.</p>
+					{deleteError && (
+						<p role="alert" className="text-error text-sm mb-2">
+							Failed to delete. Please try again.
+						</p>
+					)}
+					<div className="modal-action">
+						<button
+							onClick={() => setShowDeleteModal(false)}
+							className="btn btn-ghost"
+						>
+							Cancel
+						</button>
+						<button
+							onClick={() => void handleDelete()}
+							disabled={deleteLoading}
+							className="btn btn-error"
+						>
+							{deleteLoading ? (
+								<span
+									className="loading loading-spinner loading-sm"
+									aria-hidden="true"
+								/>
+							) : (
+								'Delete'
+							)}
+						</button>
 					</div>
-					<div
-						className="modal-backdrop"
-						onClick={() => setShowDeleteModal(false)}
-					/>
-				</div>
+				</Modal>
 			)}
 		</div>
 	)

@@ -111,10 +111,14 @@ export default function SignupPage() {
 						</div>
 
 						{passwordError && (
-							<p className="text-error text-sm">{passwordError}</p>
+							<p role="alert" className="text-error text-sm">
+								{passwordError}
+							</p>
 						)}
 						{actionState.error && (
-							<p className="text-error text-sm">{actionState.error}</p>
+							<p role="alert" className="text-error text-sm">
+								{actionState.error}
+							</p>
 						)}
 
 						<button

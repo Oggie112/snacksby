@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useRouter } from 'next/navigation'
 
 import { resetInviteCode } from './actions'
+import Modal from '@/components/modal'
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
@@ -42,6 +43,11 @@ export function HouseholdSection() {
 	const [editingName, setEditingName] = useState(false)
 	const [nameInput, setNameInput] = useState('')
 	const [nameError, setNameError] = useState<string | null>(null)
+	const nameInputRef = useRef<HTMLInputElement>(null)
+
+	useEffect(() => {
+		if (editingName) nameInputRef.current?.focus()
+	}, [editingName])
 
 	const { data, loading, error, refetch } = useQuery<HouseholdSettingsData>(
 		GET_HOUSEHOLD_SETTINGS,
@@ -219,6 +225,7 @@ export function HouseholdSection() {
 						{editingName ? (
 							<div className="flex flex-col gap-2">
 								<input
+									ref={nameInputRef}
 									className="input input-bordered input-sm w-full max-w-xs text-base font-semibold"
 									value={nameInput}
 									onChange={(e) => setNameInput(e.target.value)}
@@ -226,7 +233,6 @@ export function HouseholdSection() {
 										if (e.key === 'Enter') void handleSaveName()
 										if (e.key === 'Escape') setEditingName(false)
 									}}
-									autoFocus
 									maxLength={80}
 								/>
 								{nameError && <p className="text-error text-xs">{nameError}</p>}
@@ -371,6 +377,7 @@ export function HouseholdSection() {
 														node.role
 													)}
 												</div>
+												{/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- DaisyUI dropdown content requires tabIndex for keyboard dismissal */}
 												<div
 													tabIndex={0}
 													className="dropdown-content flex flex-col gap-1 p-2 shadow-md bg-base-100 rounded-box z-10"
@@ -451,37 +458,39 @@ export function HouseholdSection() {
 				</div>
 			</section>
 			{removingMemberId && (
-				<div className="modal modal-open">
-					<div className="modal-box">
-						<h3 className="font-bold text-lg">Remove member?</h3>
-						<p className="py-4 text-base-content/70">
-							They&apos;ll need a new invite code to rejoin.
-						</p>
-						<div className="modal-action">
-							<button
-								className="btn btn-ghost"
-								onClick={() => setRemovingMemberId(null)}
-							>
-								Cancel
-							</button>
-							<button
-								className="btn btn-error"
-								disabled={removing}
-								onClick={() => void handleRemove()}
-							>
-								{removing ? (
-									<span className="loading loading-spinner loading-sm" />
-								) : (
-									'Remove'
-								)}
-							</button>
-						</div>
+				<Modal
+					onClose={() => setRemovingMemberId(null)}
+					labelledBy="remove-member-title"
+				>
+					<h3 id="remove-member-title" className="font-bold text-lg">
+						Remove member?
+					</h3>
+					<p className="py-4 text-base-content/70">
+						They&apos;ll need a new invite code to rejoin.
+					</p>
+					<div className="modal-action">
+						<button
+							className="btn btn-ghost"
+							onClick={() => setRemovingMemberId(null)}
+						>
+							Cancel
+						</button>
+						<button
+							className="btn btn-error"
+							disabled={removing}
+							onClick={() => void handleRemove()}
+						>
+							{removing ? (
+								<span
+									className="loading loading-spinner loading-sm"
+									aria-hidden="true"
+								/>
+							) : (
+								'Remove'
+							)}
+						</button>
 					</div>
-					<div
-						className="modal-backdrop"
-						onClick={() => setRemovingMemberId(null)}
-					/>
-				</div>
+				</Modal>
 			)}
 		</>
 	)

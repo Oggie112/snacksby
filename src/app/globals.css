@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 @plugin 'daisyui';
 
+@layer base {
+	:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+		border-radius: 2px;
+	}
+}
+
 @plugin "daisyui/theme" {
 	name: 'mytheme-light';
 	prefersdark: false;

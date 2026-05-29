@@ -128,6 +128,7 @@ export function Nav() {
 				<div className="navbar-end">
 					<Link
 						href="/settings"
+						aria-label="Settings"
 						className={`avatar avatar-placeholder rounded-full ${isActive('/settings') ? 'ring-2 ring-primary ring-offset-2 ring-offset-base-200' : ''}`}
 					>
 						<div className="bg-secondary text-secondary-content rounded-full size-9 cursor-pointer hover:opacity-80 transition-opacity">
@@ -143,12 +144,15 @@ export function Nav() {
 					<Link
 						key={href}
 						href={href}
+						aria-label={label}
 						className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
 							isActive(href) ? 'text-primary' : 'text-base-content/50'
 						}`}
 					>
-						{icon}
-						<span className="text-xs">{label}</span>
+						<span aria-hidden="true">{icon}</span>
+						<span className="text-xs" aria-hidden="true">
+							{label}
+						</span>
 					</Link>
 				))}
 				<Link

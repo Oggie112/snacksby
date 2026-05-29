@@ -94,9 +94,10 @@ export default function MealSlot({
 									className="btn btn-sm btn-ghost btn-circle"
 									onClick={() => setPickerOpen(true)}
 									disabled={mutating}
-									title="Change recipe"
+									aria-label="Change recipe"
 								>
 									<svg
+										aria-hidden="true"
 										xmlns="http://www.w3.org/2000/svg"
 										className="size-4"
 										viewBox="0 0 24 24"
@@ -115,12 +116,16 @@ export default function MealSlot({
 									className="btn btn-sm btn-ghost btn-circle text-error"
 									onClick={() => void handleRemove()}
 									disabled={mutating}
-									title="Remove"
+									aria-label={`Remove ${mealType} meal`}
 								>
 									{removing ? (
-										<span className="loading loading-spinner loading-xs" />
+										<span
+											className="loading loading-spinner loading-xs"
+											aria-hidden="true"
+										/>
 									) : (
 										<svg
+											aria-hidden="true"
 											xmlns="http://www.w3.org/2000/svg"
 											className="size-4"
 											viewBox="0 0 24 24"
@@ -144,11 +149,17 @@ export default function MealSlot({
 						className="flex-1 flex items-center justify-center text-base-content/40 hover:text-base-content/70 transition-colors"
 						onClick={() => setPickerOpen(true)}
 						disabled={mutating}
+						aria-label={`Add ${mealType} meal`}
 					>
 						{mutating ? (
-							<span className="loading loading-spinner loading-sm" />
+							<span
+								className="loading loading-spinner loading-sm"
+								aria-hidden="true"
+							/>
 						) : (
-							<span className="text-2xl leading-none">+</span>
+							<span className="text-2xl leading-none" aria-hidden="true">
+								+
+							</span>
 						)}
 					</button>
 				) : (
