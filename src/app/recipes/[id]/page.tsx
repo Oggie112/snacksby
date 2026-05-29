@@ -4,6 +4,7 @@ import { use } from 'react'
 
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 import { useUserAndSession } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
@@ -20,9 +21,14 @@ export default function RecipePage({
 	params: Promise<{ id: string }>
 }) {
 	const { id } = use(params)
+	const router = useRouter()
 
 	const { user } = useUserAndSession()
-	const { role, loading: roleLoading } = useHouseholdRole()
+	const {
+		householdId,
+		loading: roleLoading,
+		canEditRecipes,
+	} = useHouseholdRole()
 
 	const { data, loading, error } = useQuery<RecipeDetailData>(GET_RECIPE, {
 		variables: { id },
@@ -30,7 +36,11 @@ export default function RecipePage({
 	})
 	const recipe = data?.recipesCollection?.edges?.[0]?.node
 	const canEdit =
-		!!user && !roleLoading && (role === 'Leader' || role === 'Contributor')
+		!!user &&
+		!roleLoading &&
+		!!recipe &&
+		(recipe.created_by === user.id ||
+			(canEditRecipes && recipe.household_id === householdId))
 
 	if (loading) {
 		return (
@@ -55,9 +65,12 @@ export default function RecipePage({
 	return (
 		<div className="p-4 space-y-6 max-w-2xl mx-auto">
 			<div className="flex items-center justify-between">
-				<Link href="/recipes" className="btn btn-ghost btn-sm pl-0">
+				<button
+					onClick={() => router.back()}
+					className="btn btn-ghost btn-sm pl-0"
+				>
 					← Back
-				</Link>
+				</button>
 				{canEdit && (
 					<Link href={`/recipes/${id}/edit`} className="btn btn-outline btn-sm">
 						Edit
@@ -82,9 +95,13 @@ export default function RecipePage({
 			{(recipe.tags ?? []).length > 0 && (
 				<div className="flex gap-1 flex-wrap">
 					{recipe.tags.map((t) => (
-						<span key={t} className="badge badge-outline">
+						<Link
+							key={t}
+							href={`/recipes?tag=${t}`}
+							className="badge badge-outline"
+						>
 							{t}
-						</span>
+						</Link>
 					))}
 				</div>
 			)}
@@ -95,7 +112,7 @@ export default function RecipePage({
 					{ingredients.map((ing, i) => (
 						<li key={i} className="flex gap-3">
 							<span className="text-base-content/60 min-w-24 shrink-0">
-								{ing.quantity}
+								{ing.unit ? `${ing.amount} ${ing.unit}` : ing.amount}
 							</span>
 							<span>{ing.name}</span>
 						</li>

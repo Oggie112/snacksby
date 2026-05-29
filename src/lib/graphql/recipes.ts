@@ -1,5 +1,7 @@
 import { gql, type DocumentNode } from '@apollo/client'
 
+import type { Unit } from '@/lib/units'
+
 export interface RecipeNode {
 	id: string
 	title: string
@@ -32,7 +34,8 @@ export const GET_PUBLIC_RECIPES = gql`
 
 export interface Ingredient {
 	name: string
-	quantity: string
+	amount: number
+	unit: Unit | null
 }
 
 export interface MethodStep {
@@ -51,6 +54,7 @@ export interface RecipeDetail {
 	method: string
 	tags: string[]
 	created_by: string
+	household_id: string | null
 	visibility: 'private' | 'public'
 }
 
@@ -75,6 +79,7 @@ export const GET_RECIPE = gql`
 					method
 					tags
 					created_by
+					household_id
 					visibility
 				}
 			}

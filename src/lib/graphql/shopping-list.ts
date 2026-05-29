@@ -322,6 +322,26 @@ export const CLEAR_CHECKED = gql`
 	}
 `
 
+export interface UpdateItemQuantityResult {
+	updateshopping_list_itemsCollection: {
+		records: Array<{ id: string; quantity: string | null }>
+	}
+}
+
+export const UPDATE_ITEM_QUANTITY = gql`
+	mutation UpdateItemQuantity($id: UUID!, $quantity: String) {
+		updateshopping_list_itemsCollection(
+			filter: { id: { eq: $id } }
+			set: { quantity: $quantity }
+		) {
+			records {
+				id
+				quantity
+			}
+		}
+	}
+`
+
 export interface UpdateItemCategoryResult {
 	updateshopping_list_itemsCollection: {
 		records: Array<{ id: string; category: string | null }>

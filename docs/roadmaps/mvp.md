@@ -245,28 +245,45 @@ classDef done fill:#bbf7d0,stroke:#16a34a,color:#14532d
 
 UI improvements to revisit once all milestones are complete:
 
-- **Tag filtering persistence** — move `activeTag` state on the browse page to a URL search param (`?tag=pasta`); link tag badges on the recipe detail page back to `/recipes?tag=...` so the filter survives navigation
-- **Recipe saved banner** — if create/edit mutation succeeds but returns no ID, the user is redirected to `/recipes` without confirmation; show a transient "Recipe saved" banner on the list page via a query param (`?saved=1`) so they know it worked
+_(none — all polish items complete)_
+
+### Completed Polish
+
+- [x] **Tag filtering persistence** — `activeTag` moved to URL search params (`?tag=pasta&tag=beef`); multi-tag AND filtering; tag badges on recipe detail link back to `/recipes?tag=...`; back button on detail page uses `router.back()` to preserve filter
+- [x] **Recipe saved banner** — transient "Recipe saved" alert shown on the recipes list page via `?saved=1` query param when create/edit mutation returns no ID
+- [x] **Home page dashboard** — today/tomorrow meal slots (Breakfast/Lunch/Dinner/Snack) with recipe links; unchecked shopping list item count; time-based greeting; fixed `persistor.restore()` SSR crash and hydration mismatch by moving it into `useEffect`
 
 ---
 
 <a name="post-mvp"><h2>Beyond MVP</h2></a>
 
-Features deliberately deferred from the MVP:
+Features deliberately deferred from the MVP, in priority order:
 
-- **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph (first post-MVP priority)
+- **Portion scaling** — adjust servings and auto-scale ingredient quantities (requires structured ingredient schema, now complete)
+- **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
 - **Offline mutation queue** — Apollo Link that intercepts mutations when offline, serialises them to IndexedDB, and replays them through the Apollo client on reconnect. Cache updates and optimistic responses work normally; supports a "pending sync" indicator on queued items. Covers the primary use case of ticking/adding/removing shopping list items in the supermarket with patchy signal. Background Sync API (SW-level) is the alternative but operates below Apollo — cache stays stale after replay and ordering is not guaranteed. **Alternative approach:** disable writes while offline instead (grey out tick/add/remove with an "unavailable offline" tooltip) — simpler, no sync complexity, and appropriate for a collaborative data model where last-write-wins conflicts are a real risk (e.g. two household members editing the list independently while offline). Cache persistence already covers the primary offline use case (reading the list in the supermarket).
-- **Smart invite link** — time-limited, single-use invite URLs (`/join?code=abc123`) shareable via native share sheet; code persists through the auth/signup flow via a short-lived cookie so a new user auto-joins the correct household on first login. Requires a separate `household_invites` table (`code`, `household_id`, `expires_at`, `used_at`), a `/join` landing page that handles unauthenticated arrivals, and middleware that reads + clears the pending-invite cookie post-auth. Permanent codes (MVP) remain as a fallback for Leaders who want a stable link.
-- **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. This is a prerequisite for both of the following two items:
-  - **Portion scaling** — adjust servings and auto-scale ingredient quantities
-  - **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
-- **Barcode scanning** — add items to shopping list via camera
-- **Voice assistant integration** — hands-free list management
 - **External calendar sync** — push meal plan to Google Calendar / iCal
 - **Recipe discovery** — browse or import public recipes
+- **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph; useful but nice-to-have
+- **Barcode scanning** — add items to shopping list via camera; lower priority
+- **Voice assistant integration** — hands-free list management; lower priority
+- **Colour theme update** — revisit the current pastel palette; consider user-selectable themes or a more refined default
+- **Recipe tag management** — tags are currently free-text strings entered manually on each recipe; consider a curated/autocomplete tag list or a dedicated tag management UI
+- **Accessibility audit & Lighthouse check** — systematic a11y pass (ARIA labels, keyboard nav, colour contrast, focus management) + Lighthouse CI score targets
+- **Settings review** — audit settings page for missing or outdated options; adjust as needed (e.g. notification preferences, theme)
+- **Style health check** — audit the UI for visual inconsistencies; check spacing, typography, and component alignment across all pages
+- **Build, deployment & testing pipeline** — CI/CD setup (e.g. GitHub Actions); automated build validation; consider adding Jest/Vitest unit tests and Cypress E2E for critical paths
+
+### Completed Post-MVP
+
+- [x] **Smart invite link** — shareable `/join?code=xxx` URLs via the permanent household invite code. Web Share API on sender (clipboard fallback for desktop). Unauthenticated receivers: code stored in `pending_invite` cookie (httpOnly, 15 min), redirected through signup/login, then back to `/join` to confirm. Authenticated receivers: one-tap confirmation. Invite code generation moved to a DB `BEFORE INSERT` trigger with unique constraint; regeneration via `reset_invite_code` Supabase RPC (Leader only, confirm step in UI).
+- [x] **Structured ingredient schema** — replaced free-text `quantity` string with `{ amount: number | null, unit: string | null, name: string }` in ingredients JSON; recipe create/edit forms updated; shopping list import uses unit-aware merging.
+- [x] **Meal plan: all meal types** — weekly planner expanded from Dinner-only to Breakfast, Lunch, Dinner, and Snack; mobile plan page uses horizontal CSS snap scroll with 90vw columns and IntersectionObserver-driven dimming for non-focused days.
+- [x] **Household name change** — Leaders can rename the household inline from the settings page; pencil icon next to the name, pre-filled input, save/cancel, `UPDATE_HOUSEHOLD_NAME` GraphQL mutation (RLS already permitted Leader updates).
+- [x] **Auto-delete stale meal plans** — Supabase cron job deletes meal plan entries older than 60 days; prevents unbounded table growth.
 
 ---
 
-_Last updated: 2026-05-14_
+_Last updated: 2026-05-28_ <!-- structured schema, all meal types, household rename, stale plan cleanup shipped -->
 
 

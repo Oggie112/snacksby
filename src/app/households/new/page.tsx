@@ -24,14 +24,8 @@ export default function NewHouseholdPage() {
 		e.preventDefault()
 		if (!user) return
 
-		const invite_code = crypto
-			.randomUUID()
-			.replace(/-/g, '')
-			.slice(0, 8)
-			.toUpperCase()
-
 		const result = await createHousehold({
-			variables: { name: name.trim(), invite_code },
+			variables: { name: name.trim() },
 			refetchQueries: [
 				{ query: GET_MY_HOUSEHOLD, variables: { user_id: user.id } },
 				{ query: GET_MY_ROLE, variables: { user_id: user.id } },

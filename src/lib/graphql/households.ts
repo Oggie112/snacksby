@@ -24,6 +24,7 @@ export const GET_MY_HOUSEHOLD = gql`
 
 export interface MyRoleNode {
 	role: string
+	household_id: string
 }
 
 export interface MyRoleData {
@@ -38,6 +39,7 @@ export const GET_MY_ROLE = gql`
 			edges {
 				node {
 					role
+					household_id
 				}
 			}
 		}
@@ -78,10 +80,8 @@ export interface CreateHouseholdResult {
 }
 
 export const CREATE_HOUSEHOLD = gql`
-	mutation CreateHousehold($name: String!, $invite_code: String!) {
-		insertIntohouseholdsCollection(
-			objects: [{ name: $name, invite_code: $invite_code }]
-		) {
+	mutation CreateHousehold($name: String!) {
+		insertIntohouseholdsCollection(objects: [{ name: $name }]) {
 			records {
 				id
 			}
@@ -174,6 +174,26 @@ export const REMOVE_HOUSEHOLD_MEMBER = gql`
 			filter: { household_id: { eq: $household_id }, user_id: { eq: $user_id } }
 		) {
 			affectedCount
+		}
+	}
+`
+
+export interface UpdateHouseholdNameResult {
+	updatehouseholdsCollection: {
+		records: Array<{ id: string; name: string }>
+	}
+}
+
+export const UPDATE_HOUSEHOLD_NAME = gql`
+	mutation UpdateHouseholdName($id: UUID!, $name: String!) {
+		updatehouseholdsCollection(
+			filter: { id: { eq: $id } }
+			set: { name: $name }
+		) {
+			records {
+				id
+				name
+			}
 		}
 	}
 `

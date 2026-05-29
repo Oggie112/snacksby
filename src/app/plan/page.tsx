@@ -15,6 +15,7 @@ import {
 import {
 	GET_WEEK_PLAN,
 	type MealPlanNode,
+	type MealType,
 	type WeekPlanData,
 } from '@/lib/graphql/meal-plan'
 
@@ -91,9 +92,10 @@ function PlanContent() {
 		fetchPolicy: 'cache-and-network',
 	})
 
-	const assignments = new Map<string, MealPlanNode>()
+	const assignments = new Map<string, Map<MealType, MealPlanNode>>()
 	weekPlanData?.meal_planCollection?.edges?.forEach(({ node }) => {
-		assignments.set(`${node.date}:${node.meal_type}`, node)
+		if (!assignments.has(node.date)) assignments.set(node.date, new Map())
+		assignments.get(node.date)!.set(node.meal_type, node)
 	})
 
 	function navigate(weeks: number) {
@@ -143,13 +145,13 @@ function PlanContent() {
 				</button>
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-7 gap-3">
+			<div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 sm:grid sm:grid-cols-7 sm:overflow-x-visible sm:snap-none">
 				{weekDates.map((date) => (
 					<DayColumn
 						key={toISO(date)}
 						date={date}
 						isToday={toISO(date) === todayISO}
-						dinnerAssignment={assignments.get(`${toISO(date)}:Dinner`) ?? null}
+						assignments={assignments.get(toISO(date)) ?? new Map()}
 						householdId={householdId}
 						canEdit={canEdit}
 						refetch={() => void refetch()}

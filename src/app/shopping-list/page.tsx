@@ -9,6 +9,7 @@ import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
 } from '@/lib/graphql/households'
+import { type Ingredient } from '@/lib/graphql/recipes'
 import {
 	ADD_ITEM,
 	CATEGORIES,
@@ -18,6 +19,7 @@ import {
 	REMOVE_ITEM,
 	TOGGLE_ITEM,
 	UPDATE_ITEM_CATEGORY,
+	UPDATE_ITEM_QUANTITY,
 	guessCategory,
 	type AddItemResult,
 	type Category,
@@ -26,13 +28,15 @@ import {
 	type ShoppingListData,
 	type ToggleItemResult,
 	type UpdateItemCategoryResult,
+	type UpdateItemQuantityResult,
 	type WeekIngredientsData,
 } from '@/lib/graphql/shopping-list'
-
-interface Ingredient {
-	name: string
-	quantity: string
-}
+import {
+	UNITS,
+	parseQuantityString,
+	sumIngredients,
+	type Unit,
+} from '@/lib/units'
 
 function toISO(date: Date): string {
 	return [
@@ -59,6 +63,8 @@ function addDays(date: Date, n: number): Date {
 function ShoppingListContent() {
 	const { user } = useUserAndSession()
 	const [newItem, setNewItem] = useState('')
+	const [newAmount, setNewAmount] = useState('')
+	const [newUnit, setNewUnit] = useState<Unit | null>(null)
 	const [newCategory, setNewCategory] = useState<Category>('Misc')
 	const [importMessage, setImportMessage] = useState<string | null>(null)
 	const [importing, setImporting] = useState(false)
@@ -106,6 +112,13 @@ function ShoppingListContent() {
 	const [updateItemCategory] =
 		useMutation<UpdateItemCategoryResult>(UPDATE_ITEM_CATEGORY)
 
+	const [updateItemQuantity] = useMutation<UpdateItemQuantityResult>(
+		UPDATE_ITEM_QUANTITY,
+		{
+			onCompleted: () => void refetch(),
+		},
+	)
+
 	const { refetch: fetchWeekIngredients } = useQuery<WeekIngredientsData>(
 		GET_WEEK_INGREDIENTS,
 		{
@@ -127,17 +140,20 @@ function ShoppingListContent() {
 
 		const edges = data?.meal_planCollection?.edges ?? []
 
-		const grouped = new Map<string, string[]>()
+		const grouped = new Map<
+			string,
+			{ name: string; quantities: Array<{ amount: number; unit: Unit | null }> }
+		>()
 
 		for (const { node } of edges) {
 			const ingredients: Ingredient[] = JSON.parse(node.recipes.ingredients)
-			for (const { name, quantity } of ingredients) {
+			for (const { name, amount, unit } of ingredients) {
 				const key = name.toLowerCase()
 				const existing = grouped.get(key)
 				if (existing) {
-					existing.push(quantity)
+					existing.quantities.push({ amount, unit })
 				} else {
-					grouped.set(key, [name, quantity])
+					grouped.set(key, { name, quantities: [{ amount, unit }] })
 				}
 			}
 		}
@@ -148,32 +164,46 @@ function ShoppingListContent() {
 			return
 		}
 
-		// Filter out names already on the list
-		const onList = new Set(
-			(listData?.shopping_list_itemsCollection?.edges ?? []).map((e) =>
+		const onListMap = new Map(
+			(listData?.shopping_list_itemsCollection?.edges ?? []).map((e) => [
 				e.node.name.toLowerCase(),
-			),
+				e.node,
+			]),
 		)
 
 		let added = 0
-		for (const [key, [name, ...quantities]] of grouped) {
-			if (onList.has(key)) continue
-			await addItem({
-				variables: {
-					householdId,
-					name,
-					quantity: quantities.join(' + ') || null,
-					category: guessCategory(name),
-				},
-			})
-			added++
+		let updated = 0
+		for (const [key, { name, quantities }] of grouped) {
+			const existing = onListMap.get(key)
+			if (existing) {
+				const merged = sumIngredients([
+					...parseQuantityString(existing.quantity),
+					...quantities,
+				])
+				await updateItemQuantity({
+					variables: { id: existing.id, quantity: merged },
+				})
+				updated++
+			} else {
+				await addItem({
+					variables: {
+						householdId,
+						name,
+						quantity: sumIngredients(quantities),
+						category: guessCategory(name),
+					},
+				})
+				added++
+			}
 		}
 
 		await refetch()
+		const parts: string[] = []
+		if (added > 0) parts.push(`Added ${added} item${added === 1 ? '' : 's'}`)
+		if (updated > 0)
+			parts.push(`updated ${updated} item${updated === 1 ? '' : 's'}`)
 		setImportMessage(
-			added > 0
-				? `Added ${added} item${added === 1 ? '' : 's'}.`
-				: 'Nothing new to add.',
+			parts.length > 0 ? `${parts.join(', ')}.` : 'Nothing new to add.',
 		)
 		setImporting(false)
 	}
@@ -181,7 +211,10 @@ function ShoppingListContent() {
 	if (!user || householdLoading) {
 		return (
 			<div className="p-4">
-				<span className="loading loading-spinner loading-md" />
+				<span
+					className="loading loading-spinner loading-md"
+					aria-label="Loading"
+				/>
 			</div>
 		)
 	}
@@ -209,10 +242,33 @@ function ShoppingListContent() {
 		e.preventDefault()
 		const name = newItem.trim()
 		if (!name) return
-		const category = newCategory === 'Misc' ? guessCategory(name) : newCategory
+
+		const existing = items.find(
+			(i) => i.name.toLowerCase() === name.toLowerCase(),
+		)
+
 		setNewItem('')
+		setNewAmount('')
+		setNewUnit(null)
 		setNewCategory('Misc')
-		await addItem({ variables: { householdId, name, category } })
+
+		if (existing && newAmount) {
+			const merged = sumIngredients([
+				...parseQuantityString(existing.quantity),
+				{ amount: parseFloat(newAmount), unit: newUnit },
+			])
+			await updateItemQuantity({
+				variables: { id: existing.id, quantity: merged },
+			})
+		} else {
+			const category =
+				newCategory === 'Misc' ? guessCategory(name) : newCategory
+			const quantity = newAmount
+				? sumIngredients([{ amount: parseFloat(newAmount), unit: newUnit }])
+				: null
+			await addItem({ variables: { householdId, name, quantity, category } })
+		}
+
 		inputRef.current?.focus()
 	}
 
@@ -220,7 +276,12 @@ function ShoppingListContent() {
 		<div className="p-4 space-y-4 max-w-2xl mx-auto">
 			<div className="flex items-center justify-between">
 				<h1 className="text-2xl font-bold">Shopping List</h1>
-				{listLoading && <span className="loading loading-spinner loading-sm" />}
+				{listLoading && (
+					<span
+						className="loading loading-spinner loading-sm"
+						aria-label="Loading shopping list"
+					/>
+				)}
 			</div>
 
 			<div className="flex flex-wrap items-center gap-2">
@@ -230,7 +291,10 @@ function ShoppingListContent() {
 					onClick={() => void handleImport(thisWeekStart)}
 				>
 					{importing ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Import this week'
 					)}
@@ -241,7 +305,10 @@ function ShoppingListContent() {
 					onClick={() => void handleImport(nextWeekStart)}
 				>
 					{importing ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Import next week'
 					)}
@@ -257,9 +324,9 @@ function ShoppingListContent() {
 				<div className="space-y-4">
 					{grouped.map(({ category, items: groupItems }) => (
 						<div key={category}>
-							<p className="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-1">
+							<h2 className="text-xs font-semibold uppercase tracking-wide text-base-content/40 mb-1">
 								{category}
-							</p>
+							</h2>
 							<ul className="space-y-2">
 								{groupItems.map((item) => (
 									<li key={item.id} className="flex items-center gap-3">
@@ -287,6 +354,7 @@ function ShoppingListContent() {
 										</label>
 										<select
 											className="select select-ghost select-xs text-base-content/50"
+											aria-label={`Category for ${item.name}`}
 											value={item.category ?? 'Misc'}
 											onChange={(e) =>
 												void updateItemCategory({
@@ -302,7 +370,7 @@ function ShoppingListContent() {
 										</select>
 										<button
 											className="btn btn-ghost btn-xs text-error"
-											aria-label="Remove item"
+											aria-label={`Remove ${item.name}`}
 											onClick={() =>
 												void removeItem({ variables: { id: item.id } })
 											}
@@ -331,9 +399,33 @@ function ShoppingListContent() {
 				className="flex gap-2 flex-wrap"
 			>
 				<input
+					type="number"
+					min="0"
+					step="any"
+					placeholder="Qty"
+					aria-label="Quantity"
+					value={newAmount}
+					onChange={(e) => setNewAmount(e.target.value)}
+					className="input input-bordered w-20 shrink-0"
+				/>
+				<select
+					value={newUnit ?? ''}
+					aria-label="Unit"
+					onChange={(e) => setNewUnit((e.target.value as Unit) || null)}
+					className="select select-bordered w-24 shrink-0"
+				>
+					<option value="">—</option>
+					{UNITS.map((u) => (
+						<option key={u} value={u}>
+							{u}
+						</option>
+					))}
+				</select>
+				<input
 					ref={inputRef}
 					type="text"
 					placeholder="Add item..."
+					aria-label="Item name"
 					className="input input-bordered flex-1"
 					value={newItem}
 					onChange={(e) => setNewItem(e.target.value)}
@@ -344,7 +436,8 @@ function ShoppingListContent() {
 					}}
 				/>
 				<select
-					className="select select-bordered"
+					className="select select-bordered w-24 shrink-0"
+					aria-label="Category"
 					value={newCategory}
 					onChange={(e) => setNewCategory(e.target.value as Category)}
 				>
@@ -356,7 +449,10 @@ function ShoppingListContent() {
 				</select>
 				<button type="submit" className="btn btn-primary" disabled={adding}>
 					{adding ? (
-						<span className="loading loading-spinner loading-xs" />
+						<span
+							className="loading loading-spinner loading-xs"
+							aria-label="Loading"
+						/>
 					) : (
 						'Add'
 					)}

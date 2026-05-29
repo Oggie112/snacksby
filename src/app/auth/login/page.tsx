@@ -66,7 +66,9 @@ export default function LoginPage() {
 						</div>
 
 						{actionState.error && (
-							<p className="text-error text-sm">{actionState.error}</p>
+							<p role="alert" className="text-error text-sm">
+								{actionState.error}
+							</p>
 						)}
 
 						<button type="submit" className="btn btn-primary w-full mt-2">

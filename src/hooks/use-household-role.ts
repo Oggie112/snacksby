@@ -9,6 +9,7 @@ export type HouseholdRole = 'Leader' | 'Contributor' | 'Member' | null
 
 export function useHouseholdRole(): {
 	role: HouseholdRole
+	householdId: string | null
 	loading: boolean
 	canEditRecipes: boolean
 } {
@@ -19,11 +20,13 @@ export function useHouseholdRole(): {
 		skip: !user?.id,
 	})
 
-	const role = (data?.household_membersCollection?.edges?.[0]?.node?.role ??
-		null) as HouseholdRole
+	const node = data?.household_membersCollection?.edges?.[0]?.node
+	const role = (node?.role ?? null) as HouseholdRole
+	const householdId = node?.household_id ?? null
 
 	return {
 		role,
+		householdId,
 		loading,
 		canEditRecipes: role === 'Leader' || role === 'Contributor',
 	}

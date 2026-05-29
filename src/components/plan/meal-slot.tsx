@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 
 import RecipePickerModal from './recipe-picker-modal'
+import RecipeCard from '@/components/recipe-card'
 import {
 	ASSIGN_MEAL,
 	REASSIGN_MEAL,
@@ -78,23 +79,27 @@ export default function MealSlot({
 
 	return (
 		<>
-			<div className="group min-h-[80px] lg:min-h-[120px] xl:min-h-[150px] rounded-lg border border-base-300 p-2 flex flex-col gap-1">
+			<div className="group min-h-[60px] lg:min-h-[90px] xl:min-h-[110px] rounded-lg border border-base-300 p-2 flex flex-col gap-1">
 				{assignment ? (
 					<>
-						<p className="text-sm font-medium leading-tight flex-1">
-							{assignment.recipes.title}
-						</p>
+						<div className="flex-1">
+							<RecipeCard
+								id={assignment.recipes.id}
+								title={assignment.recipes.title}
+							/>
+						</div>
 						{canEdit && (
-							<div className="flex gap-1 justify-end mt-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+							<div className="flex justify-between mt-auto opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
 								<button
-									className="btn btn-xs btn-ghost btn-circle"
+									className="btn btn-sm btn-ghost btn-circle"
 									onClick={() => setPickerOpen(true)}
 									disabled={mutating}
-									title="Change recipe"
+									aria-label="Change recipe"
 								>
 									<svg
+										aria-hidden="true"
 										xmlns="http://www.w3.org/2000/svg"
-										className="size-3.5"
+										className="size-4"
 										viewBox="0 0 24 24"
 										fill="none"
 										stroke="currentColor"
@@ -108,17 +113,21 @@ export default function MealSlot({
 									</svg>
 								</button>
 								<button
-									className="btn btn-xs btn-ghost btn-circle text-error"
+									className="btn btn-sm btn-ghost btn-circle text-error"
 									onClick={() => void handleRemove()}
 									disabled={mutating}
-									title="Remove"
+									aria-label={`Remove ${mealType} meal`}
 								>
 									{removing ? (
-										<span className="loading loading-spinner loading-xs" />
+										<span
+											className="loading loading-spinner loading-xs"
+											aria-hidden="true"
+										/>
 									) : (
 										<svg
+											aria-hidden="true"
 											xmlns="http://www.w3.org/2000/svg"
-											className="size-3.5"
+											className="size-4"
 											viewBox="0 0 24 24"
 											fill="none"
 											stroke="currentColor"
@@ -140,11 +149,17 @@ export default function MealSlot({
 						className="flex-1 flex items-center justify-center text-base-content/40 hover:text-base-content/70 transition-colors"
 						onClick={() => setPickerOpen(true)}
 						disabled={mutating}
+						aria-label={`Add ${mealType} meal`}
 					>
 						{mutating ? (
-							<span className="loading loading-spinner loading-sm" />
+							<span
+								className="loading loading-spinner loading-sm"
+								aria-hidden="true"
+							/>
 						) : (
-							<span className="text-2xl leading-none">+</span>
+							<span className="text-2xl leading-none" aria-hidden="true">
+								+
+							</span>
 						)}
 					</button>
 				) : (

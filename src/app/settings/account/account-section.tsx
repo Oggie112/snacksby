@@ -32,6 +32,8 @@ export function AccountSection({ email }: Props) {
 						</div>
 						<button
 							className="btn btn-sm btn-ghost"
+							aria-expanded={emailOpen}
+							aria-controls="email-form"
 							onClick={() => setEmailOpen((o) => !o)}
 						>
 							{emailOpen ? 'Cancel' : 'Change'}
@@ -39,7 +41,11 @@ export function AccountSection({ email }: Props) {
 					</div>
 
 					{emailOpen && (
-						<form action={emailAction} className="flex flex-col gap-3">
+						<form
+							id="email-form"
+							action={emailAction}
+							className="flex flex-col gap-3"
+						>
 							<div className="form-control gap-1">
 								<label htmlFor="new-email" className="label-text font-medium">
 									New email
@@ -95,6 +101,8 @@ export function AccountSection({ email }: Props) {
 						</div>
 						<button
 							className="btn btn-sm btn-ghost"
+							aria-expanded={passwordOpen}
+							aria-controls="password-form"
 							onClick={() => setPasswordOpen((o) => !o)}
 						>
 							{passwordOpen ? 'Cancel' : 'Change'}
@@ -102,7 +110,11 @@ export function AccountSection({ email }: Props) {
 					</div>
 
 					{passwordOpen && (
-						<form action={passwordAction} className="flex flex-col gap-3">
+						<form
+							id="password-form"
+							action={passwordAction}
+							className="flex flex-col gap-3"
+						>
 							<div className="form-control gap-1">
 								<label
 									htmlFor="currentPassword"

@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useRouter } from 'next/navigation'
 
+import { resetInviteCode } from './actions'
+import Modal from '@/components/modal'
 import { useUserAndSession } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
@@ -12,9 +14,11 @@ import {
 	GET_MY_ROLE,
 	REMOVE_HOUSEHOLD_MEMBER,
 	UPDATE_HOUSEHOLD_MEMBER_ROLE,
+	UPDATE_HOUSEHOLD_NAME,
 	type HouseholdSettingsData,
 	type RemoveHouseholdMemberResult,
 	type UpdateHouseholdMemberRoleResult,
+	type UpdateHouseholdNameResult,
 } from '@/lib/graphql/households'
 
 const ROLE_BADGE: Record<string, string> = {
@@ -29,10 +33,21 @@ export function HouseholdSection() {
 	const { user } = useUserAndSession()
 	const router = useRouter()
 	const [copied, setCopied] = useState(false)
+	const [shared, setShared] = useState(false)
+	const [regenerating, setRegenerating] = useState(false)
+	const [confirmRegenerate, setConfirmRegenerate] = useState(false)
 	const [confirmingId, setConfirmingId] = useState<string | null>(null)
 	const [leaveError, setLeaveError] = useState<string | null>(null)
 	const [changingRoleId, setChangingRoleId] = useState<string | null>(null)
 	const [removingMemberId, setRemovingMemberId] = useState<string | null>(null)
+	const [editingName, setEditingName] = useState(false)
+	const [nameInput, setNameInput] = useState('')
+	const [nameError, setNameError] = useState<string | null>(null)
+	const nameInputRef = useRef<HTMLInputElement>(null)
+
+	useEffect(() => {
+		if (editingName) nameInputRef.current?.focus()
+	}, [editingName])
 
 	const { data, loading, error, refetch } = useQuery<HouseholdSettingsData>(
 		GET_HOUSEHOLD_SETTINGS,
@@ -49,6 +64,9 @@ export function HouseholdSection() {
 		UPDATE_HOUSEHOLD_MEMBER_ROLE,
 	)
 
+	const [updateHouseholdName, { loading: savingName }] =
+		useMutation<UpdateHouseholdNameResult>(UPDATE_HOUSEHOLD_NAME)
+
 	const membership = data?.household_membersCollection?.edges?.[0]?.node
 	const household = membership?.households
 	const members = household?.household_membersCollection?.edges ?? []
@@ -59,6 +77,31 @@ export function HouseholdSection() {
 		await navigator.clipboard.writeText(household.invite_code)
 		setCopied(true)
 		setTimeout(() => setCopied(false), 2000)
+	}
+
+	const handleShare = async () => {
+		if (!household?.invite_code) return
+		const url = `${window.location.origin}/join?code=${household.invite_code}`
+		const shareData = { title: 'Join my household on Snacksby', url }
+		if (navigator.canShare?.(shareData)) {
+			await navigator.share(shareData)
+		} else {
+			await navigator.clipboard.writeText(url)
+			setShared(true)
+			setTimeout(() => setShared(false), 2000)
+		}
+	}
+
+	const handleRegenerate = async () => {
+		if (!household?.id) return
+		setRegenerating(true)
+		setConfirmRegenerate(false)
+		try {
+			await resetInviteCode(household.id)
+			await refetch()
+		} finally {
+			setRegenerating(false)
+		}
 	}
 
 	const handleRoleChange = async (targetUserId: string, newRole: string) => {
@@ -83,6 +126,31 @@ export function HouseholdSection() {
 		})
 		setRemovingMemberId(null)
 		await refetch()
+	}
+
+	const handleEditNameOpen = () => {
+		setNameInput(household?.name ?? '')
+		setNameError(null)
+		setEditingName(true)
+	}
+
+	const handleSaveName = async () => {
+		const trimmed = nameInput.trim()
+		if (!trimmed) {
+			setNameError('Name cannot be empty.')
+			return
+		}
+		if (!household?.id) return
+		setNameError(null)
+		try {
+			await updateHouseholdName({
+				variables: { id: household.id, name: trimmed },
+			})
+			setEditingName(false)
+			await refetch()
+		} catch {
+			setNameError('Failed to save. Please try again.')
+		}
 	}
 
 	const handleLeaveClick = () => {
@@ -154,21 +222,125 @@ export function HouseholdSection() {
 			<section className="space-y-4">
 				<div className="card bg-base-100 shadow-md">
 					<div className="card-body gap-4">
-						<h2 className="card-title text-lg">{household.name}</h2>
-						{currentUserRole === 'Leader' && (
-							<div>
-								<p className="label-text font-medium mb-2">Invite code</p>
-								<div className="flex items-center gap-3">
-									<span className="font-mono tracking-widest text-lg">
-										{household.invite_code}
-									</span>
+						{editingName ? (
+							<div className="flex flex-col gap-2">
+								<input
+									ref={nameInputRef}
+									className="input input-bordered input-sm w-full max-w-xs text-base font-semibold"
+									value={nameInput}
+									onChange={(e) => setNameInput(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === 'Enter') void handleSaveName()
+										if (e.key === 'Escape') setEditingName(false)
+									}}
+									maxLength={80}
+								/>
+								{nameError && <p className="text-error text-xs">{nameError}</p>}
+								<div className="flex gap-2">
+									<button
+										className="btn btn-sm btn-primary"
+										disabled={savingName}
+										onClick={() => void handleSaveName()}
+									>
+										{savingName ? (
+											<span className="loading loading-spinner loading-xs" />
+										) : (
+											'Save'
+										)}
+									</button>
 									<button
 										className="btn btn-sm btn-ghost"
-										onClick={() => void handleCopy()}
+										disabled={savingName}
+										onClick={() => setEditingName(false)}
 									>
-										{copied ? 'Copied!' : 'Copy'}
+										Cancel
 									</button>
 								</div>
+							</div>
+						) : (
+							<div className="flex items-center gap-2">
+								<h2 className="card-title text-lg">{household.name}</h2>
+								{currentUserRole === 'Leader' && (
+									<button
+										className="btn btn-xs btn-ghost btn-circle"
+										onClick={handleEditNameOpen}
+										aria-label="Rename household"
+									>
+										<svg
+											xmlns="http://www.w3.org/2000/svg"
+											className="size-3.5"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth={2}
+										>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+											/>
+										</svg>
+									</button>
+								)}
+							</div>
+						)}
+						{(currentUserRole === 'Leader' ||
+							currentUserRole === 'Contributor') && (
+							<div className="flex flex-col gap-3">
+								<p className="label-text font-medium">Invite</p>
+								<button
+									className="btn btn-sm btn-primary self-start"
+									onClick={() => void handleShare()}
+								>
+									{shared ? 'Link copied!' : 'Share invite link'}
+								</button>
+								{currentUserRole === 'Leader' && (
+									<div>
+										<p className="label-text mb-2">Invite code</p>
+										<div className="flex items-center gap-3">
+											<span className="font-mono tracking-widest text-lg">
+												{household.invite_code}
+											</span>
+											<button
+												className="btn btn-sm btn-ghost"
+												onClick={() => void handleCopy()}
+											>
+												{copied ? 'Copied!' : 'Copy'}
+											</button>
+										</div>
+										{confirmRegenerate ? (
+											<div className="flex items-center gap-2 mt-3">
+												<span className="text-sm text-base-content/60 flex-1">
+													This invalidates all existing invite links.
+												</span>
+												<button
+													className="btn btn-sm btn-error"
+													disabled={regenerating}
+													onClick={() => void handleRegenerate()}
+												>
+													{regenerating ? (
+														<span className="loading loading-spinner loading-xs" />
+													) : (
+														'Confirm'
+													)}
+												</button>
+												<button
+													className="btn btn-sm btn-ghost"
+													onClick={() => setConfirmRegenerate(false)}
+												>
+													Cancel
+												</button>
+											</div>
+										) : (
+											<button
+												className="btn btn-sm btn-ghost btn-error mt-3"
+												onClick={() => setConfirmRegenerate(true)}
+											>
+												Regenerate code
+											</button>
+										)}
+									</div>
+								)}
 							</div>
 						)}
 					</div>
@@ -205,6 +377,7 @@ export function HouseholdSection() {
 														node.role
 													)}
 												</div>
+												{/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- DaisyUI dropdown content requires tabIndex for keyboard dismissal */}
 												<div
 													tabIndex={0}
 													className="dropdown-content flex flex-col gap-1 p-2 shadow-md bg-base-100 rounded-box z-10"
@@ -285,37 +458,39 @@ export function HouseholdSection() {
 				</div>
 			</section>
 			{removingMemberId && (
-				<div className="modal modal-open">
-					<div className="modal-box">
-						<h3 className="font-bold text-lg">Remove member?</h3>
-						<p className="py-4 text-base-content/70">
-							They&apos;ll need a new invite code to rejoin.
-						</p>
-						<div className="modal-action">
-							<button
-								className="btn btn-ghost"
-								onClick={() => setRemovingMemberId(null)}
-							>
-								Cancel
-							</button>
-							<button
-								className="btn btn-error"
-								disabled={removing}
-								onClick={() => void handleRemove()}
-							>
-								{removing ? (
-									<span className="loading loading-spinner loading-sm" />
-								) : (
-									'Remove'
-								)}
-							</button>
-						</div>
+				<Modal
+					onClose={() => setRemovingMemberId(null)}
+					labelledBy="remove-member-title"
+				>
+					<h3 id="remove-member-title" className="font-bold text-lg">
+						Remove member?
+					</h3>
+					<p className="py-4 text-base-content/70">
+						They&apos;ll need a new invite code to rejoin.
+					</p>
+					<div className="modal-action">
+						<button
+							className="btn btn-ghost"
+							onClick={() => setRemovingMemberId(null)}
+						>
+							Cancel
+						</button>
+						<button
+							className="btn btn-error"
+							disabled={removing}
+							onClick={() => void handleRemove()}
+						>
+							{removing ? (
+								<span
+									className="loading loading-spinner loading-sm"
+									aria-hidden="true"
+								/>
+							) : (
+								'Remove'
+							)}
+						</button>
 					</div>
-					<div
-						className="modal-backdrop"
-						onClick={() => setRemovingMemberId(null)}
-					/>
-				</div>
+				</Modal>
 			)}
 		</>
 	)
