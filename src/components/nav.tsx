@@ -111,6 +111,8 @@ export function Nav() {
 							unoptimized
 							loading="eager"
 							className="object-cover object-center scale-[1.12]"
+							priority
+							aria-hidden="true"
 						/>
 					</div>
 				</div>
