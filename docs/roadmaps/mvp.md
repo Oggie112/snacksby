@@ -259,31 +259,31 @@ _(none — all polish items complete)_
 
 Features deliberately deferred from the MVP, in priority order:
 
-- **Structured ingredient schema** — replace free-text `quantity` string with `{ amount: number | null, unit: string | null }` in the ingredients JSON; update recipe create/edit forms accordingly; migrate existing data. Prioritised early while DB data is minimal. This is a prerequisite for both of the following two items:
-  - **Portion scaling** — adjust servings and auto-scale ingredient quantities
-  - **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
+- **Portion scaling** — adjust servings and auto-scale ingredient quantities (requires structured ingredient schema, now complete)
+- **Shopping list quantity summing** — when importing from the meal plan, sum compatible units (e.g. 500g + 200g = 700g) rather than concatenating as strings; ingredients with incompatible or missing units (pantry staples, spices) remain as-is
 - **Offline mutation queue** — Apollo Link that intercepts mutations when offline, serialises them to IndexedDB, and replays them through the Apollo client on reconnect. Cache updates and optimistic responses work normally; supports a "pending sync" indicator on queued items. Covers the primary use case of ticking/adding/removing shopping list items in the supermarket with patchy signal. Background Sync API (SW-level) is the alternative but operates below Apollo — cache stays stale after replay and ordering is not guaranteed. **Alternative approach:** disable writes while offline instead (grey out tick/add/remove with an "unavailable offline" tooltip) — simpler, no sync complexity, and appropriate for a collaborative data model where last-write-wins conflicts are a real risk (e.g. two household members editing the list independently while offline). Cache persistence already covers the primary offline use case (reading the list in the supermarket).
 - **External calendar sync** — push meal plan to Google Calendar / iCal
 - **Recipe discovery** — browse or import public recipes
 - **AI recipe suggestions** — "give me X recipes" generation via OpenAI + LangChain/LangGraph; useful but nice-to-have
 - **Barcode scanning** — add items to shopping list via camera; lower priority
 - **Voice assistant integration** — hands-free list management; lower priority
-- **Meal plan: all meal types** — planning currently only supports Dinner; extend the weekly grid to support Breakfast, Lunch, and Snack slots
 - **Colour theme update** — revisit the current pastel palette; consider user-selectable themes or a more refined default
 - **Recipe tag management** — tags are currently free-text strings entered manually on each recipe; consider a curated/autocomplete tag list or a dedicated tag management UI
-- **Auto-delete stale meal plans** — Supabase DB trigger (or scheduled function) to delete meal plan entries older than ~1 month; prevents unbounded table growth
 - **Accessibility audit & Lighthouse check** — systematic a11y pass (ARIA labels, keyboard nav, colour contrast, focus management) + Lighthouse CI score targets
 - **Settings review** — audit settings page for missing or outdated options; adjust as needed (e.g. notification preferences, theme)
-- **Household name change** — allow the household Leader to rename the household from the settings page
 - **Style health check** — audit the UI for visual inconsistencies; check spacing, typography, and component alignment across all pages
 - **Build, deployment & testing pipeline** — CI/CD setup (e.g. GitHub Actions); automated build validation; consider adding Jest/Vitest unit tests and Cypress E2E for critical paths
 
 ### Completed Post-MVP
 
 - [x] **Smart invite link** — shareable `/join?code=xxx` URLs via the permanent household invite code. Web Share API on sender (clipboard fallback for desktop). Unauthenticated receivers: code stored in `pending_invite` cookie (httpOnly, 15 min), redirected through signup/login, then back to `/join` to confirm. Authenticated receivers: one-tap confirmation. Invite code generation moved to a DB `BEFORE INSERT` trigger with unique constraint; regeneration via `reset_invite_code` Supabase RPC (Leader only, confirm step in UI).
+- [x] **Structured ingredient schema** — replaced free-text `quantity` string with `{ amount: number | null, unit: string | null, name: string }` in ingredients JSON; recipe create/edit forms updated; shopping list import uses unit-aware merging.
+- [x] **Meal plan: all meal types** — weekly planner expanded from Dinner-only to Breakfast, Lunch, Dinner, and Snack; mobile plan page uses horizontal CSS snap scroll with 90vw columns and IntersectionObserver-driven dimming for non-focused days.
+- [x] **Household name change** — Leaders can rename the household inline from the settings page; pencil icon next to the name, pre-filled input, save/cancel, `UPDATE_HOUSEHOLD_NAME` GraphQL mutation (RLS already permitted Leader updates).
+- [x] **Auto-delete stale meal plans** — Supabase cron job deletes meal plan entries older than 60 days; prevents unbounded table growth.
 
 ---
 
-_Last updated: 2026-05-19_ <!-- post-mvp items added -->
+_Last updated: 2026-05-28_ <!-- structured schema, all meal types, household rename, stale plan cleanup shipped -->
 
 
