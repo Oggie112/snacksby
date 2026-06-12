@@ -1,23 +1,10 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, NextRequest } from 'next/server'
 
-/**
- * Next.js Proxy for authentication and routing.
- * Checks if the requested path is public or requires authentication.
- * If the path is protected and no active Supabase session is found, redirects to the login page.
- * Also handles refreshing user sessions by setting cookies.
- *
- * ⚠️ Auth limitation: Server Actions are POST requests to their parent route, so a matcher
- * that excludes a path also skips this proxy for Server Actions on that path.
- * Do not rely solely on this proxy for auth — every protected Server Action must
- * independently verify the session via serverClient().auth.getUser().
- *
- * @param request The incoming NextRequest object.
- * @returns A NextResponse object, either redirecting or allowing the request to proceed.
- */
-export async function proxy(request: NextRequest) {
-	console.log('--- Middleware triggered ---')
-	console.log('Path:', request.nextUrl.pathname)
+// ⚠️ Server Actions are POST requests to their parent route — a public matcher entry
+// also bypasses this middleware for actions on that route. Every protected Server Action
+// must independently verify the session via serverClient().auth.getUser().
+export async function middleware(request: NextRequest) {
 
 	const pathname = request.nextUrl.pathname
 
@@ -28,6 +15,9 @@ export async function proxy(request: NextRequest) {
 		pathname.startsWith('/auth/login') ||
 		pathname.startsWith('/auth/signup') ||
 		pathname.startsWith('/auth/logout') ||
+		pathname.startsWith('/auth/forgot-password') ||
+		pathname.startsWith('/auth/callback') ||
+		pathname.startsWith('/auth/reset-password') ||
 		pathname.startsWith('/join') ||
 		pathname.startsWith('/favicon') ||
 		pathname.startsWith('/_next') ||
