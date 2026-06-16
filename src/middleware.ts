@@ -5,7 +5,6 @@ import { NextResponse, NextRequest } from 'next/server'
 // also bypasses this middleware for actions on that route. Every protected Server Action
 // must independently verify the session via serverClient().auth.getUser().
 export async function middleware(request: NextRequest) {
-
 	const pathname = request.nextUrl.pathname
 
 	// Define public paths that do not require authentication.

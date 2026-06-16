@@ -67,7 +67,12 @@ export default function DayColumn({
 	}, [])
 
 	useEffect(() => {
-		if (isToday) ref.current?.scrollIntoView({ behavior: 'instant', inline: 'start', block: 'nearest' })
+		if (isToday)
+			ref.current?.scrollIntoView({
+				behavior: 'instant',
+				inline: 'start',
+				block: 'nearest',
+			})
 	}, [isToday])
 
 	const dayName = DAY_NAMES[dayIndex(date)]
