@@ -66,6 +66,15 @@ export default function DayColumn({
 		return () => observer.disconnect()
 	}, [])
 
+	useEffect(() => {
+		if (isToday)
+			ref.current?.scrollIntoView({
+				behavior: 'instant',
+				inline: 'start',
+				block: 'nearest',
+			})
+	}, [isToday])
+
 	const dayName = DAY_NAMES[dayIndex(date)]
 	const dateLabel = `${date.getDate()} ${MONTH_NAMES[date.getMonth()]}`
 

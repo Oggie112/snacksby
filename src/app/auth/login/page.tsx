@@ -50,9 +50,17 @@ export default function LoginPage() {
 						</div>
 
 						<div className="form-control gap-1">
-							<label htmlFor="password" className="label-text font-medium">
-								Password
-							</label>
+							<div className="flex items-center justify-between">
+								<label htmlFor="password" className="label-text font-medium">
+									Password
+								</label>
+								<Link
+									href="/auth/forgot-password"
+									className="text-xs text-primary hover:underline"
+								>
+									Forgot password?
+								</Link>
+							</div>
 							<input
 								id="password"
 								type="password"
