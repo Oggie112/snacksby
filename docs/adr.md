@@ -155,3 +155,89 @@ Better for post-MVP mobile focus, not ideal for quick MVP web launch.
 
 - Supabase handles auth and session management.
 - Role-based access control for Admin, Contri
+
+---
+
+# ADR-002 — AI Meal-Planning Assistant
+
+**Status:** Accepted · **Date:** 2026-06-18 · **Supersedes:** the "OpenAI + Langchain (post-MVP)" references in §2.1, §3.1, §5.1, §5.3.
+
+## 1. Context
+
+Add a conversational assistant to Snacksby that can: answer questions over a
+household's own recipes and meal plan, add/remove plan entries, search the web
+for recipes, and format found recipes into Snacksby's recipe shape for upload.
+Must be usable by household members, secure, and respect existing roles. The
+zero-budget constraint still holds.
+
+## 2. Decision Drivers
+
+- Reuse the existing security model (Supabase RLS + Leader/Contributor/Member
+  roles) rather than building a parallel one.
+- Reuse existing GraphQL operations as the AI's data surface.
+- No inference cost to the project owner (zero budget).
+- Minimal new framework surface; native fit with Next.js 16 + React 19 + Vercel.
+
+## 3. Considered Alternatives
+
+### 3.1 LangChain JS (the original ADR-001 assumption)
+Strong for multi-source RAG and heavy orchestration — neither of which this
+feature needs. As of mid-2026 its JS adoption has fallen well behind the Vercel
+AI SDK (~2.4M vs ~14.2M weekly downloads) and momentum is one-directional.
+Heavier than the problem warrants.
+
+### 3.2 Vercel AI SDK (chosen)
+Lightweight, provider-agnostic, native tool-calling, streaming, `useChat` React
+hook, and `generateObject` + Zod for structured extraction. Maps exactly to this
+feature's needs (tool calls over our own data, one web-search step, structured
+recipe output) with no surplus framework.
+
+### 3.3 Direct Anthropic SDK, no framework
+Viable but we would re-implement the agent loop, streaming protocol, and React
+glue the AI SDK already provides.
+
+## 4. Decision Outcome
+
+**Vercel AI SDK, backed by Anthropic Claude, with a bring-your-own-key model.**
+
+- **Framework:** Vercel AI SDK (`ai` + `@ai-sdk/anthropic`).
+- **Provider:** Anthropic Claude (swappable via the AI SDK provider interface).
+- **Keys (BYO):** one Anthropic key per household, set by the Leader in
+  Settings → Household. Stored encrypted at rest (AES-256-GCM under a server
+  secret); decrypted only server-side, never sent to any client. All inference
+  and web-search cost sits on the household's own key.
+- **Surface:** floating chat widget on the home page only, hidden for Members in
+  v1 (role-gated visibility; architecture remains member-capable for later).
+- **Web search:** Anthropic's built-in web search tool.
+- **History:** ephemeral per session (no persistence in v1).
+
+## 5. Security Architecture
+
+- **Two server clients, deliberately separated:**
+  - Data tools (recipes, meal plan) run through a **user-JWT-scoped** Supabase
+    client, so RLS enforces household scoping and role permissions automatically.
+    The assistant cannot read or write anything the user could not.
+  - The **service-role client** is used for exactly one thing: reading the
+    household's own encrypted key after membership is verified. It never touches
+    recipe or meal-plan tools.
+- **Writes are propose-then-confirm:** the model returns a structured payload;
+  the UI renders a confirmation card; on confirm, the existing Apollo mutation
+  fires under the user's session. Reads run freely.
+- **Role in prompt + RLS backstop:** the user's role is injected into the system
+  prompt for graceful UX; RLS is the hard enforcement layer.
+- **Guards:** `maxSteps` and token caps to prevent a runaway loop burning the
+  household's credit.
+
+## 6. Positive Consequences
+
+- Security is mostly inherited from existing RLS — minimal new attack surface.
+- Zero inference cost to the project.
+- Data tools are thin wrappers over GraphQL we already have.
+- Provider is swappable without rewriting the agent.
+
+## 7. Negative Consequences
+
+- BYO key adds onboarding friction and an encrypted-key store to maintain.
+- New server secret (`AI_KEY_ENCRYPTION_SECRET`) and a new DB table.
+- Web-recipe import quality depends on extraction; mitigated by Zod validation
+  and the confirm step.

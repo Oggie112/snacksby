@@ -12,17 +12,20 @@
 		"types": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@ai-sdk/anthropic": "^3.0.85",
 		"@apollo/client": "^4.0.9",
 		"@serwist/next": "^9.5.11",
 		"@supabase/ssr": "^0.9.0",
 		"@supabase/supabase-js": "^2.100.0",
+		"ai": "^6.0.208",
 		"apollo3-cache-persist": "^0.15.0",
 		"graphql": "^16.12.0",
 		"idb-keyval": "^6.2.2",
 		"next": "16.2.1",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
-		"serwist": "^9.5.11"
+		"serwist": "^9.5.11",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4",
@@ -46,7 +49,7 @@
 		"@types/react": "19.2.14",
 		"@types/react-dom": "19.2.3",
 		"apollo3-cache-persist": {
-    		"@apollo/client": "^4.0.0"
-  		}
+			"@apollo/client": "^4.0.0"
+		}
 	}
 }
