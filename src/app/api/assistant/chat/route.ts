@@ -3,6 +3,7 @@ import { stepCountIs, streamText } from 'ai'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { decryptApiKey } from '@/lib/ai/crypto'
+import { createAssistantTools } from '@/lib/ai/tools'
 import { adminClient } from '@/lib/supabase/admin'
 import { serverClient } from '@/lib/supabase/server'
 
@@ -77,23 +78,32 @@ export async function POST(request: NextRequest) {
 	}
 
 	const canWrite = role === 'Leader' || role === 'Contributor'
+
 	const systemPrompt = [
 		'You are a helpful cooking and meal-planning assistant for the Snacksby app.',
 		'Help users with recipes, meal plans, ingredients, and cooking techniques.',
 		`The user's role in their household is: ${role}.`,
 		canWrite
-			? 'They can manage recipes and the meal plan. When they ask you to add or change something, propose the action with a clear summary — do not act without their confirmation.'
+			? 'They can manage recipes and the meal plan. When they ask you to add or change something, use the propose tools — do not act without their confirmation.'
 			: 'They can view recipes and the meal plan but cannot make changes.',
+		'For web recipe searches, always use proposeCreateRecipe to hand the structured recipe back to the user for confirmation before saving.',
 		'Be concise. Avoid unnecessary preamble.',
 	].join('\n')
 
 	const anthropic = createAnthropic({ apiKey })
+
+	const tools = createAssistantTools({
+		supabase,
+		householdId: household_id,
+		canWrite,
+	})
 
 	const result = streamText({
 		model: anthropic('claude-sonnet-4-6'),
 		system: systemPrompt,
 		messages,
 		tools: {
+			...tools,
 			web_search: anthropic.tools.webSearch_20260209({ maxUses: 3 }),
 		},
 		stopWhen: stepCountIs(5),
