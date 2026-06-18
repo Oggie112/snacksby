@@ -16,6 +16,14 @@ export async function resetPassword(
 		return { error: 'Password must be at least 8 characters.' }
 
 	const supabase = await serverClient()
+
+	const { data: { session } } = await supabase.auth.getSession()
+	const isRecoverySession = session?.amr?.some(m => m.method === 'recovery') ?? false
+
+	if (!isRecoverySession) {
+		return { error: 'Password reset link has expired. Please request a new one.' }
+	}
+
 	const { error } = await supabase.auth.updateUser({ password })
 
 	if (error) return { error: error.message }
