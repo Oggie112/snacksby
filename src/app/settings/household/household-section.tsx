@@ -5,7 +5,12 @@ import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { useRouter } from 'next/navigation'
 
-import { resetInviteCode } from './actions'
+import {
+	getAiKeyStatus,
+	removeAiKey,
+	resetInviteCode,
+	saveAiKey,
+} from './actions'
 import Modal from '@/components/modal'
 import { useUserAndSession } from '@/components/session-provider'
 import {
@@ -45,6 +50,16 @@ export function HouseholdSection() {
 	const [nameError, setNameError] = useState<string | null>(null)
 	const nameInputRef = useRef<HTMLInputElement>(null)
 
+	const [aiKeyStatus, setAiKeyStatus] = useState<{
+		set: boolean
+		last4: string | null
+	} | null>(null)
+	const [keyInput, setKeyInput] = useState('')
+	const [keyError, setKeyError] = useState<string | null>(null)
+	const [savingKey, setSavingKey] = useState(false)
+	const [replacingKey, setReplacingKey] = useState(false)
+	const [removingKey, setRemovingKey] = useState(false)
+
 	useEffect(() => {
 		if (editingName) nameInputRef.current?.focus()
 	}, [editingName])
@@ -71,6 +86,11 @@ export function HouseholdSection() {
 	const household = membership?.households
 	const members = household?.household_membersCollection?.edges ?? []
 	const currentUserRole = membership?.role
+
+	useEffect(() => {
+		if (!household?.id) return
+		void getAiKeyStatus(household.id).then(setAiKeyStatus)
+	}, [household?.id])
 
 	const handleCopy = async () => {
 		if (!household?.invite_code) return
@@ -151,6 +171,33 @@ export function HouseholdSection() {
 		} catch {
 			setNameError('Failed to save. Please try again.')
 		}
+	}
+
+	const handleSaveKey = async () => {
+		if (!household?.id) return
+		setSavingKey(true)
+		setKeyError(null)
+		const result = await saveAiKey(household.id, keyInput.trim())
+		setSavingKey(false)
+		if (result.error) {
+			setKeyError(result.error)
+			return
+		}
+		setKeyInput('')
+		setReplacingKey(false)
+		setAiKeyStatus({ set: true, last4: keyInput.trim().slice(-4) })
+	}
+
+	const handleRemoveKey = async () => {
+		if (!household?.id) return
+		setRemovingKey(true)
+		const result = await removeAiKey(household.id)
+		setRemovingKey(false)
+		if (result.error) {
+			setKeyError(result.error)
+			return
+		}
+		setAiKeyStatus({ set: false, last4: null })
 	}
 
 	const handleLeaveClick = () => {
@@ -422,6 +469,112 @@ export function HouseholdSection() {
 								</li>
 							))}
 						</ul>
+
+						<div className="divider my-1" />
+
+						{currentUserRole === 'Leader' && (
+							<div className="mt-1">
+								<p className="label-text font-medium mb-3">AI assistant</p>
+								{aiKeyStatus === null ? (
+									<span className="loading loading-spinner loading-sm" />
+								) : aiKeyStatus.set ? (
+									<div className="flex flex-col gap-2">
+										<p className="text-sm">
+											Anthropic key set —{' '}
+											<span className="font-mono">····{aiKeyStatus.last4}</span>
+										</p>
+										{replacingKey ? (
+											<div className="flex flex-col gap-2">
+												<input
+													type="password"
+													placeholder="sk-ant-..."
+													className="input input-sm input-bordered w-full max-w-xs"
+													value={keyInput}
+													onChange={(e) => setKeyInput(e.target.value)}
+												/>
+												{keyError && (
+													<p className="text-error text-xs">{keyError}</p>
+												)}
+												<div className="flex gap-2">
+													<button
+														className="btn btn-sm btn-primary"
+														disabled={savingKey}
+														onClick={() => void handleSaveKey()}
+													>
+														{savingKey ? (
+															<span className="loading loading-spinner loading-xs" />
+														) : (
+															'Save'
+														)}
+													</button>
+													<button
+														className="btn btn-sm btn-ghost"
+														disabled={savingKey}
+														onClick={() => {
+															setReplacingKey(false)
+															setKeyInput('')
+															setKeyError(null)
+														}}
+													>
+														Cancel
+													</button>
+												</div>
+											</div>
+										) : (
+											<div className="flex gap-2">
+												<button
+													className="btn btn-sm btn-ghost"
+													onClick={() => {
+														setReplacingKey(true)
+														setKeyError(null)
+													}}
+												>
+													Replace
+												</button>
+												<button
+													className="btn btn-sm btn-ghost btn-error"
+													disabled={removingKey}
+													onClick={() => void handleRemoveKey()}
+												>
+													{removingKey ? (
+														<span className="loading loading-spinner loading-xs" />
+													) : (
+														'Remove'
+													)}
+												</button>
+											</div>
+										)}
+									</div>
+								) : (
+									<div className="flex flex-col gap-2">
+										<p className="text-sm text-base-content/60">
+											Add your Anthropic key to enable the AI assistant.
+										</p>
+										<input
+											type="password"
+											placeholder="sk-ant-..."
+											className="input input-sm input-bordered w-full max-w-xs"
+											value={keyInput}
+											onChange={(e) => setKeyInput(e.target.value)}
+										/>
+										{keyError && (
+											<p className="text-error text-xs">{keyError}</p>
+										)}
+										<button
+											className="btn btn-sm btn-primary self-start"
+											disabled={savingKey}
+											onClick={() => void handleSaveKey()}
+										>
+											{savingKey ? (
+												<span className="loading loading-spinner loading-xs" />
+											) : (
+												'Save key'
+											)}
+										</button>
+									</div>
+								)}
+							</div>
+						)}
 
 						<div className="divider my-1" />
 
