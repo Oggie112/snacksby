@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^3.0.85",
+		"@ai-sdk/react": "^3.0.210",
 		"@apollo/client": "^4.0.9",
 		"@serwist/next": "^9.5.11",
 		"@supabase/ssr": "^0.9.0",
