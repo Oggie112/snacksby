@@ -1,5 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { stepCountIs, streamText } from 'ai'
+import { convertToModelMessages, stepCountIs, streamText } from 'ai'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { decryptApiKey } from '@/lib/ai/crypto'
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 	let messages
 	try {
 		const body = await request.json()
-		messages = body.messages
+		messages = await convertToModelMessages(body.messages)
 	} catch {
 		return NextResponse.json(
 			{ error: 'Invalid request body.' },
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
 			: 'They can view recipes and the meal plan but cannot make changes.',
 		'For web recipe searches, always use proposeCreateRecipe to hand the structured recipe back to the user for confirmation before saving.',
 		'Be concise. Avoid unnecessary preamble.',
+		'Format recipes using markdown: bold the recipe name, bullet list for ingredients, numbered list for method steps. Never use pipes, raw field names, or dashes as separators.',
 	].join('\n')
 
 	const anthropic = createAnthropic({ apiKey })
@@ -98,17 +99,34 @@ export async function POST(request: NextRequest) {
 		canWrite,
 	})
 
-	const result = streamText({
-		model: anthropic('claude-sonnet-4-6'),
-		system: systemPrompt,
-		messages,
-		tools: {
-			...tools,
-			web_search: anthropic.tools.webSearch_20260209({ maxUses: 3 }),
-		},
-		stopWhen: stepCountIs(5),
-		maxOutputTokens: 2048,
-	})
-
-	return result.toUIMessageStreamResponse()
+	try {
+		const result = streamText({
+			model: anthropic('claude-sonnet-4-6'),
+			system: systemPrompt,
+			messages,
+			tools: {
+				...tools,
+				web_search: anthropic.tools.webSearch_20260209({ maxUses: 3 }),
+			},
+			stopWhen: stepCountIs(5),
+			maxOutputTokens: 2048,
+		})
+		return result.toUIMessageStreamResponse()
+	} catch (err) {
+		const message = err instanceof Error ? err.message.toLowerCase() : ''
+		if (
+			message.includes('authentication') ||
+			message.includes('invalid api key')
+		)
+			return NextResponse.json(
+				{ error: 'Invalid or expired API key.' },
+				{ status: 422 },
+			)
+		if (message.includes('rate limit'))
+			return NextResponse.json(
+				{ error: 'Rate limit reached, try again shortly.' },
+				{ status: 429 },
+			)
+		return NextResponse.json({ error: 'Provider error.' }, { status: 502 })
+	}
 }
