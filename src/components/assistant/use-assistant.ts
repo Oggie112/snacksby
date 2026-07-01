@@ -89,8 +89,8 @@ export function useAssistant() {
 						servings: recipe.servings ?? null,
 						prep_time: recipe.prep_time ?? null,
 						cook_time: recipe.cook_time ?? null,
-						ingredients: recipe.ingredients,
-						method: recipe.method,
+						ingredients: JSON.stringify(recipe.ingredients),
+						method: JSON.stringify(recipe.method),
 						tags: recipe.tags,
 					},
 				})

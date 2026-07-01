@@ -16,27 +16,38 @@ export function createAssistantTools(ctx: ToolContext) {
 	const readTools = {
 		searchRecipes: tool({
 			description:
-				'Search for recipes in the household library and public recipes. Use this when the user asks about what recipes are available or wants inspiration.',
+				'Search for recipes in the household library. Matches against both title and tags so a query like "prawn" will find recipes tagged "prawn" even if the title says "seafood pasta". Set includePublic to true only when the user explicitly asks for inspiration or new recipe ideas from outside their household.',
 			inputSchema: z.object({
 				query: z
 					.string()
 					.describe(
-						'Search term matched against recipe title. Use a blank string to list all.',
+						'Search term matched against recipe title and tags. Use a blank string to list all.',
 					),
-				tags: z
-					.array(z.string())
+				includePublic: z
+					.boolean()
 					.optional()
-					.describe('Optional tag filters, e.g. ["pasta", "quick"]'),
+					.default(false)
+					.describe(
+						'Include public recipes from other households. Only use when the user asks for inspiration or to discover new recipes.',
+					),
 			}),
-			execute: async ({ query, tags }) => {
+			execute: async ({ query, includePublic }) => {
 				let req = supabase
 					.from('recipes')
 					.select('id, title, description, servings, tags')
-					.or(`household_id.eq.${householdId},visibility.eq.public`)
 					.limit(12)
 
-				if (query) req = req.ilike('title', `%${query}%`)
-				if (tags?.length) req = req.overlaps('tags', tags)
+				if (includePublic) {
+					req = req.or(`household_id.eq.${householdId},visibility.eq.public`)
+				} else {
+					req = req.eq('household_id', householdId)
+				}
+
+				if (query) {
+					req = req.or(
+						`title.ilike.%${query}%,tags.cs.{${query.toLowerCase()}}`,
+					)
+				}
 
 				const { data, error } = await req
 
