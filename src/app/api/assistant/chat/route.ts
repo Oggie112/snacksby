@@ -1,8 +1,9 @@
 import { createAnthropic } from '@ai-sdk/anthropic'
-import { stepCountIs, streamText } from 'ai'
+import { convertToModelMessages, stepCountIs, streamText } from 'ai'
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { decryptApiKey } from '@/lib/ai/crypto'
+import { createAssistantTools } from '@/lib/ai/tools'
 import { adminClient } from '@/lib/supabase/admin'
 import { serverClient } from '@/lib/supabase/server'
 
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
 	let messages
 	try {
 		const body = await request.json()
-		messages = body.messages
+		messages = await convertToModelMessages(body.messages)
 	} catch {
 		return NextResponse.json(
 			{ error: 'Invalid request body.' },
@@ -77,28 +78,55 @@ export async function POST(request: NextRequest) {
 	}
 
 	const canWrite = role === 'Leader' || role === 'Contributor'
+
 	const systemPrompt = [
 		'You are a helpful cooking and meal-planning assistant for the Snacksby app.',
 		'Help users with recipes, meal plans, ingredients, and cooking techniques.',
 		`The user's role in their household is: ${role}.`,
 		canWrite
-			? 'They can manage recipes and the meal plan. When they ask you to add or change something, propose the action with a clear summary — do not act without their confirmation.'
+			? 'They can manage recipes and the meal plan. When they ask you to add or change something, use the propose tools — do not act without their confirmation.'
 			: 'They can view recipes and the meal plan but cannot make changes.',
+		'For web recipe searches, always use proposeCreateRecipe to hand the structured recipe back to the user for confirmation before saving.',
 		'Be concise. Avoid unnecessary preamble.',
+		'Format recipes using markdown: bold the recipe name, bullet list for ingredients, numbered list for method steps. Never use pipes, raw field names, or dashes as separators.',
 	].join('\n')
 
 	const anthropic = createAnthropic({ apiKey })
 
-	const result = streamText({
-		model: anthropic('claude-sonnet-4-6'),
-		system: systemPrompt,
-		messages,
-		tools: {
-			web_search: anthropic.tools.webSearch_20260209({ maxUses: 3 }),
-		},
-		stopWhen: stepCountIs(5),
-		maxOutputTokens: 2048,
+	const tools = createAssistantTools({
+		supabase,
+		householdId: household_id,
+		canWrite,
 	})
 
-	return result.toUIMessageStreamResponse()
+	try {
+		const result = streamText({
+			model: anthropic('claude-sonnet-4-6'),
+			system: systemPrompt,
+			messages,
+			tools: {
+				...tools,
+				web_search: anthropic.tools.webSearch_20260209({ maxUses: 3 }),
+			},
+			stopWhen: stepCountIs(5),
+			maxOutputTokens: 2048,
+		})
+		return result.toUIMessageStreamResponse()
+	} catch (err) {
+		const message = err instanceof Error ? err.message.toLowerCase() : ''
+		if (
+			message.includes('authentication') ||
+			message.includes('invalid api key')
+		)
+			return NextResponse.json(
+				{ error: 'Invalid or expired API key.' },
+				{ status: 422 },
+			)
+		if (message.includes('rate limit'))
+			return NextResponse.json(
+				{ error: 'Rate limit reached, try again shortly.' },
+				{ status: 429 },
+			)
+		return NextResponse.json({ error: 'Provider error.' }, { status: 502 })
+	}
 }

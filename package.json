@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@ai-sdk/anthropic": "^3.0.85",
+		"@ai-sdk/react": "^3.0.210",
 		"@apollo/client": "^4.0.9",
 		"@serwist/next": "^9.5.11",
 		"@supabase/ssr": "^0.9.0",
@@ -21,9 +22,10 @@
 		"apollo3-cache-persist": "^0.15.0",
 		"graphql": "^16.12.0",
 		"idb-keyval": "^6.2.2",
-		"next": "16.2.1",
+		"next": "16.2.9",
 		"react": "19.2.4",
 		"react-dom": "19.2.4",
+		"react-markdown": "^10.1.0",
 		"serwist": "^9.5.11",
 		"zod": "^4.4.3"
 	},
@@ -35,7 +37,7 @@
 		"cssnano": "^7.1.0",
 		"daisyui": "^5.0.50",
 		"eslint": "^9",
-		"eslint-config-next": "16.2.1",
+		"eslint-config-next": "16.2.9",
 		"eslint-plugin-import": "^2.32.0",
 		"eslint-plugin-jsx-a11y": "^6.10.2",
 		"eslint-plugin-prettier": "^5.5.4",

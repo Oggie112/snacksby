@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 
+import { AssistantWidget } from '@/components/assistant/assistant-widget'
 import RecipeCard from '@/components/recipe-card'
 import { useUserAndSession } from '@/components/session-provider'
 import {
@@ -90,105 +91,111 @@ export default function HomePage() {
 	const hasShoppingData = allItems.length > 0
 
 	return (
-		<div className="p-4 space-y-6 max-w-2xl mx-auto">
-			<h1 className="text-2xl font-bold">{greeting}</h1>
+		<>
+			<div className="p-4 space-y-6 max-w-2xl mx-auto">
+				<h1 className="text-2xl font-bold">{greeting}</h1>
 
-			{user && householdData && !hasHousehold && (
-				<section className="card bg-primary/10 border border-primary/20 shadow-sm">
-					<div className="card-body">
-						<h2 className="card-title text-lg">Set up your household</h2>
-						<p className="text-base-content/60 text-sm">
-							Create or join a household to share recipes and meal plans with
-							your family or housemates.
-						</p>
-						<div className="card-actions mt-2">
-							<Link href="/households/setup" className="btn btn-sm btn-primary">
-								Get started
-							</Link>
-						</div>
-					</div>
-				</section>
-			)}
-
-			{hasPlanData ? (
-				<section className="space-y-3">
-					<h2 className="text-lg font-semibold">Today &amp; Tomorrow</h2>
-					<div className="grid grid-cols-2 gap-3">
-						{(
-							[
-								{ label: 'Today', dayMeals: todayMeals },
-								{ label: 'Tomorrow', dayMeals: tomorrowMeals },
-							] as const
-						).map(({ label, dayMeals }) => (
-							<div key={label} className="card bg-base-100 shadow-md">
-								<div className="card-body p-3 gap-2">
-									<h3 className="font-semibold text-sm">{label}</h3>
-									{MEAL_TYPES.map((type) => {
-										const meal = dayMeals.find((m) => m.meal_type === type)
-										return (
-											<div key={type} className="text-xs">
-												<span className="text-base-content/50">{type}</span>
-												{meal ? (
-													<div className="mt-0.5">
-														<RecipeCard
-															id={meal.recipes.id}
-															title={meal.recipes.title}
-														/>
-													</div>
-												) : (
-													<p className="text-base-content/30 mt-0.5">—</p>
-												)}
-											</div>
-										)
-									})}
-								</div>
+				{user && householdData && !hasHousehold && (
+					<section className="card bg-primary/10 border border-primary/20 shadow-sm">
+						<div className="card-body">
+							<h2 className="card-title text-lg">Set up your household</h2>
+							<p className="text-base-content/60 text-sm">
+								Create or join a household to share recipes and meal plans with
+								your family or housemates.
+							</p>
+							<div className="card-actions mt-2">
+								<Link
+									href="/households/setup"
+									className="btn btn-sm btn-primary"
+								>
+									Get started
+								</Link>
 							</div>
-						))}
-					</div>
-					<Link href="/plan" className="btn btn-sm btn-primary">
-						See full plan
-					</Link>
-				</section>
-			) : (
-				<section className="card bg-base-100 shadow-md">
-					<div className="card-body">
-						<h2 className="card-title text-lg">This week&apos;s plan</h2>
-						<p className="text-base-content/60">No meals planned yet.</p>
-						<div className="card-actions mt-2">
-							<Link href="/plan" className="btn btn-sm btn-primary">
-								Go to planner
-							</Link>
 						</div>
-					</div>
-				</section>
-			)}
+					</section>
+				)}
 
-			{hasShoppingData ? (
-				<section className="card bg-base-100 shadow-md">
-					<div className="card-body items-center text-center">
-						<h2 className="card-title text-lg">Shopping list</h2>
-						<p className="text-5xl font-bold mt-2">{uncheckedCount}</p>
-						<p className="text-base-content/60 text-sm mb-2">
-							{uncheckedCount === 1 ? 'item' : 'items'} remaining
-						</p>
-						<Link href="/shopping-list" className="btn btn-accent">
-							View list
+				{hasPlanData ? (
+					<section className="space-y-3">
+						<h2 className="text-lg font-semibold">Today &amp; Tomorrow</h2>
+						<div className="grid grid-cols-2 gap-3">
+							{(
+								[
+									{ label: 'Today', dayMeals: todayMeals },
+									{ label: 'Tomorrow', dayMeals: tomorrowMeals },
+								] as const
+							).map(({ label, dayMeals }) => (
+								<div key={label} className="card bg-base-100 shadow-md">
+									<div className="card-body p-3 gap-2">
+										<h3 className="font-semibold text-sm">{label}</h3>
+										{MEAL_TYPES.map((type) => {
+											const meal = dayMeals.find((m) => m.meal_type === type)
+											return (
+												<div key={type} className="text-xs">
+													<span className="text-base-content/50">{type}</span>
+													{meal ? (
+														<div className="mt-0.5">
+															<RecipeCard
+																id={meal.recipes.id}
+																title={meal.recipes.title}
+															/>
+														</div>
+													) : (
+														<p className="text-base-content/30 mt-0.5">—</p>
+													)}
+												</div>
+											)
+										})}
+									</div>
+								</div>
+							))}
+						</div>
+						<Link href="/plan" className="btn btn-sm btn-primary">
+							See full plan
 						</Link>
-					</div>
-				</section>
-			) : (
-				<section className="card bg-base-100 shadow-md">
-					<div className="card-body">
-						<h2 className="card-title text-lg">Shopping list</h2>
-						<p className="text-base-content/60">Your list is empty.</p>
-						<div className="card-actions mt-2">
-							<Link href="/shopping-list" className="btn btn-sm btn-accent">
+					</section>
+				) : (
+					<section className="card bg-base-100 shadow-md">
+						<div className="card-body">
+							<h2 className="card-title text-lg">This week&apos;s plan</h2>
+							<p className="text-base-content/60">No meals planned yet.</p>
+							<div className="card-actions mt-2">
+								<Link href="/plan" className="btn btn-sm btn-primary">
+									Go to planner
+								</Link>
+							</div>
+						</div>
+					</section>
+				)}
+
+				{hasShoppingData ? (
+					<section className="card bg-base-100 shadow-md">
+						<div className="card-body items-center text-center">
+							<h2 className="card-title text-lg">Shopping list</h2>
+							<p className="text-5xl font-bold mt-2">{uncheckedCount}</p>
+							<p className="text-base-content/60 text-sm mb-2">
+								{uncheckedCount === 1 ? 'item' : 'items'} remaining
+							</p>
+							<Link href="/shopping-list" className="btn btn-accent">
 								View list
 							</Link>
 						</div>
-					</div>
-				</section>
-			)}
-		</div>
+					</section>
+				) : (
+					<section className="card bg-base-100 shadow-md">
+						<div className="card-body">
+							<h2 className="card-title text-lg">Shopping list</h2>
+							<p className="text-base-content/60">Your list is empty.</p>
+							<div className="card-actions mt-2">
+								<Link href="/shopping-list" className="btn btn-sm btn-accent">
+									View list
+								</Link>
+							</div>
+						</div>
+					</section>
+				)}
+			</div>
+			<AssistantWidget />
+		</>
 	)
 }
