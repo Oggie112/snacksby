@@ -103,4 +103,17 @@ export default tseslint.config(
 			'prettier/prettier': 'error',
 		},
 	},
+
+	// Test files — relax rules that conflict with Vitest patterns
+	{
+		name: 'test-overrides',
+		files: ['src/**/*.test.{ts,tsx}'],
+		rules: {
+			// Mocks require partial types — `any` is unavoidable
+			'@typescript-eslint/no-explicit-any': 'off',
+			// vi.mock() must use `vi` before other imports are resolved,
+			// which breaks alphabetical ordering enforced by import/order
+			'import/order': 'off',
+		},
+	},
 )
