@@ -273,6 +273,10 @@ Features deliberately deferred from the MVP, in priority order:
 - **Settings review** — audit settings page for missing or outdated options; adjust as needed (e.g. notification preferences, theme)
 - **Style health check** — audit the UI for visual inconsistencies; check spacing, typography, and component alignment across all pages
 - **Build, deployment & testing pipeline** — CI/CD setup (e.g. GitHub Actions); automated build validation; consider adding Jest/Vitest unit tests and Cypress E2E for critical paths
+- **Server Action auth hardening** — Server Actions are POST endpoints that bypass the middleware matcher, so each protected action must independently verify the caller. Two gaps found:
+  - `getAiKeyStatus` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) reads `household_ai_keys` via `adminClient()` (service-role, RLS bypassed) with no `getUser()` or membership check — an unauthenticated caller can POST any `householdId` and learn whether a key is set plus its `key_last4`. Mirror `saveAiKey`: `getUser()` → confirm membership → query as the user rather than via `admin`.
+  - `resetInviteCode` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) calls the `reset_invite_code` RPC with a `householdId` and performs no user/role check in the action. Safe only if the Postgres function is `SECURITY DEFINER` and checks `auth.uid()` membership + Leader role internally — verify that, and add a defence-in-depth `getUser()` + role guard in the action regardless.
+- **Shopping-list Suspense boundary** — [src/app/shopping-list/page.tsx](../../src/app/shopping-list/page.tsx) wraps its content in `<Suspense>`, but nothing inside calls `useSearchParams()` (unlike plan/recipes/join). Likely copy-pasted and now dead; confirm and remove.
 
 ### Completed Post-MVP
 
