@@ -2,10 +2,14 @@
 
 import { createContext, useContext, ReactNode } from 'react'
 
-import type { User } from '@supabase/supabase-js'
+/** Minimal identity surface derived from the verified JWT claims. */
+export interface AuthUser {
+	id: string
+	email: string | null
+}
 
 interface SessionContextType {
-	user: User | null
+	user: AuthUser | null
 	isAuthenticated?: boolean
 }
 
@@ -23,7 +27,7 @@ export const useUserAndSession = () => {
 
 interface Props {
 	children: ReactNode
-	user: User | null
+	user: AuthUser | null
 }
 
 export const SessionProvider = ({ children, user }: Props) => {
