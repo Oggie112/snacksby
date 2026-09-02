@@ -273,9 +273,7 @@ Features deliberately deferred from the MVP, in priority order:
 - **Settings review** — audit settings page for missing or outdated options; adjust as needed (e.g. notification preferences, theme)
 - **Style health check** — audit the UI for visual inconsistencies; check spacing, typography, and component alignment across all pages
 - **Build, deployment & testing pipeline** — CI/CD setup (e.g. GitHub Actions); automated build validation; consider adding Jest/Vitest unit tests and Cypress E2E for critical paths
-- **Server Action auth hardening** — Server Actions are POST endpoints that bypass the middleware matcher, so each protected action must independently verify the caller. Two gaps found:
-  - `getAiKeyStatus` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) reads `household_ai_keys` via `adminClient()` (service-role, RLS bypassed) with no `getUser()` or membership check — an unauthenticated caller can POST any `householdId` and learn whether a key is set plus its `key_last4`. Mirror `saveAiKey`: `getUser()` → confirm membership → query as the user rather than via `admin`.
-  - `resetInviteCode` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) calls the `reset_invite_code` RPC with a `householdId` and performs no user/role check in the action. Safe only if the Postgres function is `SECURITY DEFINER` and checks `auth.uid()` membership + Leader role internally — verify that, and add a defence-in-depth `getUser()` + role guard in the action regardless.
+- **Verify `reset_invite_code` RPC internals** — the `resetInviteCode` action now checks Leader membership before calling the RPC, but the Postgres function itself should also be `SECURITY DEFINER` with an internal `auth.uid()` membership + Leader check (defence in depth for any other caller). Confirm via `select prosrc from pg_proc where proname = 'reset_invite_code';`.
 - **Shopping-list Suspense boundary** — [src/app/shopping-list/page.tsx](../../src/app/shopping-list/page.tsx) wraps its content in `<Suspense>`, but nothing inside calls `useSearchParams()` (unlike plan/recipes/join). Likely copy-pasted and now dead; confirm and remove.
 - **Root layout auth efficiency** — [src/app/layout.tsx](../../src/app/layout.tsx) awaits `getUserAndSession()` on every hard load, which forces dynamic rendering (fine — every route is authed) but adds a redundant network round-trip to Supabase Auth. Two changes:
   - **A — drop `getSession()`** _(done — see `refactor(auth): drop unused server session`)_. Nothing consumed the returned `session` object; every `useUserAndSession()` call site reads `{ user }` only, and `isAuthenticated` reduces to `!!user`. The browser Apollo client gets its own token via `supabaseClient().getSession()` ([src/lib/apollo.ts](../../src/lib/apollo.ts)), independent of this context.
@@ -288,9 +286,10 @@ Features deliberately deferred from the MVP, in priority order:
 - [x] **Meal plan: all meal types** — weekly planner expanded from Dinner-only to Breakfast, Lunch, Dinner, and Snack; mobile plan page uses horizontal CSS snap scroll with 90vw columns and IntersectionObserver-driven dimming for non-focused days.
 - [x] **Household name change** — Leaders can rename the household inline from the settings page; pencil icon next to the name, pre-filled input, save/cancel, `UPDATE_HOUSEHOLD_NAME` GraphQL mutation (RLS already permitted Leader updates).
 - [x] **Auto-delete stale meal plans** — Supabase cron job deletes meal plan entries older than 60 days; prevents unbounded table growth.
+- [x] **Server Action auth guards** — `getAiKeyStatus` and `resetInviteCode` are public POST endpoints that bypassed the middleware matcher with no caller check. `getAiKeyStatus` now requires an authenticated household member (service-role read kept — RLS only permits Leaders, but Contributors need the status); `resetInviteCode` now requires Leader membership. RPC-side check tracked separately above.
 
 ---
 
-_Last updated: 2026-09-02_ <!-- root layout auth efficiency: Phase A + B code shipped; B awaiting ECC key rotation -->
+_Last updated: 2026-09-02_ <!-- server action auth guards shipped; root layout auth Phase B awaiting ECC key rotation -->
 
 
