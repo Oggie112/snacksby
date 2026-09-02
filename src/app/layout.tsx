@@ -20,12 +20,12 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode
 }) {
-	const { user, session } = await getUserAndSession() // fetch session server-side
+	const { user } = await getUserAndSession() // fetch auth user server-side
 
 	return (
 		<html lang="en" data-theme="mytheme-light">
 			<body className="bg-neutral text-neutral-content min-h-screen">
-				<SessionProvider user={user} session={session}>
+				<SessionProvider user={user}>
 					<ApolloClientProvider>
 						<Nav />
 						<OfflineBanner />
