@@ -7,10 +7,7 @@ export async function getUserAndSession() {
 		data: { user },
 		error,
 	} = await supabase.auth.getUser()
-	if (error || !user) return { user: null, session: null }
+	if (error || !user) return { user: null }
 
-	const {
-		data: { session },
-	} = await supabase.auth.getSession()
-	return { user, session }
+	return { user }
 }
