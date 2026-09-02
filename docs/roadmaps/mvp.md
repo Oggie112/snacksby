@@ -277,6 +277,9 @@ Features deliberately deferred from the MVP, in priority order:
   - `getAiKeyStatus` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) reads `household_ai_keys` via `adminClient()` (service-role, RLS bypassed) with no `getUser()` or membership check — an unauthenticated caller can POST any `householdId` and learn whether a key is set plus its `key_last4`. Mirror `saveAiKey`: `getUser()` → confirm membership → query as the user rather than via `admin`.
   - `resetInviteCode` ([src/app/settings/household/actions.ts](../../src/app/settings/household/actions.ts)) calls the `reset_invite_code` RPC with a `householdId` and performs no user/role check in the action. Safe only if the Postgres function is `SECURITY DEFINER` and checks `auth.uid()` membership + Leader role internally — verify that, and add a defence-in-depth `getUser()` + role guard in the action regardless.
 - **Shopping-list Suspense boundary** — [src/app/shopping-list/page.tsx](../../src/app/shopping-list/page.tsx) wraps its content in `<Suspense>`, but nothing inside calls `useSearchParams()` (unlike plan/recipes/join). Likely copy-pasted and now dead; confirm and remove.
+- **Root layout auth efficiency** — [src/app/layout.tsx](../../src/app/layout.tsx) awaits `getUserAndSession()` on every hard load, which forces dynamic rendering (fine — every route is authed) but adds a redundant network round-trip to Supabase Auth. Two changes:
+  - **A — drop `getSession()`** _(done — see `refactor(auth): drop unused server session`)_. Nothing consumed the returned `session` object; every `useUserAndSession()` call site reads `{ user }` only, and `isAuthenticated` reduces to `!!user`. The browser Apollo client gets its own token via `supabaseClient().getSession()` ([src/lib/apollo.ts](../../src/lib/apollo.ts)), independent of this context.
+  - **B — stop re-validating in the layout.** [middleware.ts](../../src/middleware.ts) already does an authoritative network `getUser()` on every protected request; the layout repeats it on the same request. Swap `getUser()` for `supabase.auth.getClaims()` (local JWKS verification, no network call after the cached key fetch) and keep middleware as the single authoritative check. Needs the ECC signing key rotated to current (standby exists; still HS256 until then, where `getClaims()` falls back to `getUser()`). **Correctness note:** middleware skips public paths (`/`, `/auth/*`, `/join`), so with local-only decoding a stale cookie on a public page briefly shows as logged-in until the client's `onAuthStateChange` corrects it — cosmetic, self-healing.
 
 ### Completed Post-MVP
 
@@ -288,6 +291,6 @@ Features deliberately deferred from the MVP, in priority order:
 
 ---
 
-_Last updated: 2026-05-28_ <!-- structured schema, all meal types, household rename, stale plan cleanup shipped -->
+_Last updated: 2026-09-02_ <!-- logged auth hardening, suspense cleanup, and root layout auth efficiency (Phase A shipped) as post-MVP -->
 
 
