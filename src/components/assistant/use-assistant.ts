@@ -5,7 +5,7 @@ import { useMutation } from '@apollo/client/react'
 import { DefaultChatTransport } from 'ai'
 
 import { getAiKeyStatus } from '@/app/settings/household/actions'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import type { AssistantProposal } from '@/lib/ai/tools'
 import {
@@ -17,7 +17,7 @@ import {
 import { CREATE_RECIPE, type CreateRecipeResult } from '@/lib/graphql/recipes'
 
 export function useAssistant() {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const { role, householdId, loading: roleLoading } = useHouseholdRole()
 
 	const [open, setOpen] = useState(false)

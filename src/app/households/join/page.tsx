@@ -6,7 +6,7 @@ import { useLazyQuery, useMutation } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	ADD_HOUSEHOLD_MEMBER,
 	GET_HOUSEHOLD_BY_CODE,
@@ -19,7 +19,7 @@ import {
 function JoinForm() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const [code, setCode] = useState(searchParams.get('code') ?? '')
 	const [error, setError] = useState<string | null>(null)
 

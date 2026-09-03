@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
@@ -61,7 +61,7 @@ function addDays(date: Date, n: number): Date {
 }
 
 export default function ShoppingListPage() {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const [newItem, setNewItem] = useState('')
 	const [newAmount, setNewAmount] = useState('')
 	const [newUnit, setNewUnit] = useState<Unit | null>(null)

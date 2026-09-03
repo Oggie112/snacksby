@@ -12,7 +12,7 @@ import {
 	saveAiKey,
 } from './actions'
 import Modal from '@/components/modal'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_HOUSEHOLD_SETTINGS,
 	GET_MY_HOUSEHOLD,
@@ -35,7 +35,7 @@ const ROLE_BADGE: Record<string, string> = {
 const LEAVE_KEY = '__leave__'
 
 export function HouseholdSection() {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const router = useRouter()
 	const [copied, setCopied] = useState(false)
 	const [shared, setShared] = useState(false)

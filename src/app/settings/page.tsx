@@ -1,10 +1,10 @@
 import { AccountSection } from './account/account-section'
 import { HouseholdSection } from './household/household-section'
 import { logout } from '@/app/auth/logout/actions'
-import { getUserAndSession } from '@/lib/supabase/session'
+import { getAuthUser } from '@/lib/supabase/session'
 
 export default async function SettingsPage() {
-	const { user } = await getUserAndSession()
+	const user = await getAuthUser()
 
 	return (
 		<div className="p-4 space-y-8 max-w-2xl mx-auto">

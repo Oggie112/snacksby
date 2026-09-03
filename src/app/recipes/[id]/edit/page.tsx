@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 import Modal from '@/components/modal'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	DELETE_RECIPE,
@@ -39,7 +39,7 @@ export default function EditRecipePage({
 }) {
 	const { id } = use(params)
 	const router = useRouter()
-	const { user, isAuthenticated } = useUserAndSession()
+	const { user, isAuthenticated } = useAuthUser()
 	const { role, loading: roleLoading } = useHouseholdRole()
 
 	const {
