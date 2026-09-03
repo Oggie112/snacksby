@@ -10,16 +10,14 @@ import type { AuthUser } from '@/components/session-provider'
  * transparently falls back to a `getUser()` call. The middleware remains the
  * authoritative network check on every protected request.
  */
-export async function getUserAndSession(): Promise<{ user: AuthUser | null }> {
+export async function getAuthUser(): Promise<AuthUser | null> {
 	const supabase = await serverClient()
 
 	const { data, error } = await supabase.auth.getClaims()
-	if (error || !data?.claims) return { user: null }
+	if (error || !data?.claims) return null
 
 	return {
-		user: {
-			id: data.claims.sub,
-			email: data.claims.email ?? null,
-		},
+		id: data.claims.sub,
+		email: data.claims.email ?? null,
 	}
 }

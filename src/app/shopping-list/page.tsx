@@ -1,10 +1,10 @@
 'use client'
 
-import { Suspense, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
@@ -60,8 +60,8 @@ function addDays(date: Date, n: number): Date {
 	return d
 }
 
-function ShoppingListContent() {
-	const { user } = useUserAndSession()
+export default function ShoppingListPage() {
+	const { user } = useAuthUser()
 	const [newItem, setNewItem] = useState('')
 	const [newAmount, setNewAmount] = useState('')
 	const [newUnit, setNewUnit] = useState<Unit | null>(null)
@@ -459,19 +459,5 @@ function ShoppingListContent() {
 				</button>
 			</form>
 		</div>
-	)
-}
-
-export default function ShoppingListPage() {
-	return (
-		<Suspense
-			fallback={
-				<div className="p-4">
-					<span className="loading loading-spinner loading-md" />
-				</div>
-			}
-		>
-			<ShoppingListContent />
-		</Suspense>
 	)
 }

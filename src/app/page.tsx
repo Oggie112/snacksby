@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 import { AssistantWidget } from '@/components/assistant/assistant-widget'
 import RecipeCard from '@/components/recipe-card'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
@@ -33,7 +33,7 @@ function toISO(date: Date): string {
 const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Snack']
 
 export default function HomePage() {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 
 	const [todayISO, setTodayISO] = useState('')
 	const [tomorrowISO, setTomorrowISO] = useState('')

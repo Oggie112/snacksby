@@ -6,7 +6,7 @@ import { useMutation } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	CREATE_HOUSEHOLD,
 	GET_MY_HOUSEHOLD,
@@ -16,7 +16,7 @@ import {
 
 export default function NewHouseholdPage() {
 	const router = useRouter()
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const [name, setName] = useState('')
 	const [createHousehold, { loading, error }] =
 		useMutation<CreateHouseholdResult>(CREATE_HOUSEHOLD)

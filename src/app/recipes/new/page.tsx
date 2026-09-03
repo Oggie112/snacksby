@@ -6,7 +6,7 @@ import { useMutation, useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_MY_HOUSEHOLD,
 	type MyHouseholdData,
@@ -30,7 +30,7 @@ interface MethodRow {
 
 export default function NewRecipePage() {
 	const router = useRouter()
-	const { user, isAuthenticated } = useUserAndSession()
+	const { user, isAuthenticated } = useAuthUser()
 
 	const { data: householdData } = useQuery<MyHouseholdData>(GET_MY_HOUSEHOLD, {
 		variables: { user_id: user?.id },

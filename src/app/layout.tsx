@@ -5,7 +5,7 @@ import { ApolloClientProvider } from '@/components/apollo-provider'
 import { Nav } from '@/components/nav'
 import { OfflineBanner } from '@/components/offline-banner'
 import { SessionProvider } from '@/components/session-provider'
-import { getUserAndSession } from '@/lib/supabase/session'
+import { getAuthUser } from '@/lib/supabase/session'
 
 export const metadata: Metadata = {
 	title: {
@@ -20,7 +20,7 @@ export default async function RootLayout({
 }: {
 	children: React.ReactNode
 }) {
-	const { user } = await getUserAndSession() // fetch auth user server-side
+	const user = await getAuthUser() // resolve auth user server-side
 
 	return (
 		<html lang="en" data-theme="mytheme-light">

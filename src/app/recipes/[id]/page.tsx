@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	GET_RECIPE,
@@ -23,7 +23,7 @@ export default function RecipePage({
 	const { id } = use(params)
 	const router = useRouter()
 
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const {
 		householdId,
 		loading: roleLoading,
