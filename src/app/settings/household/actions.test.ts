@@ -85,18 +85,42 @@ beforeEach(() => {
 })
 
 describe('getAiKeyStatus', () => {
+	it('returns set: false when the caller is not authenticated', async () => {
+		makeServerClient({ user: null })
+		makeAdminClient({ key_last4: '1234' })
+		expect(await getAiKeyStatus('hh-1')).toEqual({ set: false, last4: null })
+	})
+
+	it('returns set: false when the caller is not a household member', async () => {
+		makeServerClient({ membershipData: null })
+		makeAdminClient({ key_last4: '1234' })
+		expect(await getAiKeyStatus('hh-1')).toEqual({ set: false, last4: null })
+	})
+
 	it('returns set: false when no key row exists', async () => {
+		makeServerClient()
 		makeAdminClient(null)
 		expect(await getAiKeyStatus('hh-1')).toEqual({ set: false, last4: null })
 	})
 
-	it('returns set: true with last4 when a key row exists', async () => {
+	it('returns set: true with last4 for a member when a key row exists', async () => {
+		makeServerClient({ membershipData: { role: 'Contributor' } })
 		makeAdminClient({ key_last4: '1234' })
 		expect(await getAiKeyStatus('hh-1')).toEqual({ set: true, last4: '1234' })
 	})
 })
 
 describe('resetInviteCode', () => {
+	it('throws when the caller is not authenticated', async () => {
+		makeServerClient({ user: null })
+		await expect(resetInviteCode('hh-1')).rejects.toThrow('Not authenticated.')
+	})
+
+	it('throws when the caller is not a Leader', async () => {
+		makeServerClient({ membershipData: { role: 'Contributor' } })
+		await expect(resetInviteCode('hh-1')).rejects.toThrow('Only Leaders')
+	})
+
 	it('throws when the RPC returns an error', async () => {
 		makeServerClient({ rpcError: { message: 'RPC failed' } })
 		await expect(resetInviteCode('hh-1')).rejects.toThrow('RPC failed')

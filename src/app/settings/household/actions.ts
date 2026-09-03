@@ -10,6 +10,21 @@ import { serverClient } from '@/lib/supabase/server'
 
 export async function resetInviteCode(householdId: string): Promise<void> {
 	const supabase = await serverClient()
+
+	const {
+		data: { user },
+	} = await supabase.auth.getUser()
+	if (!user) throw new Error('Not authenticated.')
+
+	const { data: membership } = await supabase
+		.from('household_members')
+		.select('role')
+		.eq('household_id', householdId)
+		.eq('user_id', user.id)
+		.single()
+	if (membership?.role !== 'Leader')
+		throw new Error('Only Leaders can reset the invite code.')
+
 	const { error } = await supabase.rpc('reset_invite_code', {
 		p_household_id: householdId,
 	})
@@ -20,8 +35,26 @@ export async function resetInviteCode(householdId: string): Promise<void> {
 export async function getAiKeyStatus(
 	householdId: string,
 ): Promise<{ set: boolean; last4: string | null }> {
-	const admin = adminClient()
-	const { data } = await admin
+	const empty = { set: false, last4: null }
+
+	// Server Action = public POST endpoint. The read below uses the service-role
+	// client (RLS on household_ai_keys only permits Leaders), so the caller's
+	// household membership must be verified here first.
+	const supabase = await serverClient()
+	const {
+		data: { user },
+	} = await supabase.auth.getUser()
+	if (!user) return empty
+
+	const { data: membership } = await supabase
+		.from('household_members')
+		.select('household_id')
+		.eq('household_id', householdId)
+		.eq('user_id', user.id)
+		.single()
+	if (!membership) return empty
+
+	const { data } = await adminClient()
 		.from('household_ai_keys')
 		.select('key_last4')
 		.eq('household_id', householdId)
