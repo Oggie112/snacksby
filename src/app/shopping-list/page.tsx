@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useMutation, useQuery } from '@apollo/client/react'
 
@@ -60,7 +60,7 @@ function addDays(date: Date, n: number): Date {
 	return d
 }
 
-function ShoppingListContent() {
+export default function ShoppingListPage() {
 	const { user } = useUserAndSession()
 	const [newItem, setNewItem] = useState('')
 	const [newAmount, setNewAmount] = useState('')
@@ -459,19 +459,5 @@ function ShoppingListContent() {
 				</button>
 			</form>
 		</div>
-	)
-}
-
-export default function ShoppingListPage() {
-	return (
-		<Suspense
-			fallback={
-				<div className="p-4">
-					<span className="loading loading-spinner loading-md" />
-				</div>
-			}
-		>
-			<ShoppingListContent />
-		</Suspense>
 	)
 }
