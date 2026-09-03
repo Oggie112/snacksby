@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 
 const links = [
 	{
@@ -91,7 +91,7 @@ const links = [
 
 export function Nav() {
 	const pathname = usePathname()
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 
 	const initial = user?.email?.[0].toUpperCase() ?? '?'
 

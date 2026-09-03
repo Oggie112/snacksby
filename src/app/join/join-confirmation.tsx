@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client/react'
 import { useRouter } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	ADD_HOUSEHOLD_MEMBER,
 	GET_MY_HOUSEHOLD,
@@ -18,7 +18,7 @@ interface Props {
 
 export function JoinConfirmation({ household }: Props) {
 	const router = useRouter()
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const [error, setError] = useState<string | null>(null)
 
 	const [addMember, { loading }] = useMutation(ADD_HOUSEHOLD_MEMBER)

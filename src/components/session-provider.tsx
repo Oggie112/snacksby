@@ -17,10 +17,10 @@ const SessionContext = createContext<SessionContextType>({
 	user: null,
 })
 
-export const useUserAndSession = () => {
+export const useAuthUser = () => {
 	const ctx = useContext(SessionContext)
 	if (!ctx) {
-		throw new Error('useUserAndSession must be used within a SessionProvider')
+		throw new Error('useAuthUser must be used within a SessionProvider')
 	}
 	return ctx
 }

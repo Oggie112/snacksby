@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useQuery } from '@apollo/client/react'
 
 import Modal from '@/components/modal'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import {
 	GET_MY_RECIPES,
 	GET_PUBLIC_RECIPES,
@@ -24,7 +24,7 @@ export default function RecipePickerModal({
 	onSelect,
 	onClose,
 }: RecipePickerModalProps) {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const [search, setSearch] = useState('')
 	const [activeTab, setActiveTab] = useState<'my-recipes' | 'explore'>(
 		'my-recipes',

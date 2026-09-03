@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client/react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	GET_MY_HOUSEHOLD,
@@ -19,7 +19,7 @@ import {
 } from '@/lib/graphql/recipes'
 
 function RecipesContent() {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const { canEditRecipes } = useHouseholdRole()
 	const router = useRouter()
 	const searchParams = useSearchParams()

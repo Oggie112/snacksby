@@ -6,7 +6,7 @@ import { useQuery } from '@apollo/client/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import DayColumn from '@/components/plan/day-column'
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { useHouseholdRole } from '@/hooks/use-household-role'
 import {
 	GET_MY_HOUSEHOLD,
@@ -59,7 +59,7 @@ function addDays(date: Date, n: number): Date {
 function PlanContent() {
 	const router = useRouter()
 	const searchParams = useSearchParams()
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 	const { loading: roleLoading, canEditRecipes: canEdit } = useHouseholdRole()
 
 	const weekParam = searchParams.get('week')

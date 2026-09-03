@@ -2,7 +2,7 @@
 
 import { useQuery } from '@apollo/client/react'
 
-import { useUserAndSession } from '@/components/session-provider'
+import { useAuthUser } from '@/components/session-provider'
 import { GET_MY_ROLE, type MyRoleData } from '@/lib/graphql/households'
 
 export type HouseholdRole = 'Leader' | 'Contributor' | 'Member' | null
@@ -13,7 +13,7 @@ export function useHouseholdRole(): {
 	loading: boolean
 	canEditRecipes: boolean
 } {
-	const { user } = useUserAndSession()
+	const { user } = useAuthUser()
 
 	const { data, loading } = useQuery<MyRoleData>(GET_MY_ROLE, {
 		variables: { user_id: user?.id },
