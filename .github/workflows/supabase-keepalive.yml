@@ -1,5 +1,11 @@
 name: Supabase Keepalive
 
+# Free-tier Supabase projects pause after 7 days with no API requests.
+# An internal pg_cron job does not count — the pause logic watches the API
+# gateway — so this makes an external request every few days to keep the
+# project awake. It doubles as a lightweight uptime check: a 4xx/5xx (or an
+# unreachable host) fails the job.
+
 on:
   schedule:
     - cron: '0 7 */3 * *' # 07:00 UTC, every 3rd day — well inside the 7-day window
@@ -16,10 +22,15 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
+          base="${SUPABASE_URL%/}"
+          # apikey only: publishable keys (sb_publishable_...) are opaque, not
+          # JWTs, so an `Authorization: Bearer` header makes PostgREST 401.
           code=$(curl --silent --show-error --location \
-            --output /dev/null --write-out '%{http_code}' \
+            --output response.txt --write-out '%{http_code}' \
             --header "apikey: ${SUPABASE_ANON_KEY}" \
-            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
-            "${SUPABASE_URL}/rest/v1/recipes?select=id&limit=1")
+            "${base}/rest/v1/recipes?select=id&limit=1")
           echo "PostgREST responded ${code}"
-          test "$code" -ge 200 && test "$code" -lt 400
+          if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then
+            echo "Body: $(cat response.txt)"
+            exit 1
+          fi
